@@ -1,4 +1,4 @@
-import { Collection } from '../../../node_modules/mongodb/mongodb';
+import { Collection } from 'mongodb';
 import connectDb from '../../db/connection.js';
 
 let usersCollection: Collection;

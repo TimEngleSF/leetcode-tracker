@@ -1,8 +1,8 @@
 import 'dotenv/config.js';
 // @ts-ignore
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 
-let db: object;
+let db: Db;
 
 // const USERNAME = encodeURIComponent(process.env.DB_USER);
 // const PASSWORD = encodeURIComponent(process.env.DB_PASS);
