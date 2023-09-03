@@ -10,20 +10,21 @@ const getCollection = async () => {
   const db = await connectDb();
   return (usersCollection = db.collection('users'));
 };
-
 getCollection();
 
 const userExists = async (target: string) => {
   return await usersCollection.findOne({ username: target });
 };
 
-const registerUser = async (body: {
+interface RegisterRequestBody {
   username: string;
   firstName: string;
   lastInit: string;
-  yob: string;
+  yob: number;
   password: string;
-}) => {
+}
+
+const registerUser = async (body: RegisterRequestBody) => {
   const { username, firstName, lastInit, yob, password } = body;
   console.log(await userExists(username));
   if (await userExists(username)) {
