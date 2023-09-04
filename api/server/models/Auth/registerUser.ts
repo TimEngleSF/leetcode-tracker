@@ -26,7 +26,7 @@ interface RegisterRequestBody {
 
 export const registerUser = async (body: RegisterRequestBody) => {
   const { username, firstName, lastInit, yob, password } = body;
-  console.log(await userExists(username));
+
   if (await userExists(username)) {
     return {
       code: 400,
@@ -36,12 +36,13 @@ export const registerUser = async (body: RegisterRequestBody) => {
 
   try {
     const insertResult = await usersCollection.insertOne({
-      username,
+      username: username.toLowerCase(),
       firstName,
       lastInit,
       yob,
       password,
       questions: [],
+      lastActivity: Date.now(),
     });
 
     const userID = new ObjectId(insertResult.insertedId);

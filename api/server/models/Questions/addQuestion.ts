@@ -18,26 +18,26 @@ getCollection();
 
 interface QuestionRequestBody {
   userID: string;
+  username: string;
   questNum: number;
   diff: number;
   passed: boolean;
   speed: number;
-  memory: number;
 }
 
 export const addQuestion = async (body: QuestionRequestBody) => {
-  const { userID, questNum, diff, passed, speed, memory } = body;
+  const { userID, username, questNum, diff, passed, speed } = body;
   const userObjID = new ObjectId(userID);
 
   try {
     await addQuestIDtoUser(questNum, userObjID);
     const result = await questCollection.insertOne({
       userID: userObjID,
+      username,
       questNum,
       diff,
       passed,
       speed,
-      memory,
       created: Date.now(),
     });
 

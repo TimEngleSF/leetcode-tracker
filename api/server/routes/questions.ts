@@ -2,7 +2,7 @@ import express from 'express';
 import Controllers from '../controllers/index.js';
 const questionsRouter = express.Router();
 
-questionsRouter.get('/', Controllers.Questions.getAllQuestionsDataForUser);
+questionsRouter.get('/', Controllers.Questions.getAllQuestionsByUser);
 questionsRouter.get('/:id', Controllers.Questions.getQuestionDataForUser);
 questionsRouter.get('/review', Controllers.Questions.getReviewQuestions);
 

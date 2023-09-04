@@ -1,5 +1,5 @@
-import Auth from './auth.js';
-import Questions from './Questions/index.js';
+import { Auth } from './Auth/index.js';
+import { Questions } from './Questions/index.js';
 
 const Controllers = { Auth, Questions };
 
