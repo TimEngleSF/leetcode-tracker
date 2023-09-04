@@ -1,4 +1,4 @@
-import { Collection } from 'mongodb';
+import { Collection, ObjectId } from 'mongodb';
 import connectDb from '../../db/connection.js';
 
 let usersCollection: Collection;
@@ -35,7 +35,7 @@ export const registerUser = async (body: RegisterRequestBody) => {
   }
 
   try {
-    const result = await usersCollection.insertOne({
+    const insertResult = await usersCollection.insertOne({
       username,
       firstName,
       lastInit,
@@ -43,7 +43,11 @@ export const registerUser = async (body: RegisterRequestBody) => {
       password,
       questions: [],
     });
-    return { code: 201, data: result };
+
+    const userID = new ObjectId(insertResult.insertedId);
+    const newDocument = await usersCollection.findOne({ _id: userID });
+
+    return { code: 201, data: newDocument };
   } catch (error) {
     return { code: 400, data: { message: 'There was an error' } };
   }
