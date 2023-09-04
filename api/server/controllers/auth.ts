@@ -1,7 +1,6 @@
 import { Request, Response } from 'express-serve-static-core';
 import { registerSchema } from '../db/schemas/auth.js';
-import registerUser from '../models/Auth/registerUser.js';
-
+import AuthModel from '../models/Auth/index.js';
 const Auth = {
   login: async (req: Request, res: Response) => {
     console.log(req.body);
@@ -19,7 +18,7 @@ const Auth = {
     }
 
     try {
-      const { code, data } = await registerUser(body);
+      const { code, data } = await AuthModel.registerUser(body);
       res.status(code).send(data);
     } catch (error) {}
   },

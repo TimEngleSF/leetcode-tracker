@@ -8,7 +8,7 @@ const getCollection = async () => {
     return usersCollection;
   }
   const db = await connectDb();
-  return (usersCollection = db.collection('users'));
+  usersCollection = db.collection('users');
 };
 getCollection();
 
@@ -24,7 +24,7 @@ interface RegisterRequestBody {
   password: string;
 }
 
-const registerUser = async (body: RegisterRequestBody) => {
+export const registerUser = async (body: RegisterRequestBody) => {
   const { username, firstName, lastInit, yob, password } = body;
   console.log(await userExists(username));
   if (await userExists(username)) {
@@ -41,11 +41,10 @@ const registerUser = async (body: RegisterRequestBody) => {
       lastInit,
       yob,
       password,
+      questions: [],
     });
     return { code: 201, data: result };
   } catch (error) {
     return { code: 400, data: { message: 'There was an error' } };
   }
 };
-
-export default registerUser;

@@ -1,5 +1,4 @@
 import 'dotenv/config.js';
-// @ts-ignore
 import { MongoClient, Db } from 'mongodb';
 
 let db: Db;
