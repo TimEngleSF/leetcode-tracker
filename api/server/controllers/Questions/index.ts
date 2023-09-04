@@ -1,11 +1,11 @@
 import getQuestionDataForUser from './getQuestionDataForUser.js';
-import getAllQuestionsDataForUser from './getAllQuestionsDataForUser.js';
+import getAllQuestionsByUser from './getAllQuestionsByUser.js';
 import getReviewQuestions from './getReviewQuestions.js';
 import addQuestionData from './addQuestionData.js';
 
 const Questions = {
   getQuestionDataForUser,
-  getAllQuestionsDataForUser,
+  getAllQuestionsByUser,
   getReviewQuestions,
   addQuestionData,
 };

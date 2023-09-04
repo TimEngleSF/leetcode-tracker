@@ -1,4 +1,4 @@
-import { Request, Response } from 'express-serve-static-core';
+import { Request, Response } from 'express';
 
 const getQuestionDataForUser = async (req: Request, res: Response) => {
   const { id } = req.params;
