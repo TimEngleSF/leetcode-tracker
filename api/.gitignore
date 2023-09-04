@@ -130,5 +130,6 @@ dist
 .pnp.*
 
 # compiled js
+*.js
 ./server/*.js
 ./server/*/*.js
