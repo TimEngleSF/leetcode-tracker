@@ -5,7 +5,7 @@ let questCollection: Collection;
 
 const getCollection = async () => {
   if (questCollection) {
-    return questCollection;
+    return;
   }
 
   const db = await connectDb();
@@ -14,7 +14,7 @@ const getCollection = async () => {
 
 getCollection();
 
-export const getAllQuestionsByUser = async (userID: string) => {
+export const getUserQuestionsAll = async (userID: string) => {
   try {
     const userObjID = new ObjectId(userID);
     const questions = await questCollection

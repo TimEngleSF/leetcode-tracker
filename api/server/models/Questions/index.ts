@@ -1,9 +1,11 @@
 import { addQuestion } from './addQuestion.js';
-import { getAllQuestionsByUser } from './getAllQuestionsByUser.js';
+import { getUserQuestionsAll } from './getUserQuestionsAll.js';
+import { getUserQuestionsByNum } from './getUserQuestionsByNum.js';
 
 const QuestModel = {
   addQuestion,
-  getAllQuestionsByUser,
+  getUserQuestionsAll,
+  getUserQuestionsByNum,
 };
 
 export default QuestModel;
