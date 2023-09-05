@@ -1,12 +1,14 @@
-import 'dotenv/config.js';
+import 'dotenv/config';
 import express from 'express';
 // @ts-ignore
 import morgan from 'morgan';
 import connectDb from './db/connection.js';
 import routes from './routes/index.js';
 
+import isAuth from './middleware/isAuth.js';
+
 const app = express();
-const PORT: string | number = process.env.PORT || 3000;
+const PORT: any = process.env.PORT;
 
 const startServer = async () => {
   try {
@@ -18,6 +20,7 @@ const startServer = async () => {
 
     app.use('/', routes.authRouter);
 
+    app.use(isAuth);
     app.use('/questions', routes.questionsRouter);
 
     app.listen(PORT, () => {

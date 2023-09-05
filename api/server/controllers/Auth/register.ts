@@ -15,5 +15,7 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { code, data } = await AuthModel.registerUser(body);
     res.status(code).send(data);
-  } catch (error) {}
+  } catch (error) {
+    res.send({ error: error });
+  }
 };
