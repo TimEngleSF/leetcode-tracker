@@ -101,11 +101,12 @@ const registerUser = async (): Promise<void> => {
   }
 
   try {
-    await fs.writeFile(
+    await fs.appendFile(
       new URL('../../.env', import.meta.url),
       `
 LC_USERNAME="${data.username}"
 LC_ID="${data._id}"
+LC_TOKEN="${data.token}"
         `
     );
   } catch (error) {

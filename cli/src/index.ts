@@ -6,15 +6,14 @@ import inquirer from 'inquirer';
 
 import fs from 'fs/promises';
 
-import { checkForEnv } from './utils.js';
 import getAuthSelection from './Auth/getAuthSelection.js';
 import registerUser from './Auth/registerUser.js';
 
-let LC_USERNAME = process.env.USERNAME;
-let ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+const LC_USERNAME = process.env.LC_USERNAME;
+const ACCESS_TOKEN = process.env.LC_TOKEN;
 
 console.log(figlet.textSync('LeetCode Tracker'));
-
+console.log(LC_USERNAME, ACCESS_TOKEN);
 // checkForEnv();
 
 const authSelect = await getAuthSelection();
