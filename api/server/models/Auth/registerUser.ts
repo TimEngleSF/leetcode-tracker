@@ -1,5 +1,10 @@
+import 'dotenv/config';
 import { Collection, ObjectId } from 'mongodb';
 import connectDb from '../../db/connection.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 let usersCollection: Collection;
 
@@ -34,21 +39,33 @@ export const registerUser = async (body: RegisterRequestBody) => {
     };
   }
 
+  const cryptPass = await bcrypt.hash(password, 10);
+
   try {
     const insertResult = await usersCollection.insertOne({
       username: username.toLowerCase(),
       firstName,
       lastInit,
       yob,
-      password,
+      password: cryptPass,
       questions: [],
       lastActivity: Date.now(),
     });
 
+    let token;
+    console.log(JWT_SECRET, 'secret');
+    if (typeof JWT_SECRET === 'string') {
+      token = jwt.sign(
+        { userID: insertResult.insertedId, username },
+        JWT_SECRET
+      );
+    }
+    console.log(token);
     const userID = new ObjectId(insertResult.insertedId);
     const newDocument = await usersCollection.findOne({ _id: userID });
+    const responseBody = { ...newDocument, token };
 
-    return { code: 201, data: newDocument };
+    return { code: 201, data: responseBody };
   } catch (error) {
     return { code: 400, data: { message: 'There was an error' } };
   }
