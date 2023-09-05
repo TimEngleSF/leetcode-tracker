@@ -1,6 +1,10 @@
 import 'dotenv/config';
 import fs from 'fs/promises';
 
+const LC_TOKEN = process.env.LC_TOKEN;
+
+export const authHeaders = { Authorization: `Bearer ${LC_TOKEN}` };
+
 export const checkForEnv = async () => {
   let envExists;
 
