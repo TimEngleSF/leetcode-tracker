@@ -3,7 +3,7 @@ import { createResIncorrectQuery } from './utils.js';
 
 import QuestModel from '../../models/Questions/index.js';
 
-const getAllQuestionsByUser = async (req: Request, res: Response) => {
+export const getAllQuestionsByUser = async (req: Request, res: Response) => {
   const { userID, question } = req.query;
   if (!userID) {
     const { code, data } = createResIncorrectQuery('userID', 'string');
@@ -37,5 +37,3 @@ const getAllQuestionsByUser = async (req: Request, res: Response) => {
     }
   }
 };
-
-export default getAllQuestionsByUser;

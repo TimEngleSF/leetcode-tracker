@@ -1,10 +1,10 @@
-import getQuestionDataForUser from './getQuestions.js';
-import getAllQuestionsByUser from './getAllQuestionsByUser.js';
+import { getQuestion } from './getQuestion.js';
+import { getAllQuestionsByUser } from './getAllQuestionsByUser.js';
 import getReviewQuestions from './getReviewQuestions.js';
-import addQuestionData from './addQuestionData.js';
+import { addQuestionData } from './addQuestionData.js';
 
 export const Questions = {
-  getQuestionDataForUser,
+  getQuestion,
   getAllQuestionsByUser,
   getReviewQuestions,
   addQuestionData,

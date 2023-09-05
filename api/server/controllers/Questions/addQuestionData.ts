@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { addQuestionSchema } from '../../db/schemas/questions.js';
 import QuestModel from '../../models/Questions/index.js';
 
-const addQuestionData = async (req: Request, res: Response) => {
+export const addQuestionData = async (req: Request, res: Response) => {
   const { body } = req;
   const { error } = addQuestionSchema.validate(body);
 
@@ -16,5 +16,3 @@ const addQuestionData = async (req: Request, res: Response) => {
     res.status(code).send(data);
   } catch (error) {}
 };
-
-export default addQuestionData;
