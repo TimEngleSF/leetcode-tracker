@@ -2,7 +2,10 @@ import 'dotenv/config';
 import inquirer from 'inquirer';
 import axios from 'axios';
 import fs from 'fs/promises';
+import path from 'path';
+import url from 'url';
 import chalk from 'chalk';
+import { dir } from 'console';
 
 const getRegistrationInfo = async () => {
   const answers = await inquirer.prompt([
@@ -12,7 +15,8 @@ const getRegistrationInfo = async () => {
       message: "What's your first name? ",
       validate: (input) => {
         return (
-          input.length <= 10 || 'First name shoud be 10 or less characters'
+          (input.length <= 10 && input.length >= 2) ||
+          'First name shoud be between 2 and 10 characters'
         );
       },
     },
@@ -31,7 +35,10 @@ const getRegistrationInfo = async () => {
       name: 'username',
       message: 'Enter a username: ',
       validate: (input) => {
-        return input.length <= 10 || 'Username shoud be 10 or less characters';
+        return (
+          (input.length <= 10 && input.length >= 2) ||
+          'Username shoud be between 2 and 10 characters'
+        );
       },
     },
     {
@@ -40,17 +47,23 @@ const getRegistrationInfo = async () => {
       message: 'What year were you born?',
       validate: (input) => {
         return (
-          input.length === 4 || 'Last initial should be exactly 1 character'
+          input.length === 4 || 'Last initial should be exactly 4 characters'
         );
       },
     },
     {
-      type: 'input',
+      type: 'password',
       name: 'password',
       message: 'Please choose a simple password: ',
+      validate: (input) => {
+        return (
+          (input.length <= 10 && input.length >= 4) ||
+          'Password shoud be between 4 and 10 characters'
+        );
+      },
     },
     {
-      type: 'input',
+      type: 'password',
       name: 'passwordCheck',
       message: 'Please re-enter your password: ',
       validate: async (input, answers) => {
@@ -101,14 +114,18 @@ const registerUser = async (): Promise<void> => {
   }
 
   try {
-    await fs.appendFile(
-      new URL('../../.env', import.meta.url),
-      `
-LC_USERNAME="${data.username}"
-LC_ID="${data._id}"
-LC_TOKEN="${data.token}"
-        `
-    );
+    const __filename = url.fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
+    const userObject = {
+      LC_USERNAME: data.username,
+      LC_ID: data._id,
+      LC_TOKEN: data.token,
+    };
+
+    const payload = JSON.stringify(userObject);
+
+    await fs.writeFile(path.join(__dirname, '..', '/user.json'), payload);
   } catch (error) {
     console.error(error);
   }

@@ -8,6 +8,7 @@ import fs from 'fs/promises';
 
 import getAuthSelection from './Auth/getAuthSelection.js';
 import registerUser from './Auth/registerUser.js';
+import loginUser from './Auth/loginUser.js';
 
 const LC_USERNAME = process.env.LC_USERNAME;
 const ACCESS_TOKEN = process.env.LC_TOKEN;
@@ -20,4 +21,6 @@ const authSelect = await getAuthSelection();
 
 if (authSelect === 'register') {
   await registerUser();
+} else if (authSelect === 'login') {
+  await loginUser();
 }
