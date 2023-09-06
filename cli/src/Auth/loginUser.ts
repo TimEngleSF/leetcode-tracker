@@ -40,19 +40,27 @@ const loginToAPI = async (answers: { username: string; password: string }) => {
 const loginUser = async () => {
   const __filename = url.fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
+  let data;
+  try {
+    const answers = await loginPrompt();
+    data = await loginToAPI(answers);
 
-  const answers = await loginPrompt();
-  const data = await loginToAPI(answers);
+    const userObject = {
+      LC_USERNAME: data.username,
+      LC_ID: data._id,
+      LC_TOKEN: data.token,
+    };
 
-  const userObject = {
-    LC_USERNAME: data.username,
-    LC_ID: data._id,
-    LC_TOKEN: data.token,
-  };
+    const payload = JSON.stringify(userObject);
 
-  const payload = JSON.stringify(userObject);
-
-  await fs.writeFile(path.join(__dirname, '..', '/user.json'), payload);
+    await fs.writeFile(path.join(__dirname, '..', '/user.json'), payload);
+    console.log(
+      chalk.green(`Welcome back ${data.firstName} ${data.lastInit}.`)
+    );
+  } catch (error: any) {
+    console.log(chalk.redBright(error.response.data.message));
+    await loginUser();
+  }
 };
 
 export default loginUser;

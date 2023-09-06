@@ -5,6 +5,7 @@ import path from 'path';
 import url from 'url';
 
 import inquirer from 'inquirer';
+import { getUserJSON } from '../utils';
 
 const userJSON = async () => {
   try {
@@ -38,6 +39,8 @@ const getAuthSelection = async () => {
       choices: ['Login', 'Register'],
     });
     return answers.authSelect.toLowerCase();
+  } else {
+    return false;
   }
 };
 
