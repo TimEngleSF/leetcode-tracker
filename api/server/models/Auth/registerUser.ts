@@ -53,7 +53,6 @@ export const registerUser = async (body: RegisterRequestBody) => {
     });
 
     let token;
-    console.log(JWT_SECRET, 'secret');
     if (typeof JWT_SECRET === 'string') {
       token = jwt.sign(
         { userID: insertResult.insertedId, username },

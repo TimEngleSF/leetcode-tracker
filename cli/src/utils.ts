@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import fs from 'fs/promises';
+import url from 'url';
+import path from 'path';
 
 const LC_TOKEN = process.env.LC_TOKEN;
 
@@ -18,4 +20,17 @@ export const checkForEnv = async () => {
   if (!envExists) {
     await fs.writeFile(new URL('./.env', import.meta.url), '');
   }
+};
+
+export const getUserJSON = async () => {
+  const __filename = url.fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const data = (
+    await fs.readFile(path.join(__dirname, 'user.json'))
+  ).toString();
+
+  const userObject = JSON.parse(data);
+
+  return userObject;
 };
