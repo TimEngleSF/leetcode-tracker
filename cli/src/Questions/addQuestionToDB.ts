@@ -1,5 +1,8 @@
 import axios from 'axios';
 import readline from 'readline';
+import fs from 'fs/promises';
+import path from 'path';
+import url from 'url';
 import addQuestionPrompt from '../Auth/Prompts/addQuestionPrompt.js';
 import getUserLocalData from '../getUserLocalData.js';
 import { getAuthHeaders, clearPrevLine } from '../utils.js';
@@ -26,9 +29,17 @@ const addQuestionToDB = async () => {
       headers: authHeaders,
       data: payload,
     });
+
     // clearPrevLine();
     // console.log(chalk.green('Successfuly added your question!'));
+    console.log(data);
   } catch (error) {
+    const __filename = url.fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    await fs.writeFile(
+      path.join(__dirname, '..', 'test.txt'),
+      JSON.stringify(error)
+    );
     console.log(chalk.red(error));
   }
 };
