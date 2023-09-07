@@ -2,6 +2,7 @@ import 'dotenv/config';
 import fs from 'fs/promises';
 import url from 'url';
 import path from 'path';
+import readline from 'readline';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import getUserLocalData from './getUserLocalData.js';
@@ -42,4 +43,12 @@ export const getUserJSON = async () => {
 
 export const printHeader = () => {
   console.log(chalk.cyan(figlet.textSync('LeetCode Tracker')));
+};
+
+export const clearPrevLine = () => {
+  readline.moveCursor(process.stdout, 0, -1);
+
+  readline.clearLine(process.stdout, 0);
+
+  readline.cursorTo(process.stdout, 0);
 };

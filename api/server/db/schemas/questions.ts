@@ -6,11 +6,5 @@ export const addQuestionSchema = Joi.object({
   questNum: Joi.number().required(),
   diff: Joi.number().required(),
   passed: Joi.boolean().required(),
-  speed: Joi.number()
-    .required()
-    .when('passed', {
-      is: true,
-      then: Joi.required(),
-      otherwise: Joi.allow(null).default(null),
-    }),
+  speed: Joi.required(),
 });
