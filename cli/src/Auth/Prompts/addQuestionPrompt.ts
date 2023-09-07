@@ -41,6 +41,7 @@ const addQuestionPrompt = async () => {
       type: 'list',
       name: 'isAddTimeValid',
       message: 'Would you like to add the runtime speed?',
+      when: (answers) => answers.passed,
       choices: [
         { name: chalk.green('Yes'), value: true },
         { name: chalk.red('No'), value: false },

@@ -13,21 +13,6 @@ export const getAuthHeaders = async () => ({
   Authorization: `Bearer ${LC_TOKEN}`,
 });
 
-export const checkForEnv = async () => {
-  let envExists;
-
-  try {
-    await fs.access(new URL('.env', import.meta.url));
-    envExists = true;
-  } catch (error) {
-    envExists = false;
-  }
-
-  if (!envExists) {
-    await fs.writeFile(new URL('./.env', import.meta.url), '');
-  }
-};
-
 export const getUserJSON = async () => {
   const __filename = url.fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
