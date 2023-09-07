@@ -3,9 +3,9 @@ import readline from 'readline';
 import fs from 'fs/promises';
 import path from 'path';
 import url from 'url';
-import addQuestionPrompt from '../Auth/Prompts/addQuestionPrompt.js';
+import addQuestionPrompt from '../Prompts/addQuestionPrompt.js';
 import getUserLocalData from '../getUserLocalData.js';
-import { getAuthHeaders, clearPrevLine } from '../utils.js';
+import { getAuthHeaders } from '../utils.js';
 import chalk from 'chalk';
 
 const addQuestionToDB = async () => {
@@ -33,6 +33,8 @@ const addQuestionToDB = async () => {
     // clearPrevLine();
     // console.log(chalk.green('Successfuly added your question!'));
     console.log(data);
+
+    return answers.questNum;
   } catch (error) {
     const __filename = url.fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
