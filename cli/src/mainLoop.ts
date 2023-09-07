@@ -3,6 +3,7 @@ import chalk from 'chalk';
 
 import { printHeader } from './utils.js';
 import loginUser from './Auth/loginUser.js';
+import addQuestionToDB from './Questions/addQuestionToDB.js';
 
 const mainLoop = async () => {
   let isRunning = true;
@@ -14,7 +15,7 @@ const mainLoop = async () => {
         name: 'nextAction',
         message: chalk.greenBright('What would you like to do?'),
         choices: [
-          'Add Question Result',
+          { name: 'Add Question Result', value: 'addQuestion' },
           'Review Questions',
           'View History',
           'Leaderboard',
@@ -32,9 +33,11 @@ const mainLoop = async () => {
         console.log(chalk.green('Logging in...'));
         await loginUser();
         break;
-      case 'Add Question':
+      case 'addQuestion':
         console.log(chalk.green('Adding question...'));
-        // Code
+        await addQuestionToDB();
+        console.clear();
+        printHeader();
         break;
       case 'Dummy Option B':
         console.log(chalk.green('Executing dummy option B'));
