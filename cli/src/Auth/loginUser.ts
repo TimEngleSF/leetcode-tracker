@@ -49,13 +49,17 @@ const loginUser = async () => {
       LC_USERNAME: data.username,
       LC_ID: data._id,
       LC_TOKEN: data.token,
+      LC_FIRSTNAME: data.firstName,
+      LC_LASTINIT: data.lastInit,
     };
 
     const payload = JSON.stringify(userObject);
 
     await fs.writeFile(path.join(__dirname, '..', '/user.json'), payload);
     console.log(
-      chalk.green(`Welcome back ${data.firstName} ${data.lastInit}.`)
+      chalk.green(
+        `Welcome back ${userObject.LC_FIRSTNAME} ${userObject.LC_LASTINIT}.`
+      )
     );
   } catch (error: any) {
     console.log(chalk.redBright(error.response.data.message));
