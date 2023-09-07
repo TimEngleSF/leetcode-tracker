@@ -8,7 +8,6 @@ const mainLoop = async () => {
   let isRunning = true;
 
   while (isRunning) {
-    printHeader();
     const action = await inquirer.prompt([
       {
         type: 'list',

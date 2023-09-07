@@ -15,7 +15,7 @@ const getRegistrationInfo = async () => {
       message: "What's your first name? ",
       validate: (input) => {
         return (
-          (input.length <= 10 && input.length >= 2) ||
+          (input.length >= 2 && input.length <= 10) ||
           'First name shoud be between 2 and 10 characters'
         );
       },
@@ -36,7 +36,7 @@ const getRegistrationInfo = async () => {
       message: 'Enter a username: ',
       validate: (input) => {
         return (
-          (input.length <= 10 && input.length >= 2) ||
+          (input.length >= 2 && input.length <= 10) ||
           'Username shoud be between 2 and 10 characters'
         );
       },
@@ -57,7 +57,7 @@ const getRegistrationInfo = async () => {
       message: 'Please choose a simple password: ',
       validate: (input) => {
         return (
-          (input.length <= 10 && input.length >= 4) ||
+          (input.length >= 4 && input.length <= 10) ||
           'Password shoud be between 4 and 10 characters'
         );
       },
