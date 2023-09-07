@@ -22,6 +22,7 @@ const startServer = async () => {
 
     app.use(isAuth);
     app.use('/questions', routes.questionsRouter);
+    app.use('/leaderboard', routes.leaderboardRouter);
 
     app.listen(PORT, () => {
       console.log(
