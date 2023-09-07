@@ -1,5 +1,6 @@
 import { Collection, ObjectId } from 'mongodb';
 import connectDb from '../../db/connection.js';
+import writeErrorToFile from '../../errors/writeError.js';
 
 let questCollection: Collection;
 
@@ -23,7 +24,8 @@ export const getUserQuestionsAll = async (userID: string) => {
 
     return { code: 200, data: questions };
     console.log(questions);
-  } catch (err) {
-    return { code: 400, data: err };
+  } catch (error) {
+    await writeErrorToFile(error);
+    return { code: 400, data: error };
   }
 };
