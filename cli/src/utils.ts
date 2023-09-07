@@ -2,6 +2,8 @@ import 'dotenv/config';
 import fs from 'fs/promises';
 import url from 'url';
 import path from 'path';
+import chalk from 'chalk';
+import figlet from 'figlet';
 
 const LC_TOKEN = process.env.LC_TOKEN;
 
@@ -33,4 +35,8 @@ export const getUserJSON = async () => {
   const userObject = JSON.parse(data);
 
   return userObject;
+};
+
+export const printHeader = () => {
+  console.log(chalk.cyan(figlet.textSync('LeetCode Tracker')));
 };

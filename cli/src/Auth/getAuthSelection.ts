@@ -5,7 +5,6 @@ import path from 'path';
 import url from 'url';
 
 import inquirer from 'inquirer';
-import { getUserJSON } from '../utils';
 
 const userJSON = async () => {
   try {
