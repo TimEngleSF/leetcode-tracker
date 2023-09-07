@@ -55,7 +55,6 @@ if (options.login) {
 
 if (options.run) {
   console.clear();
+  printHeader();
   await mainLoop();
 }
-
-// Constant runing

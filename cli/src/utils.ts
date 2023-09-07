@@ -4,10 +4,13 @@ import url from 'url';
 import path from 'path';
 import chalk from 'chalk';
 import figlet from 'figlet';
+import getUserLocalData from './getUserLocalData.js';
 
-const LC_TOKEN = process.env.LC_TOKEN;
+const { LC_TOKEN } = await getUserLocalData();
 
-export const authHeaders = { Authorization: `Bearer ${LC_TOKEN}` };
+export const getAuthHeaders = async () => ({
+  Authorization: `Bearer ${LC_TOKEN}`,
+});
 
 export const checkForEnv = async () => {
   let envExists;
