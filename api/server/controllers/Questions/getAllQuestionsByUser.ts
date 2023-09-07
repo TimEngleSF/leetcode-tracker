@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { createResIncorrectQuery } from './utils.js';
+import writeErrorToFile from '../../errors/writeError.js';
 
 import QuestModel from '../../models/Questions/index.js';
 
@@ -17,8 +18,9 @@ export const getAllQuestionsByUser = async (req: Request, res: Response) => {
       const { code, data } = await QuestModel.getUserQuestionsAll(userID);
       res.status(code).send(data);
       return;
-    } catch (err) {
-      res.status(500).send({ message: err });
+    } catch (error) {
+      await writeErrorToFile(error);
+      res.status(500).send({ message: error });
       return;
     }
     // Get user all user Questions with question num
@@ -31,8 +33,9 @@ export const getAllQuestionsByUser = async (req: Request, res: Response) => {
       );
       res.status(code).send(data);
       return;
-    } catch (err) {
-      res.status(500).send({ message: err });
+    } catch (error) {
+      await writeErrorToFile(error);
+      res.status(500).send({ message: error });
       return;
     }
   }
