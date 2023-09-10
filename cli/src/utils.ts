@@ -7,11 +7,10 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import getUserLocalData from './getUserLocalData.js';
 
-const { LC_TOKEN } = await getUserLocalData();
-
-export const getAuthHeaders = async () => ({
-  Authorization: `Bearer ${LC_TOKEN}`,
-});
+export const getAuthHeaders = async () => {
+  const { LC_TOKEN } = await getUserLocalData();
+  return { Authorization: `Bearer ${LC_TOKEN}` };
+};
 
 export const getUserJSON = async () => {
   const __filename = url.fileURLToPath(import.meta.url);
@@ -36,4 +35,20 @@ export const clearPrevLine = () => {
   readline.clearLine(process.stdout, 0);
 
   readline.cursorTo(process.stdout, 0);
+};
+
+export const logout = async () => {
+  const __filename = url.fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const payload = {
+    LC_USERNAME: null,
+    LC_ID: null,
+    LC_TOKEN: null,
+    LC_FIRSTNAME: null,
+    LC_LASTINIT: null,
+  };
+
+  const payloadString = JSON.stringify(payload, null, 2);
+
+  await fs.writeFile(path.join(__dirname, 'user.json'), payloadString);
 };
