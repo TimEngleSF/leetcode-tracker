@@ -6,6 +6,7 @@ import connectDb from './db/connection.js';
 import routes from './routes/index.js';
 
 import isAuth from './middleware/isAuth.js';
+import updateLastActive from './middleware/updateLastActive.js';
 
 const app = express();
 const PORT: any = process.env.PORT;
@@ -22,6 +23,7 @@ const startServer = async () => {
 
     app.use(isAuth);
     app.use('/users', routes.usersRoutes);
+    app.use(updateLastActive);
     app.use('/questions', routes.questionsRouter);
     app.use('/leaderboard', routes.leaderboardRouter);
 
