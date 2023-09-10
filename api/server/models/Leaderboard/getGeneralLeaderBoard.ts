@@ -22,7 +22,7 @@ export const getGeneralLeaderBoard = async () => {
       .aggregate([
         {
           $group: {
-            _id: '$username',
+            _id: '$userID',
             passedCount: {
               $sum: {
                 $cond: [
@@ -49,10 +49,14 @@ export const getGeneralLeaderBoard = async () => {
       return { code: 200, data: result };
     }
   } catch (error) {
-    await writeErrorToFile(
-      error,
-      'Error arrised when executing getGeneralLeaderBoard model'
-    );
-    return { code: 400, error };
+    try {
+      await writeErrorToFile(
+        error,
+        'Error arrised when executing getGeneralLeaderBoard model'
+      );
+      return { code: 400, error };
+    } catch (error) {
+      return { code: 500, error };
+    }
   }
 };

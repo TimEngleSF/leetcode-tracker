@@ -1,11 +1,12 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 
-import { printHeader } from './utils.js';
+import { logout, printHeader } from './utils.js';
 import loginUser from './Auth/loginUser.js';
 import addQuestionToDB from './Questions/addQuestionToDB.js';
 import viewPrevQuestPrompt from './Prompts/viewPrevQuestPrompt.js';
 import getAllUserQuestsByQuestNum from './Questions/getAllUserQuestsByQuestNum.js';
+import { generalLeaderboard } from './Leaderboard/generalLeaderboard.js';
 
 const mainLoop = async () => {
   let isRunning = true;
@@ -41,9 +42,9 @@ const mainLoop = async () => {
           { name: 'Add Question Result', value: 'addQuestion' },
           'Review Questions',
           'View History',
-          'Leaderboard',
+          { name: 'Leaderboard', value: 'leaderboard' },
           'Login',
-          'Logout',
+          { name: 'Logout', value: 'logout' },
           'Exit',
         ],
       },
@@ -64,10 +65,14 @@ const mainLoop = async () => {
         console.clear();
         printHeader();
         break;
-      case 'Dummy Option B':
-        console.log(chalk.green('Executing dummy option B'));
-        // Code
+      case 'leaderboard':
+        console.log(chalk.green('Here are your leaders!'));
+        await generalLeaderboard();
         break;
+      case 'logout':
+        console.clear();
+        await logout();
+        console.log(chalk.green('Come back soon!'));
       case 'Exit':
         console.log(chalk.red('Exiting LeetCode Tracker'));
         isRunning = false;
