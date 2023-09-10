@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import getAllUserQuestsByQuestNum from '../Questions/getAllUserQuestsByQuestNum.js';
 
 const viewPrevQuestPrompt = async () => {
   const answers: { viewPrev: boolean } = await inquirer.prompt([

@@ -6,6 +6,8 @@ import path from 'path';
 import url from 'url';
 import chalk from 'chalk';
 
+import writeErrorToFile from '../errors/writeError.js';
+
 const loginPrompt = async () => {
   const answers = await inquirer.prompt([
     {
@@ -61,8 +63,13 @@ const loginUser = async () => {
         `Welcome back ${userObject.LC_FIRSTNAME} ${userObject.LC_LASTINIT}.`
       )
     );
+    return;
   } catch (error: any) {
-    console.log(chalk.redBright(error.response.data.message));
+    if (error.response) {
+      console.log(chalk.redBright(error.response.data.message));
+    } else {
+      console.log(error);
+    }
     await loginUser();
   }
 };

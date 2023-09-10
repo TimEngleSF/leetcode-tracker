@@ -21,7 +21,9 @@ const startServer = async () => {
     app.use('/', routes.authRouter);
 
     app.use(isAuth);
+    app.use('/users', routes.usersRoutes);
     app.use('/questions', routes.questionsRouter);
+    app.use('/leaderboard', routes.leaderboardRouter);
 
     app.listen(PORT, () => {
       console.log(
