@@ -3,7 +3,7 @@ import { addQuestionSchema } from '../../db/schemas/questions.js';
 import QuestModel from '../../models/Questions/index.js';
 import writeErrorToFile from '../../errors/writeError.js';
 
-export const addQuestionData = async (req: Request, res: Response) => {
+export const addQuestion = async (req: Request, res: Response) => {
   const { body } = req;
   const { error } = addQuestionSchema.validate(body);
   if (error) {

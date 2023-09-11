@@ -29,11 +29,15 @@ const loginPrompt = async () => {
 
 const loginToAPI = async (answers: { username: string; password: string }) => {
   const { username, password } = answers;
+  const payload = {
+    username: username.toLowerCase().trim(),
+    password,
+  };
   const { data } = await axios({
     method: 'POST',
     url: 'http://localhost:3000/login',
     headers: { 'Content-Type': 'application/json' },
-    data: { username, password },
+    data: payload,
   });
 
   return data;

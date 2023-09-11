@@ -1,11 +1,13 @@
 import { getQuestion } from './getQuestion.js';
 import { getAllQuestionsByUser } from './getAllQuestionsByUser.js';
 import getReviewQuestions from './getReviewQuestions.js';
-import { addQuestionData } from './addQuestionData.js';
+import { addQuestion } from './addQuestion.js';
+import { getQuestionData } from './getQuestionData.js';
 
 export const Questions = {
   getQuestion,
   getAllQuestionsByUser,
   getReviewQuestions,
-  addQuestionData,
+  addQuestion,
+  getQuestionData,
 };
