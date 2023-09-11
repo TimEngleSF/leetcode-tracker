@@ -31,16 +31,6 @@ const addQuestionPrompt = async () => {
     }\n`
   );
   const remainingAnswers = await inquirer.prompt([
-    // {
-    //   type: 'list',
-    //   name: 'diff',
-    //   message: 'Please select a difficulty',
-    //   choices: [
-    //     { name: chalk.green('Easy'), value: 0 },
-    //     { name: chalk.yellow('Medium'), value: 1 },
-    //     { name: chalk.red('Hard'), value: 2 },
-    //   ],
-    // },
     {
       type: 'list',
       name: 'passed',
@@ -77,9 +67,7 @@ const addQuestionPrompt = async () => {
   const answers = {
     ...questNumAnswer,
     ...remainingAnswers,
-    // diff: questData.diff === 'Easy' ? 0 : questData.diff === 'Medium' ? 1 : 2,
   };
-  console.log(answers);
   return answers;
 };
 

@@ -30,9 +30,7 @@ const addQuestionToDB = async () => {
       data: payload,
     });
 
-    // clearPrevLine();
-    // console.log(chalk.green('Successfuly added your question!'));
-    console.log(data);
+    console.log(chalk.green('\nSuccessfuly added your question!\n'));
 
     return answers.questNum;
   } catch (error) {
