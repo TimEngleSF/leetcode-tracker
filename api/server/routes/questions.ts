@@ -5,7 +5,8 @@ const questionsRouter = express.Router();
 questionsRouter.get('/', Controllers.Questions.getAllQuestionsByUser);
 questionsRouter.get('/:questID', Controllers.Questions.getQuestion);
 questionsRouter.get('/review', Controllers.Questions.getReviewQuestions);
+questionsRouter.get('/data/:questID', Controllers.Questions.getQuestionData);
 
-questionsRouter.post('/add', Controllers.Questions.addQuestionData);
+questionsRouter.post('/add', Controllers.Questions.addQuestion);
 
 export default questionsRouter;
