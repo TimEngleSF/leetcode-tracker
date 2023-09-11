@@ -4,8 +4,8 @@ import Table from 'cli-table3';
 import chalk from 'chalk';
 
 import getUserLocalData from '../getUserLocalData.js';
-import { getAuthHeaders } from '../utils.js';
-import writeErrorToFile from '../errors/writeError.js';
+import { getAuthHeaders, printHeader } from '../utils.js';
+import inquirer from 'inquirer';
 
 interface GeneralInfo {
   questNum: number;
@@ -26,6 +26,69 @@ interface ApiResponse {
   questions: Question[];
 }
 
+const displayPage = (
+  data: any,
+  start: number,
+  end: number,
+  currentPage = 1,
+  totalPages: number
+) => {
+  const table = new Table({
+    head: [chalk.white('Date'), chalk.white('Passed'), chalk.white('Speed')],
+    colWidths: [20, 15, 10],
+  });
+  console.log(start, end);
+  const slice = data.slice(start, end);
+  slice.forEach((quest: any) => {
+    const date = format(new Date(quest.created), 'MM-dd-yyyy hh:mma');
+    const passed = quest.passed ? chalk.green('Passed') : chalk.red('Failed');
+    const speed = quest.speed ? quest.speed : 'N/A';
+    table.push([date, passed, speed]);
+  });
+  console.clear();
+  printHeader();
+  console.log(`${chalk.magenta('Page: ')} ${currentPage}/${totalPages}`);
+  console.log(table.toString());
+};
+
+const paginate = async (sortedQuestByDate: any) => {
+  const perPage = 5;
+  let currentPage = 1;
+  let totalPages = Math.ceil(sortedQuestByDate.length / perPage);
+
+  while (true) {
+    const start = (currentPage - 1) * perPage;
+    const end = currentPage * perPage;
+    displayPage(sortedQuestByDate, start, end, currentPage, totalPages);
+
+    let choices = [];
+    if (currentPage < totalPages) {
+      choices.push({ name: 'Next', value: 'next' });
+    }
+    if (currentPage > 1) {
+      choices.push({ name: 'Previous', value: 'prev' });
+    }
+    choices.push({ name: 'Exit', value: 'exit' });
+
+    const { action } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'action',
+        message: 'What do you want to do?',
+        choices: choices,
+      },
+    ]);
+
+    if (action === 'next' && currentPage < totalPages) {
+      currentPage++;
+    } else if (action === 'prev' && currentPage > 1) {
+      currentPage--;
+    } else if (action === 'exit') {
+      break;
+    }
+  }
+};
+
 const getAllUserQuestsByQuestNum = async (questNum: number) => {
   try {
     const user = await getUserLocalData();
@@ -41,27 +104,13 @@ const getAllUserQuestsByQuestNum = async (questNum: number) => {
       (a: Question, b: Question) => b.created - a.created
     );
 
-    const table = new Table({
-      head: [chalk.white('Date'), chalk.white('Passed'), chalk.white('Speed')],
-      colWidths: [20, 15, 10],
-    });
-
-    sortedQuestByDate.forEach((quest: Question) => {
-      const date = format(new Date(quest.created), 'MM-dd-yyyy hh:mma');
-      const passed = quest.passed ? chalk.green('Passed') : chalk.red('Failed');
-      const speed = quest.speed ? quest.speed : 'N/A';
-      table.push([date, passed, speed]);
-    });
     console.log(
       chalk.greenBright(`Previous attempts for question ${questNum}`)
     );
-    console.log(table.toString());
+
+    await paginate(sortedQuestByDate);
   } catch (error: any) {
-    writeErrorToFile(
-      error,
-      'Error arrised while executing getAllUserQuestsByQuestNum'
-    );
-    console.error('There was an error getting your previous questions');
+    console.error('There was an error getting your previous questions', error);
   }
 };
 
