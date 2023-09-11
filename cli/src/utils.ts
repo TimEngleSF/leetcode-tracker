@@ -5,6 +5,7 @@ import path from 'path';
 import readline from 'readline';
 import chalk from 'chalk';
 import figlet from 'figlet';
+import axios from 'axios';
 import getUserLocalData from './getUserLocalData.js';
 
 export const getAuthHeaders = async () => {
@@ -51,4 +52,14 @@ export const logout = async () => {
   const payloadString = JSON.stringify(payload, null, 2);
 
   await fs.writeFile(path.join(__dirname, 'user.json'), payloadString);
+};
+
+export const getQuestionData = async (questNum: number) => {
+  const authHeaders = await getAuthHeaders();
+  const { data } = await axios({
+    method: 'GET',
+    url: `http://localhost:3000/questions/data/${questNum}`,
+    headers: authHeaders,
+  });
+  return data;
 };

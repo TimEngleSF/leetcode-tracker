@@ -36,7 +36,6 @@ export const addQuestion = async (body: QuestionRequestBody) => {
       userID: userObjID,
       username,
       questNum,
-      diff,
       passed,
       speed,
       created: Date.now(),

@@ -19,20 +19,19 @@ export const getUserQuestionsByNum = async (
   questNum: number
 ) => {
   try {
-    const userObjID = new ObjectId(userID);
+    // const userObjID = new ObjectId(userID);
     const result = await questCollection
       .aggregate([
         {
           $match: {
-            userID: userObjID,
-            questNum,
+            userID: new ObjectId(userID),
+            questNum: questNum,
           },
         },
         {
           $group: {
             _id: {
               questNum: '$questNum',
-              diff: '$diff',
               username: '$username',
               userID: '$userID',
             },
