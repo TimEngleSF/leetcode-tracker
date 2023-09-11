@@ -25,6 +25,7 @@ const mainLoop = async () => {
       });
       if (action.continue) {
         console.clear();
+        printHeader();
         viewPrevQuest = false;
       } else {
         isRunning = false;
