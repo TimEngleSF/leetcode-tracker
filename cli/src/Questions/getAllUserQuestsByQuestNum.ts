@@ -47,6 +47,7 @@ const getAllUserQuestsByQuestNum = async (questNum: number) => {
     });
 
     sortedQuestByDate.forEach((quest: Question) => {
+      console.log(quest);
       const date = format(new Date(quest.created), 'MM-dd-yyyy hh:mma');
       const passed = quest.passed ? chalk.green('Passed') : chalk.red('Failed');
       const speed = quest.speed ? quest.speed : 'N/A';
