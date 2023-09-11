@@ -83,18 +83,19 @@ const registerToAPI = async (answers: {
   password: string;
 }) => {
   const { username, firstName, lastInit, yob, password } = answers;
+  const payload = {
+    username: username.toLowerCase().trim(),
+    firstName: firstName.trim(),
+    lastInit: lastInit.trim(),
+    yob,
+    password,
+  };
   try {
     const { data } = await axios({
       method: 'POST',
       url: 'http://localhost:3000/register',
       headers: { 'Content-Type': 'application/json' },
-      data: {
-        username,
-        firstName,
-        lastInit,
-        yob,
-        password,
-      },
+      data: payload,
     });
 
     return data;
