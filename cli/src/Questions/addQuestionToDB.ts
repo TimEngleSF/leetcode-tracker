@@ -3,7 +3,7 @@ import readline from 'readline';
 import fs from 'fs/promises';
 import path from 'path';
 import url from 'url';
-import addQuestionPrompt from '../Prompts/addQuestionPrompt.js';
+import addQuestionPrompt from './Prompts/addQuestionPrompt.js';
 import getUserLocalData from '../getUserLocalData.js';
 import { getAuthHeaders } from '../utils.js';
 import chalk from 'chalk';
