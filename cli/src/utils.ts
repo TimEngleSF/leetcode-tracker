@@ -54,6 +54,15 @@ export const logout = async () => {
   await fs.writeFile(path.join(__dirname, 'user.json'), payloadString);
 };
 
+export const getUserData = async (userID: string) => {
+  const authHeaders = await getAuthHeaders();
+  const { data } = await axios({
+    method: 'GET',
+    url: `http://localhost:3000/users/${userID}`,
+    headers: authHeaders,
+  });
+  return data;
+};
 export const getQuestionData = async (questNum: number) => {
   const authHeaders = await getAuthHeaders();
   const { data } = await axios({
