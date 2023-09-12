@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import { getQuestionData } from '../utils.js';
+import { getQuestionData } from '../../utils.js';
 
 const addQuestionPrompt = async () => {
   const questNumAnswer: {
