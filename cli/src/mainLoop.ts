@@ -4,9 +4,11 @@ import chalk from 'chalk';
 import { logout, printHeader } from './utils.js';
 import loginUser from './Auth/loginUser.js';
 import addQuestionToDB from './Questions/addQuestionToDB.js';
-import viewPrevQuestPrompt from './Prompts/viewPrevQuestPrompt.js';
+import viewPrevQuestPrompt from './Questions/Prompts/viewPrevQuestPrompt.js';
 import getAllUserQuestsByQuestNum from './Questions/getAllUserQuestsByQuestNum.js';
 import { generalLeaderboard } from './Leaderboard/generalLeaderboard.js';
+import { selectLeaderboard } from './Leaderboard/Prompts/selectLeaderboard.js';
+import { questionLeaderboard } from './Leaderboard/questionLeaderboard.js';
 
 const mainLoop = async () => {
   let isRunning = true;
@@ -41,12 +43,12 @@ const mainLoop = async () => {
         message: chalk.greenBright('What would you like to do?'),
         choices: [
           { name: 'Add Question Result', value: 'addQuestion' },
+          { name: 'Leaderboard', value: 'leaderboard' },
           'Review Questions',
           'View History',
-          { name: 'Leaderboard', value: 'leaderboard' },
           'Login',
           { name: 'Logout', value: 'logout' },
-          'Exit',
+          { name: 'Exit', value: 'exit' },
         ],
       },
     ]);
@@ -68,13 +70,19 @@ const mainLoop = async () => {
         break;
       case 'leaderboard':
         console.log(chalk.green('Here are your leaders!'));
-        await generalLeaderboard();
+        const answer = await selectLeaderboard();
+        if (answer === 'general') {
+          await generalLeaderboard();
+        } else {
+          // console.log('Coming soon...');
+          await questionLeaderboard();
+        }
         break;
       case 'logout':
         console.clear();
         await logout();
         console.log(chalk.green('Come back soon!'));
-      case 'Exit':
+      case 'exit':
         console.log(chalk.red('Exiting LeetCode Tracker'));
         isRunning = false;
         break;

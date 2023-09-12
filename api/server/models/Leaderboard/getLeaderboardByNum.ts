@@ -24,6 +24,7 @@ export const getLeaderboardByNum = async (questNum: string) => {
         {
           $match: {
             questNum: target,
+            passed: true,
           },
         },
         {
@@ -34,15 +35,9 @@ export const getLeaderboardByNum = async (questNum: string) => {
         {
           $group: {
             _id: '$userID',
-            questions: {
-              $push: {
-                username: '$username',
-                questNum: '$questNum',
-                passed: '$passed',
-                speed: '$speed',
-                created: '$created',
-              },
-            },
+            passedCount: { $sum: { $cond: ['$passed', 1, 0] } }, // Count of passed: true
+            minSpeed: { $min: '$speed' }, // Minimum speed
+            mostRecent: { $max: '$created' }, // Most recent creation date
           },
         },
       ])
