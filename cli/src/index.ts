@@ -8,6 +8,8 @@ import registerUser from './Auth/registerUser.js';
 import loginUser from './Auth/loginUser.js';
 import { getUserJSON, printHeader } from './utils.js';
 import getUserLocalData from './getUserLocalData.js';
+import addQuestionPrompt from './Questions/Prompts/addQuestionPrompt.js';
+import addQuestionToDB from './Questions/addQuestionToDB.js';
 
 let userObject;
 
@@ -57,4 +59,10 @@ if (options.run) {
   console.clear();
   printHeader();
   await mainLoop();
+}
+
+if (options.add) {
+  console.clear();
+  printHeader();
+  await addQuestionToDB();
 }
