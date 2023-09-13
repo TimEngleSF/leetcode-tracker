@@ -9,7 +9,6 @@ import {
   printHeader,
 } from '../utils.js';
 import {
-  createRowData,
   formatRank,
   getDisplayTextForUser,
   initQuestTable,
@@ -24,7 +23,7 @@ export const questionLeaderboard: any = async () => {
     const questionData: { questID?: number; title?: string } =
       await getQuestionData(questID);
 
-    const leaderData = await axios({
+    const { data } = await axios({
       method: 'GET',
       url: `http://localhost:3000/leaderboard/${questID}`,
       headers: { ...authHeader },
@@ -32,15 +31,24 @@ export const questionLeaderboard: any = async () => {
 
     // Init table+userDisplay Data, createRowData
     const table = initQuestTable();
-    const rowData = await createRowData(leaderData);
     const userDisplayData: { rank?: number; name?: string } = {};
 
     // Format and push rowData to table
-    rowData
+
+    interface DataRow {
+      _id: string;
+      firstName: string;
+      lastInit: string;
+      passedCount: number;
+      minSpeed?: number;
+      mostRecent: Date;
+    }
+    const typedData: DataRow[] = data;
+    typedData
       .sort((a, b) => b.passedCount - a.passedCount)
       .forEach((row, i) => {
-        console.log(row.userID, LC_ID);
-        if (row.userID === LC_ID) {
+        console.log(row._id, LC_ID);
+        if (row._id === LC_ID) {
           userDisplayData.rank = i + 1;
           userDisplayData.name = `${row.firstName} ${row.lastInit}.`;
         }

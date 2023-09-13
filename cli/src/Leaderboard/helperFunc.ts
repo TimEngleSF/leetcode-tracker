@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import Table from 'cli-table3';
-import { getUserData } from '../utils.js';
 
 export const displayColors = {
   gold: (str: string | number) => chalk.hex('#FFD700').bold(str),
@@ -8,28 +7,6 @@ export const displayColors = {
   bronze: (str: string | number) => chalk.hex('#cd7f32').bold(str),
 };
 
-export const createRowData = async (leaderData: { data: [] }) =>
-  await Promise.all(
-    leaderData.data.map(
-      async (userQuestData: {
-        _id: string;
-        passedCount: number;
-        minSpeed: number;
-        mostRecent: number;
-      }) => {
-        const data = await getUserData(userQuestData._id);
-
-        return {
-          userID: userQuestData._id,
-          firstName: data.firstName,
-          lastInit: data.lastInit,
-          passedCount: userQuestData.passedCount,
-          minSpeed: userQuestData.minSpeed,
-          mostRecent: userQuestData.mostRecent,
-        };
-      }
-    )
-  );
 export const initQuestTable = () => {
   return new Table({
     head: [
