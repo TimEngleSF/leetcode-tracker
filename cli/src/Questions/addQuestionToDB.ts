@@ -4,14 +4,13 @@ import fs from 'fs/promises';
 import path from 'path';
 import url from 'url';
 import addQuestionPrompt from './Prompts/addQuestionPrompt.js';
-import getUserLocalData from '../getUserLocalData.js';
-import { getAuthHeaders } from '../utils.js';
+import { getAuthHeaders, getUserJSON } from '../utils.js';
 import chalk from 'chalk';
 
 const addQuestionToDB = async () => {
   try {
     const answers = await addQuestionPrompt();
-    const userInfo = await getUserLocalData();
+    const userInfo = await getUserJSON();
     const authHeaders = await getAuthHeaders();
 
     const payload = {

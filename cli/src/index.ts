@@ -7,8 +7,6 @@ import getAuthSelection from './Auth/getAuthSelection.js';
 import registerUser from './Auth/registerUser.js';
 import loginUser from './Auth/loginUser.js';
 import { getUserJSON, printHeader } from './utils.js';
-import getUserLocalData from './getUserLocalData.js';
-import addQuestionPrompt from './Questions/Prompts/addQuestionPrompt.js';
 import addQuestionToDB from './Questions/addQuestionToDB.js';
 
 let userObject;
@@ -41,7 +39,7 @@ if (authSelect === 'register') {
   console.log(chalk.green('Logging in...'));
   await loginUser();
 } else {
-  userObject = await getUserLocalData();
+  userObject = await getUserJSON();
   console.log(
     chalk.green(`Welcome ${userObject.LC_FIRSTNAME} ${userObject.LC_LASTINIT}`)
   );
