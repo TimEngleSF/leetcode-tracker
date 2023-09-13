@@ -6,12 +6,6 @@ import readline from 'readline';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import axios from 'axios';
-import getUserLocalData from './getUserLocalData.js';
-
-export const getAuthHeaders = async () => {
-  const { LC_TOKEN } = await getUserLocalData();
-  return { Authorization: `Bearer ${LC_TOKEN}` };
-};
 
 export const getUserJSON = async () => {
   const __filename = url.fileURLToPath(import.meta.url);
@@ -24,6 +18,11 @@ export const getUserJSON = async () => {
   const userObject = JSON.parse(data);
 
   return userObject;
+};
+
+export const getAuthHeaders = async () => {
+  const { LC_TOKEN } = await getUserJSON();
+  return { Authorization: `Bearer ${LC_TOKEN}` };
 };
 
 export const printHeader = () => {
@@ -63,9 +62,14 @@ export const getUserData = async (userID: string) => {
   });
   return data;
 };
-export const getQuestionData = async (questNum: number) => {
-  const authHeaders = await getAuthHeaders();
-  const { data } = await axios({
+
+export const getQuestionData = async (
+  questNum: number,
+  axiosInstance: any = axios,
+  getAuthHeadersFunc: any = getAuthHeaders
+) => {
+  const authHeaders = await getAuthHeadersFunc();
+  const { data } = await axiosInstance({
     method: 'GET',
     url: `http://localhost:3000/questions/data/${questNum}`,
     headers: authHeaders,
