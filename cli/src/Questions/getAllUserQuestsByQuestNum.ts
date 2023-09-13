@@ -3,8 +3,7 @@ import { format } from 'date-fns';
 import Table from 'cli-table3';
 import chalk from 'chalk';
 
-import getUserLocalData from '../getUserLocalData.js';
-import { getAuthHeaders, printHeader } from '../utils.js';
+import { getAuthHeaders, getUserJSON, printHeader } from '../utils.js';
 import inquirer from 'inquirer';
 
 interface GeneralInfo {
@@ -91,7 +90,7 @@ const paginate = async (sortedQuestByDate: any) => {
 
 const getAllUserQuestsByQuestNum = async (questNum: number) => {
   try {
-    const user = await getUserLocalData();
+    const user = await getUserJSON();
     const authHeaders = await getAuthHeaders();
 
     const response = await axios({
