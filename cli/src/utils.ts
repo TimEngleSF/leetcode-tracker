@@ -51,6 +51,7 @@ export const logout = async () => {
   const payloadString = JSON.stringify(payload, null, 2);
 
   await fs.writeFile(path.join(__dirname, 'user.json'), payloadString);
+  return payload;
 };
 
 export const getUserData = async (userID: string) => {

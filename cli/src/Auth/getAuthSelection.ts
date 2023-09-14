@@ -1,29 +1,13 @@
-import 'dotenv/config';
-
-import fs from 'fs/promises';
-import path from 'path';
-import url from 'url';
+import { getUserJSON, logout } from '../utils.js';
 
 import inquirer from 'inquirer';
 
 const userJSON = async () => {
   try {
-    const __filename = url.fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-
-    const data = await fs.readFile(path.join(__dirname, '..', 'user.json'));
-    const userObject = JSON.parse(data.toString());
+    const userObject = await getUserJSON();
     return userObject;
   } catch (error) {
-    const __filename = url.fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const userObject = {
-      LC_USERNAME: null,
-      LC_ID: null,
-      LC_TOKEN: null,
-    };
-    const payload = JSON.stringify(userObject);
-    await fs.writeFile(path.join(__dirname, '..', 'user.json'), payload);
+    const userObject = await logout();
     return userObject;
   }
 };
