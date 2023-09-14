@@ -1,4 +1,4 @@
-import { getUserJSON, logout } from '../utils.js';
+import { getUserJSON, logout } from '../../utils.js';
 
 import inquirer from 'inquirer';
 
@@ -12,7 +12,7 @@ const userJSON = async () => {
   }
 };
 
-const getAuthSelection = async () => {
+const authSelectionPrompt = async () => {
   const { LC_USERNAME, LC_ID, LC_TOKEN } = await userJSON();
   if (!LC_USERNAME || !LC_ID || !LC_TOKEN) {
     const answers = await inquirer.prompt({
@@ -27,4 +27,4 @@ const getAuthSelection = async () => {
   }
 };
 
-export default getAuthSelection;
+export default authSelectionPrompt;

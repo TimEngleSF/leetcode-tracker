@@ -6,26 +6,7 @@ import path from 'path';
 import url from 'url';
 import chalk from 'chalk';
 
-import writeErrorToFile from '../errors/writeError.js';
-
-const loginPrompt = async () => {
-  const answers = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'username',
-      message: 'Please enter your username',
-      validate: (input) => {
-        return input.length <= 10 || 'Username shoud be 10 or less characters';
-      },
-    },
-    {
-      type: 'password',
-      name: 'password',
-      message: 'Please enter your password',
-    },
-  ]);
-  return answers;
-};
+import loginPrompt from './Prompts/loginPrompt.js';
 
 const loginToAPI = async (answers: { username: string; password: string }) => {
   const { username, password } = answers;

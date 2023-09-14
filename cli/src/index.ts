@@ -3,7 +3,7 @@ import { program } from 'commander';
 import chalk from 'chalk';
 
 import mainLoop from './mainLoop.js';
-import getAuthSelection from './Auth/getAuthSelection.js';
+import authSelectionPrompt from './Auth/Prompts/authSelectionPrompt.js';
 import registerUser from './Auth/registerUser.js';
 import loginUser from './Auth/loginUser.js';
 import { getUserJSON, printHeader } from './utils.js';
@@ -31,7 +31,7 @@ if (Object.keys(options).length === 0) {
   );
 }
 
-const authSelect = await getAuthSelection();
+const authSelect = await authSelectionPrompt();
 if (authSelect === 'register') {
   console.log(chalk.green('Registering user...'));
   await registerUser();
