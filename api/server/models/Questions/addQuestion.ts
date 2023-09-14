@@ -1,21 +1,11 @@
-import { Collection, ObjectId } from 'mongodb';
-import connectDb from '../../db/connection.js';
+import { ObjectId } from 'mongodb';
+// import connectDb from '../../db/connection.js';
 
+import { getQuestCollection } from '../../db/collections.js';
 import { addQuestIDtoUser } from './utils.js';
 import writeErrorToFile from '../../errors/writeError.js';
 
-let questCollection: Collection;
-
-const getCollection = async () => {
-  if (questCollection) {
-    return questCollection;
-  }
-
-  const db = await connectDb();
-  questCollection = db.collection('questions');
-};
-
-getCollection();
+let questCollection = await getQuestCollection();
 
 interface QuestionRequestBody {
   userID: string;

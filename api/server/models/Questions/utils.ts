@@ -1,17 +1,9 @@
 import { Collection, ObjectId } from 'mongodb';
-import connectDb from '../../db/connection.js';
+
+import { getUsersCollection } from '../../db/collections.js';
 import writeErrorToFile from '../../errors/writeError.js';
 
-let usersCollection: Collection;
-
-const getCollection = async () => {
-  if (usersCollection) {
-    return usersCollection;
-  }
-  const db = await connectDb();
-  usersCollection = db.collection('users');
-};
-getCollection();
+const usersCollection = await getUsersCollection();
 
 // Functions
 export const addQuestIDtoUser = async (questNum: number, userId: ObjectId) => {
@@ -20,13 +12,13 @@ export const addQuestIDtoUser = async (questNum: number, userId: ObjectId) => {
       { _id: userId },
       { projection: { questions: 1 } }
     );
-    console.log('hi');
     if (data !== null) {
       const { questions } = data;
       if (questions.includes(questNum)) {
         return;
       }
-      const result = await usersCollection.updateOne(
+
+      await usersCollection.updateOne(
         { _id: userId },
         { $push: { questions: questNum } }
       );

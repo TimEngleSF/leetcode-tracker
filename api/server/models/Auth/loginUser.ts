@@ -1,22 +1,12 @@
 import 'dotenv/config';
-import { Collection } from 'mongodb';
-import connectDb from '../../db/connection.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+import { getUsersCollection } from '../../db/collections.js';
 import writeErrorToFile from '../../errors/writeError.js';
 
 const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
-let usersCollection: Collection;
-
-const getCollection = async () => {
-  if (usersCollection) {
-    return usersCollection;
-  }
-  const db = await connectDb();
-  usersCollection = db.collection('users');
-};
-getCollection();
+const usersCollection = await getUsersCollection();
 
 export const loginUser = async (body: {
   username: string;
