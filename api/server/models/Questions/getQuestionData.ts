@@ -7,7 +7,6 @@ export const getQuestionData = async (questID: string) => {
   const parsedID = Number.parseInt(questID);
   try {
     const result = await questDataCollection.findOne({ questID: parsedID });
-    console.log('result', result);
     if (!result) {
       return {
         code: 400,
