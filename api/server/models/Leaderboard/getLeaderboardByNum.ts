@@ -1,22 +1,13 @@
-import { Collection, ObjectId } from 'mongodb';
-import connectDb from '../../db/connection.js';
+import { ObjectId } from 'mongodb';
 
+import {
+  getUsersCollection,
+  getQuestCollection,
+} from '../../db/collections.js';
 import writeErrorToFile from '../../errors/writeError.js';
 
-let questCollection: Collection;
-let usersCollection: Collection;
-
-const getCollection = async () => {
-  if (questCollection && usersCollection) {
-    return;
-  }
-
-  const db = await connectDb();
-  usersCollection = db.collection('users');
-  questCollection = db.collection('questions');
-};
-
-getCollection();
+const questCollection = await getQuestCollection();
+const usersCollection = await getUsersCollection();
 
 export const getLeaderboardByNum = async (questNum: string) => {
   const target = Number.parseInt(questNum);

@@ -1,22 +1,13 @@
-import 'dotenv/config';
-import { Collection, ObjectId } from 'mongodb';
-import connectDb from '../../db/connection.js';
+import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+
+import { getUsersCollection } from '../../db/collections.js';
 import writeErrorToFile from '../../errors/writeError.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-let usersCollection: Collection;
-
-const getCollection = async () => {
-  if (usersCollection) {
-    return usersCollection;
-  }
-  const db = await connectDb();
-  usersCollection = db.collection('users');
-};
-getCollection();
+const usersCollection = await getUsersCollection();
 
 const userExists = async (target: string) => {
   return await usersCollection.findOne({ username: target });
@@ -60,7 +51,6 @@ export const registerUser = async (body: RegisterRequestBody) => {
         JWT_SECRET
       );
     }
-    console.log(token);
     const userID = new ObjectId(insertResult.insertedId);
     const newDocument = await usersCollection.findOne({ _id: userID });
     const responseBody = { ...newDocument, token };

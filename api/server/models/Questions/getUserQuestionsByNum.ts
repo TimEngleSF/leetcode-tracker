@@ -1,18 +1,9 @@
-import { Collection, ObjectId } from 'mongodb';
-import connectDb from '../../db/connection.js';
+import { ObjectId } from 'mongodb';
+
+import { getQuestCollection } from '../../db/collections.js';
 import writeErrorToFile from '../../errors/writeError.js';
 
-let questCollection: Collection;
-
-const getCollection = async () => {
-  if (questCollection) {
-    return;
-  }
-  const db = await connectDb();
-  questCollection = db.collection('questions');
-};
-
-getCollection();
+const questCollection = await getQuestCollection();
 
 export const getUserQuestionsByNum = async (
   userID: string,
