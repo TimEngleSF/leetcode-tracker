@@ -56,7 +56,6 @@ export const getLeaderboardByNum = async (questNum: string) => {
         }
       })
     );
-    console.log(completeResult);
 
     if (!completeResult) {
       return {

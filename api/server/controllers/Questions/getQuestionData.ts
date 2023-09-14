@@ -4,7 +4,6 @@ import writeErrorToFile from '../../errors/writeError.js';
 
 export const getQuestionData = async (req: Request, res: Response) => {
   const { questID } = req.params;
-  console.log('controller');
   try {
     const { code, data } = await QuestModel.getQuestionData(questID);
     res.status(code).send(data);

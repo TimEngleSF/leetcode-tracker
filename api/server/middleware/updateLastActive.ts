@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import { Collection, ObjectId } from 'mongodb';
 import { Request, Response, NextFunction } from 'express';
@@ -29,13 +28,11 @@ const updateLastActive = async (
   if (!userId) {
     res.status(401).json({ msg: 'Unauthorized' });
   } else {
-    console.log('Success');
     const userObjID = new ObjectId(userId);
     const result = await usersCollection.updateOne(
       { _id: userObjID },
       { $set: { lastActivity: Date.now() } }
     );
-    console.log(result);
     next();
   }
 };

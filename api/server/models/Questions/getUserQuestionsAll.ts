@@ -13,7 +13,6 @@ export const getUserQuestionsAll = async (userID: string) => {
       .toArray();
 
     return { code: 200, data: questions };
-    console.log(questions);
   } catch (error) {
     await writeErrorToFile(error);
     return { code: 400, data: error };
