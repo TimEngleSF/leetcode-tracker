@@ -35,7 +35,6 @@ export const generalLeaderboard: any = async () => {
           return {
             name: `${data.firstName} ${data.lastInit}`,
             passed: leaderData.passedCount,
-            //   lastActive: format(new Date(data.lastActivity), 'MM-dd-yyyy hh:mma'),
             lastActive:
               lastActivity === 0 ? 'Today' : `${lastActivity} days ago`,
           };
