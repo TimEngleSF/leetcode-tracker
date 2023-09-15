@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
+import sinon, { SinonStub } from 'sinon';
 import { selectLeaderboard } from '../../../Leaderboard/Prompts/selectLeaderboardPrompt.js';
 
 describe('selectLeaderboardPrompt', () => {
-  const promptStub: any = sinon.stub();
+  let promptStub: any;
   beforeEach(() => {
-    promptStub.reset();
+    promptStub = sinon.stub();
   });
 
   it('should return a string', async () => {

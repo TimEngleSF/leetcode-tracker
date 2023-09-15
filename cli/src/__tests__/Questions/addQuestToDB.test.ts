@@ -3,15 +3,15 @@ import sinon from 'sinon';
 import addQuestionToDB from '../../Questions/addQuestionToDB.js';
 
 describe('addQuestToDB', () => {
-  const questPromptStub = sinon.stub();
-  const userJSONStub = sinon.stub();
-  const getHeadersStub = sinon.stub();
-  const axiosStub: any = sinon.stub();
+  let questPromptStub: any,
+    userJSONStub: any,
+    getHeadersStub: any,
+    axiosStub: any;
   beforeEach(() => {
-    userJSONStub.reset();
-    questPromptStub.reset();
-    getHeadersStub.reset();
-    axiosStub.reset();
+    questPromptStub = sinon.stub();
+    userJSONStub = sinon.stub();
+    getHeadersStub = sinon.stub();
+    axiosStub = sinon.stub();
   });
 
   it('should execute getQuestionsPrompt once', async () => {

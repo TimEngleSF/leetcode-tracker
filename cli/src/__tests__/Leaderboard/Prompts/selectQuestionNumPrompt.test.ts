@@ -5,10 +5,10 @@ import { selectQuestionNum } from '../../../Leaderboard/Prompts/selectQuestionNu
 import { validate } from '../../../Leaderboard/Prompts/utils.js';
 
 describe('selectQuestionNumPrompt', () => {
-  const promptStub: any = sinon.stub();
+  let promptStub: any;
 
   beforeEach(() => {
-    promptStub.restore;
+    promptStub = sinon.stub();
   });
 
   it('should return a number', async () => {

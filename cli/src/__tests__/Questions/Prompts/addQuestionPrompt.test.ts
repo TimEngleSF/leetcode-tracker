@@ -6,12 +6,11 @@ import { validate } from '../../../Questions/Prompts/utils.js';
 
 describe('addQuestionPrompt', () => {
   describe('addQuestionPrompt', () => {
-    const promptStub: any = sinon.stub();
-    const getQuestionDataStub: any = sinon.stub();
-
+    let promptStub: any;
+    let getQuestionDataStub: any;
     beforeEach(() => {
-      promptStub.reset();
-      getQuestionDataStub.reset();
+      promptStub = sinon.stub();
+      getQuestionDataStub = sinon.stub();
     });
 
     it('should ask the right questions and return the right data', async () => {
