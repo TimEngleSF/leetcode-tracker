@@ -12,10 +12,13 @@ const userJSON = async () => {
   }
 };
 
-const authSelectionPrompt = async () => {
-  const { LC_USERNAME, LC_ID, LC_TOKEN } = await userJSON();
+const authSelectionPrompt = async (
+  prompt = inquirer.prompt,
+  userJSONInstance = userJSON
+) => {
+  const { LC_USERNAME, LC_ID, LC_TOKEN } = await userJSONInstance();
   if (!LC_USERNAME || !LC_ID || !LC_TOKEN) {
-    const answers = await inquirer.prompt({
+    const answers = await prompt({
       type: 'list',
       name: 'authSelect',
       message: 'Would you like to login or register?',
