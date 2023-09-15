@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import chalk from 'chalk';
-import addQuestionPrompt from '../Questions/Prompts/addQuestionPrompt.js';
-import { validate } from '../Questions/Prompts/utils.js';
+import addQuestionPrompt from '../../../Questions/Prompts/addQuestionPrompt.js';
+import { validate } from '../../../Questions/Prompts/utils.js';
 
 describe('addQuestionPrompt', () => {
   describe('addQuestionPrompt', () => {
