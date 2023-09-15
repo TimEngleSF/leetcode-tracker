@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
-const viewPrevQuestPrompt = async () => {
-  const answers: { viewPrev: boolean } = await inquirer.prompt([
+const viewPrevQuestPrompt = async (prompt = inquirer.prompt) => {
+  const answers: { viewPrev: boolean } = await prompt([
     {
       type: 'list',
       name: 'viewPrev',

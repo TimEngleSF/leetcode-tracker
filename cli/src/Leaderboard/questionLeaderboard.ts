@@ -13,7 +13,7 @@ import {
   getDisplayTextForUser,
   initQuestTable,
 } from './helperFunc.js';
-import { selectQuestionNum } from './Prompts/selectQuestionNum.js';
+import { selectQuestionNum } from './Prompts/selectQuestionNumPrompt.js';
 
 export const questionLeaderboard: any = async () => {
   try {

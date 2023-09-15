@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
+import chalk from 'chalk';
 import addQuestionPrompt from '../Questions/Prompts/addQuestionPrompt.js';
 import { validate } from '../Questions/Prompts/utils.js';
 
@@ -79,33 +80,33 @@ describe('addQuestionPrompt', () => {
 
   describe('validateQuestNum', () => {
     it('should return true for valid numbers', async () => {
-      const result = await validate.questNum(42);
+      const result = await validate.questNum(42, true);
       expect(result).to.equal(true);
     });
 
     it('should return an error message for invalid numbers', async () => {
-      const result = await validate.questNum(10000); // or 0, or any invalid number
-      expect(result).to.equal('Number should be from 1 to 9999');
+      const result = await validate.questNum(10000, true); // or 0, or any invalid number
+      expect(result).to.equal(chalk.red('\nNumber should be from 1 to 2400'));
     });
   });
 
   describe('validateSpeed', () => {
     it('should return true for a valid speed', async () => {
-      const result = await validate.speed(42);
+      const result = await validate.speed(42, true);
       expect(result).to.equal(true);
     });
 
     it('should return an error message for values less than 0', async () => {
-      const result = await validate.speed(-1);
+      const result = await validate.speed(-1, true);
       expect(result).to.equal(
-        'Number must be between 0 and 10000\nOr no input'
+        chalk.red('\nNumber must be between 0 and 10000\nOr no input')
       );
     });
 
     it('should return an error message for values greater than 10000', async () => {
-      const result = await validate.speed(99999);
+      const result = await validate.speed(99999, true);
       expect(result).to.equal(
-        'Number must be between 0 and 10000\nOr no input'
+        chalk.red('\nNumber must be between 0 and 10000\nOr no input')
       );
     });
   });

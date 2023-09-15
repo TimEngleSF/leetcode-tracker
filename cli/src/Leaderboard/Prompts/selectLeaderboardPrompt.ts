@@ -1,11 +1,15 @@
 import inquirer from 'inquirer';
-import chalk from 'chalk';
 import { printHeader } from '../../utils.js';
 
-export const selectLeaderboard = async () => {
-  console.clear();
-  printHeader();
-  const answer = await inquirer.prompt([
+export const selectLeaderboard = async (
+  prompt = inquirer.prompt,
+  testing = false
+) => {
+  if (!testing) {
+    console.clear();
+    printHeader();
+  }
+  const answer = await prompt([
     {
       type: 'list',
       name: 'lbSelection',
