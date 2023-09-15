@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { getUsersCollection } from '../../db/collections.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -57,7 +57,7 @@ export const registerUser = async (body: RegisterRequestBody) => {
 
     return { code: 201, data: responseBody };
   } catch (error) {
-    await writeErrorToFile(error);
+    // await writeErrorToFile(error);
     return { code: 400, data: { message: 'There was an error' } };
   }
 };

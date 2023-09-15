@@ -4,7 +4,7 @@ import {
   getUsersCollection,
   getQuestCollection,
 } from '../../db/collections.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 const questCollection = await getQuestCollection();
 const usersCollection = await getUsersCollection();
@@ -68,14 +68,16 @@ export const getLeaderboardByNum = async (questNum: string) => {
       return { code: 200, data: completeResult };
     }
   } catch (error) {
-    try {
-      await writeErrorToFile(
-        error,
-        'Error arrised when executing getLeaderboardByNum model'
-      );
-      return { code: 400, error };
-    } catch (error) {
-      return { code: 500, error };
-    }
+    return { code: 400, error };
+
+    // try {
+    //   await writeErrorToFile(
+    //     error,
+    //     'Error arrised when executing getLeaderboardByNum model'
+    //   );
+    //   return { code: 400, error };
+    // } catch (error) {
+    //   return { code: 500, error };
+    // }
   }
 };

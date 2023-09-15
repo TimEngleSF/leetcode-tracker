@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import QuestModel from '../../models/Questions/index.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 export const getQuestionData = async (req: Request, res: Response) => {
   const { questID } = req.params;

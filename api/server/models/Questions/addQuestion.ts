@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 
 import { getQuestCollection } from '../../db/collections.js';
 import { addQuestIDtoUser } from './utils.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 let questCollection = await getQuestCollection();
 
@@ -33,7 +33,7 @@ export const addQuestion = async (body: QuestionRequestBody) => {
 
     return { code: 201, data: result };
   } catch (error) {
-    await writeErrorToFile(error);
+    // await writeErrorToFile(error);
     return {
       code: 500,
       data: { message: 'There was an error posting the question' },

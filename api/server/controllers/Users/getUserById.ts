@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { Request, Response } from 'express-serve-static-core';
 import { Collection, ObjectId } from 'mongodb';
 import connectDb from '../../db/connection.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 let usersCollection: Collection;
 const getCollection = async () => {
@@ -22,7 +22,7 @@ export const getUserByID = async (req: Request, res: Response) => {
 
   try {
   } catch (error) {
-    await writeErrorToFile(error);
+    // await writeErrorToFile(error);
     res.send({ error: error }).status(400);
   }
 };

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express-serve-static-core';
 import { registerSchema } from '../../db/schemas/auth.js';
 import AuthModel from '../../models/Auth/index.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 export const register = async (req: Request, res: Response) => {
   const { body } = req;
@@ -17,7 +17,7 @@ export const register = async (req: Request, res: Response) => {
     const { code, data } = await AuthModel.registerUser(body);
     res.status(code).send(data);
   } catch (error) {
-    await writeErrorToFile(error);
+    // await writeErrorToFile(error);
     res.send({ error: error });
   }
 };

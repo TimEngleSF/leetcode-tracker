@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { getQuestCollection } from '../../db/collections.js';
 
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 const questCollection = await getQuestCollection();
 
@@ -18,7 +18,7 @@ export const getQuestion = async (questID: string) => {
       return { code: 200, data: result };
     }
   } catch (error) {
-    await writeErrorToFile(error);
+    // await writeErrorToFile(error);
     return { code: 400, error };
   }
 };

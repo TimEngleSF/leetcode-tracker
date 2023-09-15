@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import QuestModel from '../../models/Questions/index.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 export const getQuestion = async (req: Request, res: Response) => {
   const { questID } = req.params;
@@ -9,7 +9,7 @@ export const getQuestion = async (req: Request, res: Response) => {
     const { code, data } = await QuestModel.getQuestion(questID);
     res.status(code).send(data);
   } catch (error) {
-    await writeErrorToFile(error);
+    // await writeErrorToFile(error);
     res.status(404).send(error);
   }
   // res.send(`You are looking for your data on question ${questID}`);

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { createResIncorrectQuery } from './utils.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 import QuestModel from '../../models/Questions/index.js';
 
@@ -19,7 +19,7 @@ export const getAllQuestionsByUser = async (req: Request, res: Response) => {
       res.status(code).send(data);
       return;
     } catch (error) {
-      await writeErrorToFile(error);
+      // await writeErrorToFile(error);
       res.status(500).send({ message: error });
       return;
     }
@@ -34,7 +34,7 @@ export const getAllQuestionsByUser = async (req: Request, res: Response) => {
       res.status(code).send(data);
       return;
     } catch (error) {
-      await writeErrorToFile(error);
+      // await writeErrorToFile(error);
       res.status(500).send({ message: error });
       return;
     }

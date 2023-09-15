@@ -1,7 +1,7 @@
 import { Collection, ObjectId } from 'mongodb';
 
 import { getUsersCollection } from '../../db/collections.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 const usersCollection = await getUsersCollection();
 
@@ -24,6 +24,6 @@ export const addQuestIDtoUser = async (questNum: number, userId: ObjectId) => {
       );
     }
   } catch (error) {
-    await writeErrorToFile(error);
+    // await writeErrorToFile(error);
   }
 };

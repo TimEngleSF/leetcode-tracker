@@ -1,5 +1,5 @@
 import { getQuestInfoCollection } from '../../db/collections.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 const questDataCollection = await getQuestInfoCollection();
 
@@ -16,7 +16,7 @@ export const getQuestionData = async (questID: string) => {
       return { code: 200, data: result };
     }
   } catch (error) {
-    await writeErrorToFile(error);
+    // await writeErrorToFile(error);
     return { code: 400, error };
   }
 };

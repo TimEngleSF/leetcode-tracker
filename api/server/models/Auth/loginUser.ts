@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { getUsersCollection } from '../../db/collections.js';
-import writeErrorToFile from '../../errors/writeError.js';
+// import writeErrorToFile from '../../errors/writeError.js';
 
 const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
 const usersCollection = await getUsersCollection();
@@ -45,7 +45,7 @@ export const loginUser = async (body: {
       };
     }
   } catch (error) {
-    await writeErrorToFile(error);
+    // await writeErrorToFile(error);
     return {
       code: 400,
       message: { error },

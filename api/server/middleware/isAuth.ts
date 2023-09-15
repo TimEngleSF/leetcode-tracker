@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import writeErrorToFile from '../errors/writeError.js';
+// import writeErrorToFile from '../errors/writeError.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -31,7 +31,7 @@ const isAuth = async (
     decodedToken = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
   } catch (error: any) {
     if (error instanceof Error) {
-      writeErrorToFile(error, 'Error arrised while authentication user.');
+      // writeErrorToFile(error, 'Error arrised while authentication user.');
       return res
         .status(500)
         .json({ message: error.message || 'Token could not be decoded' });
