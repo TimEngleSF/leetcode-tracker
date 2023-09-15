@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import viewPrevQuestPrompt from '../Questions/Prompts/viewPrevQuestPrompt.js';
+import viewPrevQuestPrompt from '../../../Questions/Prompts/viewPrevQuestPrompt.js';
 
 describe('viewPrevQuestionPrompt', () => {
   const selectionPrompt: any = sinon.stub();
