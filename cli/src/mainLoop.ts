@@ -7,7 +7,7 @@ import addQuestionToDB from './Questions/addQuestionToDB.js';
 import viewPrevQuestPrompt from './Questions/Prompts/viewPrevQuestPrompt.js';
 import getAllUserQuestsByQuestNum from './Questions/getAllUserQuestsByQuestNum.js';
 import { generalLeaderboard } from './Leaderboard/generalLeaderboard.js';
-import { selectLeaderboard } from './Leaderboard/Prompts/selectLeaderboard.js';
+import { selectLeaderboard } from './Leaderboard/Prompts/selectLeaderboardPrompt.js';
 import { questionLeaderboard } from './Leaderboard/questionLeaderboard.js';
 
 const mainLoop = async () => {
