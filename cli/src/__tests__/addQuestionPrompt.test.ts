@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import sinon, { SinonStub } from 'sinon';
-import * as utils from '../utils.js';
+import sinon from 'sinon';
 import addQuestionPrompt from '../Questions/Prompts/addQuestionPrompt.js';
 import { validate } from '../Questions/Prompts/utils.js';
 
@@ -21,7 +20,11 @@ describe('addQuestionPrompt', () => {
         .onCall(1)
         .resolves({ passed: true, isAddTimeValid: true, speed: 100 });
 
-      const result = await addQuestionPrompt(promptStub, getQuestionDataStub);
+      const result = await addQuestionPrompt(
+        promptStub,
+        getQuestionDataStub,
+        true
+      );
 
       expect(promptStub.callCount).to.equal(2);
       expect(getQuestionDataStub.callCount).to.equal(1);
@@ -41,7 +44,11 @@ describe('addQuestionPrompt', () => {
         .onCall(1)
         .resolves({ passed: true, isAddTimeValid: false, speed: null });
 
-      const result = await addQuestionPrompt(promptStub, getQuestionDataStub);
+      const result = await addQuestionPrompt(
+        promptStub,
+        getQuestionDataStub,
+        true
+      );
 
       expect(promptStub.callCount).to.equal(2);
       expect(getQuestionDataStub.callCount).to.equal(1);
@@ -59,7 +66,11 @@ describe('addQuestionPrompt', () => {
         promptStub.onCall(0).rejects(new Error('Invalid question number'));
         promptStub.onCall(1).resolves({ retry: false });
 
-        const result = await addQuestionPrompt(promptStub, getQuestionDataStub);
+        const result = await addQuestionPrompt(
+          promptStub,
+          getQuestionDataStub,
+          true
+        );
 
         expect(result).to.equal(null);
       });

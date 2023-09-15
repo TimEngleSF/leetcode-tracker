@@ -10,7 +10,8 @@ const addQuestionToDB = async (
   questPrompt = addQuestionPrompt,
   userJson = getUserJSON,
   getHeaders = getAuthHeaders,
-  axiosInstance = axios
+  axiosInstance = axios,
+  testing = false
 ) => {
   try {
     const answers = await questPrompt();
@@ -35,7 +36,9 @@ const addQuestionToDB = async (
       data: payload,
     });
 
-    console.log(chalk.green('\nSuccessfuly added your question!\n'));
+    if (!testing) {
+      console.log(chalk.green('\nSuccessfuly added your question!\n'));
+    }
 
     return answers.questNum;
   } catch (error) {
@@ -45,7 +48,9 @@ const addQuestionToDB = async (
       path.join(__dirname, '..', 'test.txt'),
       JSON.stringify(error)
     );
-    console.log(chalk.red(error));
+    if (!testing) {
+      console.log(chalk.red(error));
+    }
   }
 };
 

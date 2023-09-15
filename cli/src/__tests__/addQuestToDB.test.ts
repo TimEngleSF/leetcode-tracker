@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import sinon, { SinonStub } from 'sinon';
+import sinon from 'sinon';
 import addQuestionToDB from '../Questions/addQuestionToDB.js';
 
 describe('addQuestToDB', () => {
@@ -29,7 +29,13 @@ describe('addQuestToDB', () => {
     getHeadersStub.resolves({ Authorization: 'Bearer Token' });
     axiosStub.resolves({ data: 'some data' });
 
-    await addQuestionToDB(questPromptStub, userJSONStub, getHeadersStub);
+    await addQuestionToDB(
+      questPromptStub,
+      userJSONStub,
+      getHeadersStub,
+      axiosStub,
+      true
+    );
     expect(questPromptStub.calledOnce).to.be.true;
   });
 
@@ -53,7 +59,8 @@ describe('addQuestToDB', () => {
       questPromptStub,
       userJSONStub,
       getHeadersStub,
-      axiosStub
+      axiosStub,
+      true
     );
 
     expect(axiosStub.calledOnce).to.be.true;
@@ -79,7 +86,8 @@ describe('addQuestToDB', () => {
         questPromptStub,
         userJSONStub,
         getHeadersStub,
-        axiosStub
+        axiosStub,
+        true
       );
     } catch (error: any) {
       expect(error.response.status).to.equal(401);
