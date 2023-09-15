@@ -1,23 +1,22 @@
 import inquirer from 'inquirer';
-import chalk from 'chalk';
 import { printHeader } from '../../utils.js';
+import { validate } from './utils.js';
 
-export const selectQuestionNum = async () => {
-  console.clear();
-  printHeader();
-  const answer = await inquirer.prompt([
+export const selectQuestionNum = async (
+  prompt = inquirer.prompt,
+  testing = false
+) => {
+  if (!testing) {
+    console.clear();
+    printHeader();
+  }
+  const answer = await prompt([
     {
       type: 'number',
       name: 'questID',
       message: "Enter a question number to view it's leaderboard",
-      validate: (number) => {
-        return (
-          (number > 0 && number < 2400) ||
-          console.log(chalk.red('\nQuestion number must be between 0 and 2400'))
-        );
-      },
+      validate: validate.questNum,
     },
   ]);
-  console.log(answer.questID);
   return answer.questID;
 };
