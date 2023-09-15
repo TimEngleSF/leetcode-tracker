@@ -11,7 +11,8 @@ interface QuestionAnswer {
 }
 const addQuestionPrompt = async (
   prompt = inquirer.prompt,
-  getQuestData = getQuestionData
+  getQuestData = getQuestionData,
+  testing = false
 ): Promise<QuestionAnswer | null> => {
   try {
     const questNumAnswer: {
@@ -27,17 +28,22 @@ const addQuestionPrompt = async (
         validate: validate.questNum,
       },
     ]);
-    const questData = await getQuestData(questNumAnswer.questNum);
 
-    console.log(
-      `\nEntering result for: ${chalk.magenta(questData.title)}\nDifficulty: ${
-        questData.diff === 'Easy'
-          ? chalk.green('Easy')
-          : questData === 'Medium'
-          ? chalk.yellow('Medium')
-          : chalk.red('Hard')
-      }\n`
-    );
+    const questData = await getQuestData(questNumAnswer.questNum);
+    if (!testing) {
+      console.log(
+        `\nEntering result for: ${chalk.magenta(
+          questData.title
+        )}\nDifficulty: ${
+          questData.diff === 'Easy'
+            ? chalk.green('Easy')
+            : questData === 'Medium'
+            ? chalk.yellow('Medium')
+            : chalk.red('Hard')
+        }\n`
+      );
+    }
+
     const remainingAnswers = await prompt([
       {
         type: 'list',
@@ -82,7 +88,9 @@ const addQuestionPrompt = async (
     if (shouldRetry.retry) {
       return await addQuestionPrompt();
     } else {
-      console.error(chalk.red('Operation was not successful.'));
+      if (!testing) {
+        console.error(chalk.red('Operation was not successful.'));
+      }
       return null;
     }
   }
