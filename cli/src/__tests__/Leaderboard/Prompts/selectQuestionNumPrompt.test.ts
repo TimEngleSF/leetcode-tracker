@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import chalk from 'chalk';
-import { selectQuestionNum } from '../Leaderboard/Prompts/selectQuestionNumPrompt.js';
-import { validate } from '../Leaderboard/Prompts/utils.js';
+import { selectQuestionNum } from '../../../Leaderboard/Prompts/selectQuestionNumPrompt.js';
+import { validate } from '../../../Leaderboard/Prompts/utils.js';
 
 describe('selectQuestionNumPrompt', () => {
   const promptStub: any = sinon.stub();

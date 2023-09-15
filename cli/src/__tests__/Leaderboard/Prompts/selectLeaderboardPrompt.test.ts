@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { selectLeaderboard } from '../Leaderboard/Prompts/selectLeaderboardPrompt.js';
+import { selectLeaderboard } from '../../../Leaderboard/Prompts/selectLeaderboardPrompt.js';
 
 describe('selectLeaderboardPrompt', () => {
   const promptStub: any = sinon.stub();

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import addQuestionToDB from '../Questions/addQuestionToDB.js';
+import addQuestionToDB from '../../Questions/addQuestionToDB.js';
 
 describe('addQuestToDB', () => {
   const questPromptStub = sinon.stub();
