@@ -1,51 +1,46 @@
-import { getQuestCollection } from '../../db/collections.js';
-// import writeErrorToFile from '../../errors/writeError.js';
+import { ObjectId } from 'mongodb';
 
-let questCollection = await getQuestCollection();
+import {
+  getGenLeaderboardResults,
+  getCompleteTop10Results,
+  getUserResults,
+} from './utils.js';
 
-export const getGeneralLeaderBoard = async () => {
+export const getGeneralLeaderBoard = async (userId: string) => {
   try {
-    const result = await questCollection
-      .aggregate([
-        {
-          $group: {
-            _id: '$userID',
-            passedCount: {
-              $sum: {
-                $cond: [
-                  {
-                    $eq: ['$passed', true],
-                  },
-                  1,
-                  0,
-                ],
-              },
-            },
-          },
-        },
-      ])
-      .toArray();
-    if (!result) {
+    const loggedInUserObjID = new ObjectId(userId);
+
+    const leaderResults = await getGenLeaderboardResults();
+
+    if (!leaderResults) {
       return {
         code: 400,
         data: {
           message: `There are no questions added to the database yet!\nPlease add the first question.`,
         },
       };
-    } else {
-      return { code: 200, data: result };
     }
+
+    const top10Data = await getCompleteTop10Results(
+      loggedInUserObjID,
+      leaderResults
+    );
+
+    const userResults = await getUserResults(loggedInUserObjID);
+    console.log(userResults);
+
+    const responseData = {
+      userData: {
+        userId: userResults.userId,
+        name: userResults.name,
+        passedCount: userResults.passedCount,
+        rank: top10Data.loggedInUserRank,
+      },
+      leaderboardData: top10Data.completeTop10Results,
+    };
+
+    return { code: 200, data: responseData };
   } catch (error) {
     return { code: 400, error };
-
-    // try {
-    //   await writeErrorToFile(
-    //     error,
-    //     'Error arrised when executing getGeneralLeaderBoard model'
-    //   );
-    //   return { code: 400, error };
-    // } catch (error) {
-    //   return { code: 500, error };
-    // }
   }
 };

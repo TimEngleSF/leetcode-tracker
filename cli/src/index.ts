@@ -56,6 +56,12 @@ if (options.login) {
 if (options.run) {
   console.clear();
   printHeader();
+  userObject = await getUserJSON();
+  console.log(
+    chalk.green(
+      `Welcome ${userObject.LC_FIRSTNAME} ${userObject.LC_LASTINIT}.\n`
+    )
+  );
   await mainLoop();
 }
 

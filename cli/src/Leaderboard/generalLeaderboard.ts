@@ -1,54 +1,51 @@
 import axios from 'axios';
-import Table from 'cli-table3';
 import writeErrorToFile from '../errors/writeError.js';
 import { getAuthHeaders } from '../utils.js';
-import { format, differenceInDays } from 'date-fns';
+import { differenceInDays } from 'date-fns';
+import {
+  getDisplayTextForUser,
+  initGeneralTable,
+  formatRank,
+} from './helperFunc.js';
 
 export const generalLeaderboard: any = async () => {
   try {
     const authHeader = await getAuthHeaders();
-    const leaderData = await axios({
+    const { data } = await axios({
       method: 'GET',
       url: 'http://localhost:3000/leaderboard',
       headers: { ...authHeader },
     });
 
-    const getUserData = async (userID: string) =>
-      await axios({
-        method: 'GET',
-        url: `http://localhost:3000/users/${userID}`,
-        headers: { ...authHeader },
-      });
-
-    const sortedLeaderData = leaderData.data.sort(
-      (a: any, b: any) => b.passedCount - a.passedCount
+    const completeLeaderData = await data.leaderboardData.map(
+      (leaderData: {
+        userId: string;
+        name: string;
+        passedCount: number;
+        lastActivity: number;
+      }) => {
+        const lastActivity = differenceInDays(
+          new Date(),
+          new Date(leaderData.lastActivity)
+        );
+        return {
+          name: leaderData.name,
+          passed: leaderData.passedCount,
+          lastActive: lastActivity === 0 ? 'Today' : `${lastActivity} days ago`,
+        };
+      }
     );
 
-    const completeLeaderData = await Promise.all(
-      sortedLeaderData.map(
-        async (leaderData: { _id: string; passedCount: number }) => {
-          const { data } = await getUserData(leaderData._id);
-          const lastActivity = differenceInDays(
-            new Date(),
-            new Date(data.lastActivity)
-          );
-          return {
-            name: `${data.firstName} ${data.lastInit}`,
-            passed: leaderData.passedCount,
-            lastActive:
-              lastActivity === 0 ? 'Today' : `${lastActivity} days ago`,
-          };
-        }
-      )
-    );
+    const table = initGeneralTable();
 
-    console.table(completeLeaderData);
+    completeLeaderData.forEach((rowData: any, i: number) => {
+      const rank = formatRank(i);
 
-    // const table = new Table({
-    //   head: User,
-    // });
+      table.push([rank, rowData.name, rowData.passed, rowData.lastActive]);
+    });
 
-    // console.log('hello', leaderData.data);
+    console.log(`\n${getDisplayTextForUser(data.userData)}\n`);
+    console.log(table.toString());
   } catch (error: any) {
     console.log(error);
     await writeErrorToFile(
@@ -57,5 +54,3 @@ export const generalLeaderboard: any = async () => {
     );
   }
 };
-
-// await generalLeaderboard();
