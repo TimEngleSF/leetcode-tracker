@@ -49,7 +49,7 @@ export const getCompleteTop10Results = async (
 
         return {
           userID: userResults._id,
-          fullName: `${userData.firstName} ${userData.lastInit}.`,
+          name: `${userData.firstName} ${userData.lastInit}.`,
           passedCount: userResults.passedCount,
           lastActivity: userData.lastActivity,
         };
