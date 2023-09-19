@@ -43,11 +43,11 @@ export const generalLeaderboard: any = async () => {
 
       table.push([rank, rowData.name, rowData.passed, rowData.lastActive]);
     });
-
-    console.log(`\n${getDisplayTextForUser(data.userData)}\n`);
+    if (data.userData) {
+      console.log(`\n${getDisplayTextForUser(data.userData)}\n`);
+    }
     console.log(table.toString());
   } catch (error: any) {
-    console.log(error);
     await writeErrorToFile(
       error,
       'Error arrised while executing generalLeaderBoard function'

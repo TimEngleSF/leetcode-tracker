@@ -37,6 +37,15 @@ export const getLeaderboardByNum = async (questNum: string) => {
       ])
       .toArray();
 
+    if (!leaderDataResult) {
+      return {
+        code: 404,
+        data: {
+          message: `There is no question with an ID of ${target}`,
+        },
+      };
+    }
+
     const sortedResult = leaderDataResult
       .slice()
       .sort((a, b) => b.passedCount - a.passedCount);
@@ -57,27 +66,8 @@ export const getLeaderboardByNum = async (questNum: string) => {
       })
     );
 
-    if (!completeResult) {
-      return {
-        code: 404,
-        data: {
-          message: `There is no question with an ID of ${target}`,
-        },
-      };
-    } else {
-      return { code: 200, data: completeResult };
-    }
+    return { code: 200, data: completeResult };
   } catch (error) {
     return { code: 400, error };
-
-    // try {
-    //   await writeErrorToFile(
-    //     error,
-    //     'Error arrised when executing getLeaderboardByNum model'
-    //   );
-    //   return { code: 400, error };
-    // } catch (error) {
-    //   return { code: 500, error };
-    // }
   }
 };

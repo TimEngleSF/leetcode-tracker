@@ -67,7 +67,9 @@ export const questionLeaderboard: any = async () => {
     console.log(
       chalk.magenta(`${questionData.questID}. ${questionData.title}\n`)
     );
-    console.log(userDisplayText);
+    if (!userDisplayText.includes('undefined')) {
+      console.log(userDisplayText);
+    }
     console.log(table.toString());
   } catch (error: any) {
     console.log(error);
