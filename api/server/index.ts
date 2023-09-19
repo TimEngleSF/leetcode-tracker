@@ -26,6 +26,7 @@ const startServer = async () => {
     app.use(updateLastActive);
     app.use('/questions', routes.questionsRouter);
     app.use('/leaderboard', routes.leaderboardRouter);
+    app.use('/review', routes.reviewRouter);
 
     app.listen(PORT, () => {
       console.log(
