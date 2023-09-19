@@ -69,40 +69,44 @@ export const getCompleteTop10Results = async (
 };
 
 export const getUserResults = async (loggedInUserId: ObjectId) => {
-  const userResults = await questCollection
-    .aggregate([
-      {
-        $match: {
-          userID: loggedInUserId,
-          passed: true,
+  try {
+    const userResults = await questCollection
+      .aggregate([
+        {
+          $match: {
+            userID: loggedInUserId,
+            passed: true,
+          },
         },
-      },
-      {
-        $group: {
-          _id: '$userID',
-          passedCount: {
-            $sum: {
-              $cond: [
-                {
-                  $eq: ['$passed', true],
-                },
-                1,
-                0,
-              ],
+        {
+          $group: {
+            _id: '$userID',
+            passedCount: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ['$passed', true],
+                  },
+                  1,
+                  0,
+                ],
+              },
             },
           },
         },
-      },
-    ])
-    .toArray();
+      ])
+      .toArray();
 
-  const userInfo = await usersCollection.findOne({ _id: loggedInUserId });
-  if (!userResults || !userInfo) {
-    throw new Error(`No question data has been added for user`);
+    const userInfo = await usersCollection.findOne({ _id: loggedInUserId });
+    if (!userResults || !userInfo) {
+      throw new Error(`No question data has been added for user`);
+    }
+    return {
+      userId: loggedInUserId.toHexString(),
+      name: `${userInfo.firstName} ${userInfo.lastInit}`,
+      passedCount: userResults[0].passedCount,
+    };
+  } catch (error) {
+    return null;
   }
-  return {
-    userId: loggedInUserId.toHexString(),
-    name: `${userInfo.firstName} ${userInfo.lastInit}`,
-    passedCount: userResults[0].passedCount,
-  };
 };

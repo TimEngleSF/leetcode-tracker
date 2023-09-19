@@ -29,15 +29,23 @@ export const getGeneralLeaderBoard = async (userId: string) => {
     const userResults = await getUserResults(loggedInUserObjID);
     console.log(userResults);
 
-    const responseData = {
-      userData: {
-        userId: userResults.userId,
-        name: userResults.name,
-        passedCount: userResults.passedCount,
-        rank: top10Data.loggedInUserRank,
-      },
-      leaderboardData: top10Data.completeTop10Results,
-    };
+    let responseData;
+    if (userResults) {
+      responseData = {
+        userData: {
+          userId: userResults.userId,
+          name: userResults.name,
+          passedCount: userResults.passedCount,
+          rank: top10Data.loggedInUserRank,
+        },
+        leaderboardData: top10Data.completeTop10Results,
+      };
+    } else {
+      responseData = {
+        userData: null,
+        leaderboardData: top10Data.completeTop10Results,
+      };
+    }
 
     return { code: 200, data: responseData };
   } catch (error) {
