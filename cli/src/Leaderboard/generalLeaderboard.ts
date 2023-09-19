@@ -8,10 +8,14 @@ import {
   formatRank,
 } from './helperFunc.js';
 
-export const generalLeaderboard: any = async () => {
+export const generalLeaderboard: any = async (
+  getAuthHeadersInstance = getAuthHeaders,
+  axiosInstance = axios,
+  writeErrorInstance = writeErrorToFile
+) => {
   try {
-    const authHeader = await getAuthHeaders();
-    const { data } = await axios({
+    const authHeader = await getAuthHeadersInstance();
+    const { data } = await axiosInstance({
       method: 'GET',
       url: 'http://localhost:3000/leaderboard',
       headers: { ...authHeader },
@@ -48,7 +52,7 @@ export const generalLeaderboard: any = async () => {
     }
     console.log(table.toString());
   } catch (error: any) {
-    await writeErrorToFile(
+    await writeErrorInstance(
       error,
       'Error arrised while executing generalLeaderBoard function'
     );
