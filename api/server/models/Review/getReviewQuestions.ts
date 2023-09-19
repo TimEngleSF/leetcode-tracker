@@ -1,8 +1,4 @@
-import { ObjectId } from 'mongodb';
 import { getReviewQuestionsResults } from './utils.js';
-import { getQuestCollection } from '../../db/collections.js';
-
-let questCollection = await getQuestCollection();
 
 export const getReviewQuestions = async (
   userID: string,
