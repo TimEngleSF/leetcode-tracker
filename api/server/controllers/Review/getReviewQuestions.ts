@@ -11,7 +11,7 @@ export const getReviewQuestions = async (req: Request, res: Response) => {
       olderThan,
       newerThan
     );
-    res.status(200).send('Hello');
+    res.status(code).send(data);
   } catch (error) {
     res.status(404).send(error);
   }
