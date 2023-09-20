@@ -132,4 +132,5 @@ dist
 # compiled js
 /api/server/*.js
 /api/server/*/*.js
+/cli/src/__tests__/testVariables.ts
 
