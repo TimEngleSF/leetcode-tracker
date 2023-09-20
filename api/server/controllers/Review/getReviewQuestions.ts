@@ -4,8 +4,9 @@ import ReviewModel from '../../models/Review/index.js';
 
 export const getReviewQuestions = async (req: Request, res: Response) => {
   try {
-    const { userID, olderThan, newerThan } = req.body;
-    console.log(userID, olderThan, newerThan);
+    const userID = (req as any).user.userId;
+    const { olderThan, newerThan } = req.body;
+
     const { code, data } = await ReviewModel.getReviewQuestions(
       userID,
       olderThan,
