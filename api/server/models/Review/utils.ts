@@ -6,36 +6,45 @@ const convertDaysToMillis = (days: number): number =>
 
 export const getReviewQuestionsResults = async (
   userId: string,
-  olderThanDays: number,
-  newerThanDays: number
+  endOfRangeDays: number,
+  startOfRangeDays: number
 ) => {
   const questCollection = await getQuestCollection();
 
   const currentTime = Date.now();
-  const olderThan = currentTime - convertDaysToMillis(olderThanDays);
-  const newerThan = currentTime - convertDaysToMillis(newerThanDays);
+  const endOfRangeMillis = currentTime - convertDaysToMillis(endOfRangeDays);
+  const startOfRangeMillis =
+    currentTime - convertDaysToMillis(startOfRangeDays);
 
+  // Stage 1: Get excluded questNums
+  const excludeResults = await questCollection
+    .find({
+      userID: new ObjectId(userId),
+      created: { $gte: endOfRangeMillis },
+    })
+    .project({ questNum: 1, _id: 0 })
+    .toArray();
+
+  const excludeQuestNums = excludeResults.map((doc) => doc.questNum);
+
+  // Stage 2: Actual query
   const results = await questCollection
     .aggregate([
       {
         $match: {
           userID: new ObjectId(userId),
+          questNum: { $nin: excludeQuestNums },
           created: {
-            $gt: newerThan,
-            $lt: olderThan,
+            $gte: startOfRangeMillis,
+            $lte: endOfRangeMillis,
           },
         },
       },
       {
-        $sort: {
-          created: -1,
-        },
+        $sort: { created: -1 },
       },
       {
-        $group: {
-          _id: '$questNum',
-          mostRecentDocument: { $first: '$$ROOT' },
-        },
+        $group: { _id: '$questNum' },
       },
       {
         $group: {
@@ -44,17 +53,10 @@ export const getReviewQuestionsResults = async (
         },
       },
       {
-        $project: {
-          _id: 0,
-          reviewQuestions: '$uniqueQuestNums',
-        },
+        $project: { _id: 0, reviewQuestions: '$uniqueQuestNums' },
       },
     ])
     .toArray();
 
-  if (results[0] && results[0].reviewQuestions) {
-    return results[0].reviewQuestions;
-  } else {
-    return [];
-  }
+  return results[0]?.reviewQuestions || [];
 };
