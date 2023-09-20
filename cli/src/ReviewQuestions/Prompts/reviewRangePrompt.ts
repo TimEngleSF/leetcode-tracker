@@ -9,10 +9,10 @@ const reviewRangePrompt = async (prompt = inquirer.prompt) => {
       'Please select an option to view questions for review'
     ),
     choices: [
-      { name: '3 days ago', value: 3 },
-      { name: '1 week ago', value: 7 },
-      { name: '2 weeks ago', value: 14 },
-      { name: '4 weeks ago', value: 28 },
+      { name: '3 days ago', value: { olderThan: 3, newerThan: 7 } },
+      { name: '1 week ago', value: { olderThan: 7, newerThan: 14 } },
+      { name: '2 weeks ago', value: { olderThan: 14, newerThan: 28 } },
+      { name: '4 weeks ago', value: { olderThan: 28, newerThan: 365 } },
     ],
   });
   return answer.timeSelection;
