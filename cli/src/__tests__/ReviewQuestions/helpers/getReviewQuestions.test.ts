@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { getReviewQuestions } from '../../ReviewQuestions/helpers/getReviewQuestions.js';
-import testVars from '../testVariables.js';
+import { getReviewQuestions } from '../../../ReviewQuestions/helpers/getReviewQuestions.js';
+import testVars from '../../testVariables.js';
 
 describe('getReviewQuestions', () => {
   let axiosStub: any;
