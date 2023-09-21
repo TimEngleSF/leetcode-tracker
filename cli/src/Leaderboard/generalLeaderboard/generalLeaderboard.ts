@@ -1,12 +1,9 @@
 import axios from 'axios';
-import writeErrorToFile from '../errors/writeError.js';
-import { getAuthHeaders } from '../utils.js';
+import writeErrorToFile from '../../errors/writeError.js';
+import { getAuthHeaders } from '../../utils.js';
 import { differenceInDays } from 'date-fns';
-import {
-  getDisplayTextForUser,
-  initGeneralTable,
-  formatRank,
-} from './helperFunc.js';
+import { getDisplayTextForUser, formatRank } from '../utils.js';
+import { initGeneralTable } from './helpers/utils.js';
 
 export const generalLeaderboard: any = async (
   getAuthHeadersInstance = getAuthHeaders,
@@ -47,6 +44,7 @@ export const generalLeaderboard: any = async (
 
       table.push([rank, rowData.name, rowData.passed, rowData.lastActive]);
     });
+
     if (data.userData) {
       console.log(`\n${getDisplayTextForUser(data.userData)}\n`);
     }

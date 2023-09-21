@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import axios from 'axios';
-import { generalLeaderboard } from '../../Leaderboard/generalLeaderboard.js';
+import { generalLeaderboard } from '../../Leaderboard/generalLeaderboard/generalLeaderboard.js';
 
 describe('generalLeaderboard', () => {
   let axiosStub: any;

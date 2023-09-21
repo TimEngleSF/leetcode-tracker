@@ -1,5 +1,5 @@
-import { getGeneralLeaderBoard } from './getGeneralLeaderBoard.js';
-import { getLeaderboardByNum } from './getLeaderboardByNum.js';
+import { getGeneralLeaderBoard } from './generalLeaderboard.ts/getGeneralLeaderBoard.js';
+import { getLeaderboardByNum } from './questionLeaderboard.ts/getLeaderboardByNum.js';
 
 const LeaderModel = {
   getGeneralLeaderBoard,

@@ -28,5 +28,3 @@ export const getReviewQuestions = async (
     );
   }
 };
-
-console.log(await getReviewQuestions({ olderThan: 7, newerThan: 14 }));

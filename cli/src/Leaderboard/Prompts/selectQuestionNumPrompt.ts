@@ -17,6 +17,15 @@ export const selectQuestionNum = async (
       message: "Enter a question number to view it's leaderboard",
       validate: validate.questNum,
     },
+    {
+      type: 'list',
+      name: 'sortingSelection',
+      message: 'Which leaderboard would you like to view?',
+      choices: [
+        { name: 'Fastest execution time', value: 'minSpeed' },
+        { name: 'Amount of times passed', value: 'passedCount' },
+      ],
+    },
   ]);
-  return answer.questID;
+  return answer;
 };
