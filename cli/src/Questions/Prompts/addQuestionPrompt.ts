@@ -37,7 +37,7 @@ const addQuestionPrompt = async (
         )}\nDifficulty: ${
           questData.diff === 'Easy'
             ? chalk.green('Easy')
-            : questData === 'Medium'
+            : questData.diff === 'Medium'
             ? chalk.yellow('Medium')
             : chalk.red('Hard')
         }\n`

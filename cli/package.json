@@ -18,7 +18,8 @@
     "date-fns": "^2.30.0",
     "dotenv": "^16.3.1",
     "figlet": "^1.6.0",
-    "inquirer": "^9.2.10"
+    "inquirer": "^9.2.10",
+    "open": "^9.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.6",

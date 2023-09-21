@@ -1,6 +1,6 @@
 import axios from 'axios';
-import writeErrorToFile from '../errors/writeError.js';
-import { getAuthHeaders } from '../utils.js';
+import writeErrorToFile from '../../errors/writeError.js';
+import { getAuthHeaders } from '../../utils.js';
 
 export const getReviewQuestions = async (
   reviewRangeSelection: { olderThan: number; newerThan: number },
@@ -29,4 +29,4 @@ export const getReviewQuestions = async (
   }
 };
 
-// await getReviewQuestions({ olderThan: 3, newerThan: 7 });
+console.log(await getReviewQuestions({ olderThan: 7, newerThan: 14 }));
