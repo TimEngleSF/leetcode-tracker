@@ -9,6 +9,7 @@ import getAllUserQuestsByQuestNum from './Questions/getAllUserQuestsByQuestNum.j
 import { generalLeaderboard } from './Leaderboard/generalLeaderboard.js';
 import { selectLeaderboard } from './Leaderboard/Prompts/selectLeaderboardPrompt.js';
 import { questionLeaderboard } from './Leaderboard/questionLeaderboard.js';
+import ReviewQuestions from './ReviewQuestions/ReviewQuestions.js';
 
 const mainLoop = async () => {
   let isRunning = true;
@@ -44,9 +45,7 @@ const mainLoop = async () => {
         choices: [
           { name: 'Add Question Result', value: 'addQuestion' },
           { name: 'Leaderboard', value: 'leaderboard' },
-          'Review Questions',
-          'View History',
-          'Login',
+          { name: 'Review Questions', value: 'review' },
           { name: 'Logout', value: 'logout' },
           { name: 'Exit', value: 'exit' },
         ],
@@ -54,17 +53,11 @@ const mainLoop = async () => {
     ]);
     console.clear();
     printHeader();
-
     switch (action.nextAction) {
-      case 'Login':
-        console.log(chalk.green('Logging in...'));
-        await loginUser();
-        break;
       case 'addQuestion':
         console.log(chalk.green('Adding question...'));
         questNum = await addQuestionToDB();
         viewPrevQuest = await viewPrevQuestPrompt();
-
         console.clear();
         printHeader();
         break;
@@ -74,9 +67,15 @@ const mainLoop = async () => {
         if (answer === 'general') {
           await generalLeaderboard();
         } else {
-          // console.log('Coming soon...');
           await questionLeaderboard();
         }
+        break;
+      case 'review':
+        console.clear();
+        printHeader();
+        await ReviewQuestions();
+        console.clear();
+        printHeader();
         break;
       case 'logout':
         console.clear();
