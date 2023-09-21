@@ -4,7 +4,7 @@ import {
   getGenLeaderboardResults,
   getCompleteTop10Results,
   getUserResults,
-} from './utils.js';
+} from './helpers.js';
 
 export const getGeneralLeaderBoard = async (userId: string) => {
   try {
