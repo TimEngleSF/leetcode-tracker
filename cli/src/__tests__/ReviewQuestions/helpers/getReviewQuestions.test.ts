@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { getReviewQuestions } from '../../ReviewQuestions/utils.js';
+import { getReviewQuestions } from '../../ReviewQuestions/helpers/getReviewQuestions.js';
 import testVars from '../testVariables.js';
 
 describe('getReviewQuestions', () => {
