@@ -74,7 +74,7 @@ const registrationPrompt = async () => {
       message: 'What year were you born?',
       validate: (input) => {
         return (
-          input.length === 4 || 'Last initial should be exactly 4 characters'
+          input.length === 4 || 'Year of birth should be exactly 4 characters'
         );
       },
     },
