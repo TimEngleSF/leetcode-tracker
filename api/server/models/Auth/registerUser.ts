@@ -2,12 +2,16 @@ import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { getUsersCollection } from '../../db/collections.js';
+import {
+  getUsersCollection,
+  getSecurityAnswers,
+} from '../../db/collections.js';
 // import writeErrorToFile from '../../errors/writeError.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const usersCollection = await getUsersCollection();
+const secAnsCollection = await getSecurityAnswers();
 
 const userExists = async (target: string) => {
   return await usersCollection.findOne({ username: target });
@@ -19,10 +23,11 @@ interface RegisterRequestBody {
   lastInit: string;
   yob: number;
   password: string;
+  secAns: { color: string; street: string };
 }
 
 export const registerUser = async (body: RegisterRequestBody) => {
-  const { username, firstName, lastInit, yob, password } = body;
+  const { username, firstName, lastInit, yob, password, secAns } = body;
 
   if (await userExists(username)) {
     return {
@@ -34,7 +39,7 @@ export const registerUser = async (body: RegisterRequestBody) => {
   const cryptPass = await bcrypt.hash(password, 10);
 
   try {
-    const insertResult = await usersCollection.insertOne({
+    const insertUserResult = await usersCollection.insertOne({
       username: username.toLowerCase(),
       firstName,
       lastInit,
@@ -44,14 +49,19 @@ export const registerUser = async (body: RegisterRequestBody) => {
       lastActivity: Date.now(),
     });
 
+    const insertSecurityResult = await secAnsCollection.insertOne({
+      userID: insertUserResult.insertedId,
+      answers: secAns,
+    });
+
     let token;
     if (typeof JWT_SECRET === 'string') {
       token = jwt.sign(
-        { userID: insertResult.insertedId, username },
+        { userID: insertUserResult.insertedId, username },
         JWT_SECRET
       );
     }
-    const userID = new ObjectId(insertResult.insertedId);
+    const userID = new ObjectId(insertUserResult.insertedId);
     const newDocument = await usersCollection.findOne({ _id: userID });
     const responseBody = { ...newDocument, token };
 
