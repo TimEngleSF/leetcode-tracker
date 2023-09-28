@@ -4,6 +4,7 @@ import connectDb from './connection.js';
 let usersData: Collection;
 let questData: Collection;
 let questInfoData: Collection;
+let securityAns: Collection;
 
 export const getUsersCollection = async () => {
   if (usersData) {
@@ -41,6 +42,20 @@ export const getQuestInfoCollection = async () => {
     const db = await connectDb();
     questInfoData = db.collection('questionData');
     return questInfoData;
+  } catch (error) {
+    console.error('Could not connect to questionData collection:', error);
+    throw new Error('Database connection failed');
+  }
+};
+
+export const getSecurityAnswers = async () => {
+  if (securityAns) {
+    return securityAns;
+  }
+  try {
+    const db = await connectDb();
+    securityAns = db.collection('securityAnswers');
+    return securityAns;
   } catch (error) {
     console.error('Could not connect to questionData collection:', error);
     throw new Error('Database connection failed');

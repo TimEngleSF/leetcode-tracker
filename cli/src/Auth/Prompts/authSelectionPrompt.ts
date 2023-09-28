@@ -22,9 +22,13 @@ const authSelectionPrompt = async (
       type: 'list',
       name: 'authSelect',
       message: 'Would you like to login or register?',
-      choices: ['Login', 'Register'],
+      choices: [
+        { name: 'Login', value: 'login' },
+        { name: 'Register', value: 'register' },
+        { name: 'Reset Password', value: 'reset' },
+      ],
     });
-    return answers.authSelect.toLowerCase();
+    return answers.authSelect;
   } else {
     return false;
   }

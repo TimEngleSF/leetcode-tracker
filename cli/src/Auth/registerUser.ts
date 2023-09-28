@@ -10,16 +10,20 @@ const registerToAPI = async (answers: {
   username: string;
   firstName: string;
   lastInit: string;
-  yob: string;
   password: string;
+  secAns: {
+    color: string;
+    yob: string;
+    street: string;
+  };
 }) => {
-  const { username, firstName, lastInit, yob, password } = answers;
+  const { username, firstName, lastInit, password, secAns } = answers;
   const payload = {
-    username: username.toLowerCase().trim(),
-    firstName: firstName.trim(),
-    lastInit: lastInit.trim(),
-    yob,
+    username,
+    firstName,
+    lastInit,
     password,
+    secAns,
   };
   try {
     const { data } = await axios({
@@ -37,7 +41,18 @@ const registerToAPI = async (answers: {
 
 const registerUser = async (): Promise<void> => {
   const answers = await registrationPrompt();
-  const data = await registerToAPI(answers);
+  const registerPayload = {
+    username: answers.username.toLowerCase().trim(),
+    firstName: answers.firstName.trim(),
+    lastInit: answers.lastInit.trim(),
+    password: answers.password,
+    secAns: {
+      color: answers.secColor.toLowerCase().trim(),
+      yob: answers.secYOB,
+      street: answers.secStreet.toLowerCase().trim(),
+    },
+  };
+  const data = await registerToAPI(registerPayload);
 
   if (data.message) {
     console.log(chalk.redBright(data.message));
