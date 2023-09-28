@@ -6,10 +6,11 @@ import loginUser from './Auth/loginUser.js';
 import addQuestionToDB from './Questions/addQuestionToDB.js';
 import viewPrevQuestPrompt from './Questions/Prompts/viewPrevQuestPrompt.js';
 import getAllUserQuestsByQuestNum from './Questions/getAllUserQuestsByQuestNum.js';
-import { generalLeaderboard } from './Leaderboard/generalLeaderboard.js';
+import { generalLeaderboard } from './Leaderboard/generalLeaderboard/generalLeaderboard.js';
 import { selectLeaderboard } from './Leaderboard/Prompts/selectLeaderboardPrompt.js';
-import { questionLeaderboard } from './Leaderboard/questionLeaderboard.js';
+import { questionLeaderboard } from './Leaderboard/questionLeaderboard/questionLeaderboard.js';
 import ReviewQuestions from './ReviewQuestions/ReviewQuestions.js';
+import Leaderboard from './Leaderboard/Leaderboard.js';
 
 const mainLoop = async () => {
   let isRunning = true;
@@ -65,13 +66,7 @@ const mainLoop = async () => {
         printHeader();
         break;
       case 'leaderboard':
-        console.log(chalk.green('Here are your leaders!'));
-        const answer = await selectLeaderboard();
-        if (answer === 'general') {
-          await generalLeaderboard();
-        } else {
-          await questionLeaderboard();
-        }
+        await Leaderboard();
         break;
       case 'review':
         console.clear();

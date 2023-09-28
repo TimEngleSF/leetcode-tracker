@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import 'dotenv/config';
 import { program } from 'commander';
 import chalk from 'chalk';
@@ -16,7 +18,8 @@ program
   .option('-r, --run', 'Begin running an instance of LeetCode Tracker')
   .option('-l, --login', 'Login to your account')
   .option('-a, --add', 'Add question data')
-  .option('-b, --dummyB', 'Dummy option B');
+  .option('-b, --dummyB', 'Dummy option B')
+  .option('--register', 'Create an account');
 
 // Parse the command line arguments
 program.parse();
@@ -83,4 +86,10 @@ if (options.add) {
   console.clear();
   printHeader();
   await addQuestionToDB();
+}
+
+if (options.register) {
+  console.clear();
+  printHeader();
+  await registerUser();
 }

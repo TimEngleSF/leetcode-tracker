@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import {
   getUsersCollection,
   getQuestCollection,
-} from '../../db/collections.js';
+} from '../../../db/collections.js';
 // import writeErrorToFile from '../../errors/writeError.js';
 
 const questCollection = await getQuestCollection();

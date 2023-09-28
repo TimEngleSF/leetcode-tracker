@@ -2,7 +2,7 @@ import { ObjectId, Document } from 'mongodb';
 import {
   getQuestCollection,
   getUsersCollection,
-} from '../../db/collections.js';
+} from '../../../db/collections.js';
 
 const questCollection = await getQuestCollection();
 const usersCollection = await getUsersCollection();
