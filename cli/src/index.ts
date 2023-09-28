@@ -35,14 +35,25 @@ const authSelect = await authSelectionPrompt();
 if (authSelect === 'register') {
   console.log(chalk.green('Registering user...'));
   await registerUser();
+  console.clear();
+  printHeader();
+  await mainLoop();
 } else if (authSelect === 'login') {
   console.log(chalk.green('Logging in...'));
   await loginUser();
+  console.clear();
+  printHeader();
+  await mainLoop();
+} else if (authSelect === 'reset') {
+  // TODO: Add reset password function once created
 } else {
   userObject = await getUserJSON();
   console.log(
     chalk.green(`Welcome ${userObject.LC_FIRSTNAME} ${userObject.LC_LASTINIT}`)
   );
+  console.clear();
+  printHeader();
+  await mainLoop();
 }
 
 // Run based on options
