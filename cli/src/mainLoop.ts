@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 
-import { logout, printHeader } from './utils.js';
+import { getUserJSON, logout, printHeader } from './utils.js';
 import loginUser from './Auth/loginUser.js';
 import addQuestionToDB from './Questions/addQuestionToDB.js';
 import viewPrevQuestPrompt from './Questions/Prompts/viewPrevQuestPrompt.js';
@@ -36,6 +36,8 @@ const mainLoop = async () => {
       }
     }
 
+    const userObject = await getUserJSON();
+
     // Main Section
     const action = await inquirer.prompt([
       {
@@ -53,6 +55,7 @@ const mainLoop = async () => {
     ]);
     console.clear();
     printHeader();
+
     switch (action.nextAction) {
       case 'addQuestion':
         console.log(chalk.green('Adding question...'));
