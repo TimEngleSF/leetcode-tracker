@@ -24,6 +24,7 @@ export const selectQuestionNum = async (
       choices: [
         { name: 'Fastest execution time', value: 'minSpeed' },
         { name: 'Amount of times passed', value: 'passedCount' },
+        { name: 'Back', value: 'back' },
       ],
     },
   ]);

@@ -20,6 +20,11 @@ export const questionLeaderboard: any = async () => {
       headers: { ...authHeader },
     });
 
+    if (sortingSelection === 'back') {
+      await questionLeaderboard();
+      return;
+    }
+
     const top10Data = data.slice(0, 10);
     const sortedData = sortLeaderboardData(top10Data, sortingSelection);
     const { table, userDisplayText } = await createQuestLBDisplay(sortedData);
