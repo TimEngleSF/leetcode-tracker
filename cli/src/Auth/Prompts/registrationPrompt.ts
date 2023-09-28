@@ -61,6 +61,9 @@ const registrationPrompt = async () => {
       message: `${chalk.bgRed(
         'Security questions to reset password'
       )}\nWhat is your favorite color?`,
+      filter: (input) => {
+        return input.toLowerCase();
+      },
       validate: (input) => {
         return (
           (input.length >= 2 && input.length <= 10) ||
@@ -82,6 +85,9 @@ const registrationPrompt = async () => {
       type: 'input',
       name: 'secStreet',
       message: 'Which street did you grow up on?',
+      filter: (input) => {
+        return input.toLowerCase();
+      },
       validate: (input) => {
         return (
           (input.length >= 2 && input.length <= 10) ||
