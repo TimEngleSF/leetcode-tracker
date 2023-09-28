@@ -55,6 +55,7 @@ export const registerUser = async (body: RegisterRequestBody) => {
 
     const insertSecurityResult = await secAnsCollection.insertOne({
       userID: insertUserResult.insertedId,
+      username,
       answers: secAnsPayload,
     });
 
