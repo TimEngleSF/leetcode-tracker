@@ -14,8 +14,6 @@ export const validateSecAnswer = async (req: Request, res: Response) => {
   }
   try {
     const { code, data } = await AuthModel.validateSecAnswer(body);
-    console.log(code, data);
-    // res.status(code).send(data);
     if (data) {
       res.status(code).send(data);
     } else {
