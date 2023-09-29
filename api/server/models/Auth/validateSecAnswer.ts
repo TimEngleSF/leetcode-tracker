@@ -1,11 +1,12 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { getSecurityAnswers } from '../../db/collections.js';
 
 const secAnsCollection = await getSecurityAnswers();
 
 interface AuthModelResponse {
   code: number;
-  data?: { error: string; message: string };
+  data?: { error: string; message: string } | { token?: string };
 }
 
 export const validateSecAnswer = async (body: {
@@ -14,6 +15,7 @@ export const validateSecAnswer = async (body: {
   color: string | null;
   street: string | null;
 }): Promise<AuthModelResponse> => {
+  const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
   try {
     const { username, yob, color, street } = body;
     const securityData = await secAnsCollection.findOne({
@@ -71,9 +73,13 @@ export const validateSecAnswer = async (body: {
         },
       };
     }
-
+    let token: string | undefined;
+    if (typeof JWT_SECRET === 'string') {
+      token = jwt.sign({ username }, JWT_SECRET, { expiresIn: 60 * 30 });
+    }
     return {
       code: 201,
+      data: { token },
     };
   } catch (error: any) {
     return {
