@@ -59,6 +59,7 @@ if (authSelect === 'register') {
       ` Welcome ${userObject.LC_FIRSTNAME} ${userObject.LC_LASTINIT}\n`
     )
   );
+
   await mainLoop();
 }
 
