@@ -75,7 +75,7 @@ export const validateSecAnswer = async (body: {
     }
     let token: string | undefined;
     if (typeof JWT_SECRET === 'string') {
-      token = jwt.sign({ username }, JWT_SECRET, { expiresIn: 60 * 30 });
+      token = jwt.sign({ username }, JWT_SECRET, { expiresIn: 60 * 5 });
     }
     return {
       code: 201,
