@@ -5,6 +5,7 @@ import { getAuthHeaders, getQuestionData, printHeader } from '../../utils.js';
 import { selectQuestionNum } from '../Prompts/selectQuestionNumPrompt.js';
 import { createQuestLBDisplay } from './helpers/createQuestLBDisplay.js';
 import { sortLeaderboardData } from './helpers/utils.js';
+import { API_URL } from '../../apiConfigInit.js';
 import writeErrorToFile from '../../errors/writeError.js';
 
 export const questionLeaderboard: any = async () => {
@@ -16,7 +17,7 @@ export const questionLeaderboard: any = async () => {
 
     const { data } = await axios({
       method: 'GET',
-      url: `http://localhost:3000/leaderboard/${questID}`,
+      url: `${API_URL}/leaderboard/${questID}`,
       headers: { ...authHeader },
     });
 

@@ -4,6 +4,7 @@ import { getAuthHeaders } from '../../utils.js';
 import { differenceInDays } from 'date-fns';
 import { getDisplayTextForUser, formatRank } from '../utils.js';
 import { initGeneralTable } from './helpers/utils.js';
+import { API_URL } from '../../apiConfigInit.js';
 
 export const generalLeaderboard: any = async (
   getAuthHeadersInstance = getAuthHeaders,
@@ -14,7 +15,7 @@ export const generalLeaderboard: any = async (
     const authHeader = await getAuthHeadersInstance();
     const { data } = await axiosInstance({
       method: 'GET',
-      url: 'http://localhost:3000/leaderboard',
+      url: `${API_URL}/leaderboard`,
       headers: { ...authHeader },
     });
 

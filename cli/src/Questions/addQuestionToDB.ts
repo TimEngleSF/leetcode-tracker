@@ -2,9 +2,11 @@ import axios from 'axios';
 import fs from 'fs/promises';
 import path from 'path';
 import url from 'url';
+import chalk from 'chalk';
+
 import addQuestionPrompt from './Prompts/addQuestionPrompt.js';
 import { getAuthHeaders, getUserJSON } from '../utils.js';
-import chalk from 'chalk';
+import { API_URL } from '../apiConfigInit.js';
 
 const addQuestionToDB = async (
   questPrompt = addQuestionPrompt,
@@ -31,7 +33,7 @@ const addQuestionToDB = async (
 
     const { data } = await axiosInstance({
       method: 'POST',
-      url: 'http://localhost:3000/questions/add',
+      url: `${API_URL}/questions/add`,
       headers: authHeaders,
       data: payload,
     });

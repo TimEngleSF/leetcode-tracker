@@ -2,9 +2,10 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import Table from 'cli-table3';
 import chalk from 'chalk';
+import inquirer from 'inquirer';
 
 import { getAuthHeaders, getUserJSON, printHeader } from '../utils.js';
-import inquirer from 'inquirer';
+import { API_URL } from '../apiConfigInit.js';
 
 interface GeneralInfo {
   questNum: number;
@@ -95,7 +96,7 @@ const getAllUserQuestsByQuestNum = async (questNum: number) => {
 
     const response = await axios({
       method: 'GET',
-      url: `http://localhost:3000/questions/?userID=${user.LC_ID}&question=${questNum}`,
+      url: `${API_URL}/questions/?userID=${user.LC_ID}&question=${questNum}`,
       headers: { ...authHeaders },
     });
     const data: ApiResponse = response.data;

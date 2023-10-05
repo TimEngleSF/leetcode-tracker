@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import 'dotenv/config';
 import { program } from 'commander';
 import chalk from 'chalk';
 
@@ -10,6 +9,7 @@ import registerUser from './Auth/registerUser.js';
 import loginUser from './Auth/loginUser.js';
 import { getUserJSON, printHeader } from './utils.js';
 import addQuestionToDB from './Questions/addQuestionToDB.js';
+import resetPass from './Auth/resetPass/resetPass.js';
 
 let userObject;
 
@@ -27,13 +27,9 @@ program.parse();
 const options = program.opts();
 
 // If there are no options
-// if (Object.keys(options).length === 0) {
+
 console.clear();
 printHeader();
-//   console.log(
-//     `Use ${chalk.magenta('-h')} or ${chalk.magenta('--help')} to view options\n`
-//   );
-// }
 
 const authSelect = await authSelectionPrompt();
 if (authSelect === 'register') {
@@ -49,7 +45,7 @@ if (authSelect === 'register') {
   printHeader();
   await mainLoop();
 } else if (authSelect === 'reset') {
-  // TODO: Add reset password function once created
+  await resetPass();
 } else {
   userObject = await getUserJSON();
   console.clear();
