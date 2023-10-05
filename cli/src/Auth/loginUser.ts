@@ -1,5 +1,3 @@
-import 'dotenv/config';
-import inquirer from 'inquirer';
 import axios from 'axios';
 import fs from 'fs/promises';
 import path from 'path';
@@ -7,6 +5,7 @@ import url from 'url';
 import chalk from 'chalk';
 
 import loginPrompt from './Prompts/loginPrompt.js';
+import { API_URL } from '../apiConfigInit.js';
 
 const loginToAPI = async (answers: { username: string; password: string }) => {
   const { username, password } = answers;
@@ -16,7 +15,7 @@ const loginToAPI = async (answers: { username: string; password: string }) => {
   };
   const { data } = await axios({
     method: 'POST',
-    url: 'http://localhost:3000/login',
+    url: `${API_URL}/login`,
     headers: { 'Content-Type': 'application/json' },
     data: payload,
   });

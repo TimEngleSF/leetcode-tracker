@@ -1,6 +1,7 @@
 import axios from 'axios';
 import writeErrorToFile from '../../errors/writeError.js';
 import { getAuthHeaders } from '../../utils.js';
+import { API_URL } from '../../apiConfigInit.js';
 
 export const getReviewQuestions = async (
   reviewRangeSelection: { olderThan: number; newerThan: number },
@@ -12,7 +13,7 @@ export const getReviewQuestions = async (
     const authHeaders = await authHeadersInstance();
     const { data, status } = await axiosInstance({
       method: 'GET',
-      url: 'http://localhost:3000/review',
+      url: `${API_URL}/review`,
       headers: authHeaders,
       data: reviewRangeSelection,
     });

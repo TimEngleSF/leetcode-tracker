@@ -5,6 +5,7 @@ import url from 'url';
 import chalk from 'chalk';
 
 import registrationPrompt from './Prompts/registrationPrompt.js';
+import { API_URL } from '../apiConfigInit.js';
 
 const registerToAPI = async (answers: {
   username: string;
@@ -28,7 +29,7 @@ const registerToAPI = async (answers: {
   try {
     const { data } = await axios({
       method: 'POST',
-      url: 'http://localhost:3000/register',
+      url: `${API_URL}/register`,
       headers: { 'Content-Type': 'application/json' },
       data: payload,
     });

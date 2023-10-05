@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getAuthHeaders, getUserJSON } from '../../utils.js';
 import writeErrorToFile from '../../errors/writeError.js';
+import { API_URL } from '../../apiConfigInit.js';
 
 export const addResultsToDB = async (
   questNum: number,
@@ -24,7 +25,7 @@ export const addResultsToDB = async (
 
     const { data } = await axiosInstance({
       method: 'POST',
-      url: 'http://localhost:3000/questions/add',
+      url: `${API_URL}/questions/add`,
       headers: authHeaders,
       data: payload,
     });

@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import fs from 'fs/promises';
 import url from 'url';
 import path from 'path';
@@ -6,11 +5,12 @@ import readline from 'readline';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import axios from 'axios';
+import { API_URL } from './apiConfigInit.js';
+
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const getUserJSON = async () => {
-  const __filename = url.fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-
   const data = (
     await fs.readFile(path.join(__dirname, 'user.json'))
   ).toString();
@@ -38,8 +38,6 @@ export const clearPrevLine = () => {
 };
 
 export const logout = async () => {
-  const __filename = url.fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
   const payload = {
     LC_USERNAME: null,
     LC_ID: null,
@@ -58,7 +56,7 @@ export const getUserData = async (userID: string) => {
   const authHeaders = await getAuthHeaders();
   const { data } = await axios({
     method: 'GET',
-    url: `http://localhost:3000/users/${userID}`,
+    url: `${API_URL}/users/${userID}`,
     headers: authHeaders,
   });
   return data;
@@ -72,7 +70,7 @@ export const getQuestionData = async (
   const authHeaders = await getAuthHeadersFunc();
   const { data } = await axiosInstance({
     method: 'GET',
-    url: `http://localhost:3000/questions/data/${questNum}`,
+    url: `${API_URL}/questions/data/${questNum}`,
     headers: authHeaders,
   });
   return data;
