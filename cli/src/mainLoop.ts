@@ -2,13 +2,9 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 
 import { getUserJSON, logout, printHeader } from './utils.js';
-import loginUser from './Auth/loginUser.js';
 import addQuestionToDB from './Questions/addQuestionToDB.js';
 import viewPrevQuestPrompt from './Questions/Prompts/viewPrevQuestPrompt.js';
 import getAllUserQuestsByQuestNum from './Questions/getAllUserQuestsByQuestNum.js';
-import { generalLeaderboard } from './Leaderboard/generalLeaderboard/generalLeaderboard.js';
-import { selectLeaderboard } from './Leaderboard/Prompts/selectLeaderboardPrompt.js';
-import { questionLeaderboard } from './Leaderboard/questionLeaderboard/questionLeaderboard.js';
 import ReviewQuestions from './ReviewQuestions/ReviewQuestions.js';
 import Leaderboard from './Leaderboard/Leaderboard.js';
 
