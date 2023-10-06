@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import express from 'express';
-// @ts-ignore
 import morgan from 'morgan';
 import connectDb from './db/connection.js';
 import routes from './routes/index.js';
@@ -22,6 +21,9 @@ const startServer = async () => {
     app.use('/', routes.authRouter);
 
     app.use(isAuth);
+    app.get('/validToken', (req, res) => {
+      res.status(200).send({ message: 'Token is valid' });
+    });
     app.use('/users', routes.usersRoutes);
     app.use(updateLastActive);
     app.use('/questions', routes.questionsRouter);

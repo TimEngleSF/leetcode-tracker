@@ -1,6 +1,8 @@
-import { getUserJSON, logout } from '../../utils.js';
-
+import axios from 'axios';
 import inquirer from 'inquirer';
+
+import { getAuthHeaders, getUserJSON, logout } from '../../utils.js';
+import { API_URL } from '../../apiConfigInit.js';
 
 const userJSON = async () => {
   try {
@@ -12,12 +14,27 @@ const userJSON = async () => {
   }
 };
 
+const isValidToken = async () => {
+  const authHeader = await getAuthHeaders();
+  try {
+    await axios({
+      method: 'GET',
+      url: `${API_URL}/validToken`,
+      headers: { ...authHeader },
+    });
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 const authSelectionPrompt = async (
   prompt = inquirer.prompt,
   userJSONInstance = userJSON
 ) => {
   const { LC_USERNAME, LC_ID, LC_TOKEN } = await userJSONInstance();
-  if (!LC_USERNAME || !LC_ID || !LC_TOKEN) {
+
+  if (!LC_USERNAME || !LC_ID || !LC_TOKEN || !(await isValidToken())) {
     const answers = await prompt({
       type: 'list',
       name: 'authSelect',
