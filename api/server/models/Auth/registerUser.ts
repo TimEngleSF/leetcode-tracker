@@ -53,7 +53,7 @@ export const registerUser = async (body: RegisterRequestBody) => {
       street: await bcrypt.hash(secAns.street, 10),
     };
 
-    const insertSecurityResult = await secAnsCollection.insertOne({
+    await secAnsCollection.insertOne({
       userID: insertUserResult.insertedId,
       username,
       answers: secAnsPayload,
@@ -63,7 +63,8 @@ export const registerUser = async (body: RegisterRequestBody) => {
     if (typeof JWT_SECRET === 'string') {
       token = jwt.sign(
         { userID: insertUserResult.insertedId, username },
-        JWT_SECRET
+        JWT_SECRET,
+        { expiresIn: '7d' }
       );
     }
     const userID = new ObjectId(insertUserResult.insertedId);
