@@ -62,7 +62,7 @@ export const registerUser = async (body: RegisterRequestBody) => {
     let token;
     if (typeof JWT_SECRET === 'string') {
       token = jwt.sign(
-        { userID: insertUserResult.insertedId, username },
+        { userId: insertUserResult.insertedId, username },
         JWT_SECRET
       );
     }
