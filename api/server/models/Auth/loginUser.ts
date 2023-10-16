@@ -35,7 +35,8 @@ export const loginUser = async (body: {
     if (typeof JWT_SECRET === 'string') {
       token = jwt.sign(
         { userId: userDoc._id.toHexString(), username },
-        JWT_SECRET
+        JWT_SECRET,
+        { expiresIn: '7d' }
       );
       return { code: 200, data: { ...userDoc, token } };
     } else {
