@@ -6,15 +6,15 @@ A CLI interface to track users Leetcode data, compare it with their community, a
 
 ## Installation
 
-### Install globally: `npm i -g leetcode-tracker-cli`
+### Install globally: `npm i -g lc-tracker`
 
-### Install locally: `npm i leetcode-tracker-cli`
+### Install locally: `npm i lc-tracker`
 
 ## Running the app
 
 ### Installed globally:
 
-While in the terminal run `leetcode-tracker-cli`
+While in the terminal run `lc-tracker`
 
 ### Installed Locally:
 
