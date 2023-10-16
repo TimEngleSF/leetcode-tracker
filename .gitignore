@@ -133,4 +133,5 @@ dist
 /api/server/*.js
 /api/server/*/*.js
 /cli/src/__tests__/testVariables.ts
+/cli/src/package.json
 

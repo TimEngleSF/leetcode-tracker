@@ -1,14 +1,22 @@
 {
-  "name": "cli",
-  "version": "1.0.0",
+  "name": "lc-tracker",
+  "version": "1.0.2",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "test": "mocha 'dist/__tests__/**/*.test.js'",
+    "prebuild": "node copy-package-json.js",
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js"
   },
+  "files": [
+    "dist/",
+    "README.md",
+    "src/",
+    "tsconfig.json"
+  ],
   "bin": {
     "lc-tracker": "./dist/index.js"
   },
@@ -28,7 +36,9 @@
     "date-fns": "^2.30.0",
     "figlet": "^1.6.0",
     "inquirer": "^9.2.10",
-    "open": "^9.1.0"
+    "ncp": "^2.0.0",
+    "open": "^9.1.0",
+    "update-notifier": "^6.0.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.6",
@@ -37,6 +47,7 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.5.9",
     "@types/sinon": "^10.0.16",
+    "@types/update-notifier": "^6.0.5",
     "chai": "^4.3.8",
     "mocha": "^10.2.0",
     "sinon": "^16.0.0",

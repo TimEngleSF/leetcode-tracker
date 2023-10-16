@@ -2,6 +2,8 @@
 
 import { program } from 'commander';
 import chalk from 'chalk';
+import updateNotifier from 'update-notifier';
+import packageJson from './package.json' assert { type: 'json' };
 
 import mainLoop from './mainLoop.js';
 import authSelectionPrompt from './Auth/Prompts/authSelectionPrompt.js';
@@ -30,6 +32,10 @@ const options = program.opts();
 
 console.clear();
 printHeader();
+updateNotifier({ pkg: packageJson }).notify({
+  message: 'Run `{updateCommand}` to update.',
+  isGlobal: true,
+});
 
 const authSelect = await authSelectionPrompt();
 if (authSelect === 'register') {
