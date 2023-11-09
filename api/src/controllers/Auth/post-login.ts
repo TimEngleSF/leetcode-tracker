@@ -13,12 +13,4 @@ export const login = async (
   } catch (error) {
     return next(error);
   }
-  // const { body } = req;
-  // try {
-  //   const { code, data } = await AuthModel.loginUser(body);
-  //   res.status(code).send(data);
-  // } catch (error) {
-  //   // await writeErrorToFile(error);
-  //   res.status(400).send({ error: error });
-  // }
 };
