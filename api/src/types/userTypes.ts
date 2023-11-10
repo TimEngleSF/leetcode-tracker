@@ -1,6 +1,7 @@
 import { Document, ObjectId } from 'mongodb';
+
 export interface UserDocument extends Document {
-  _id: ObjectId;
+  _id?: ObjectId;
   username: string;
   displayUsername: string;
   email: string;
@@ -8,6 +9,7 @@ export interface UserDocument extends Document {
   lastInit: string;
   password: string;
   status: 'pending' | 'verified';
+  verificationToken: string | null;
   questions: number[];
   lastActivity: Date;
 }
