@@ -2,22 +2,25 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import { ExtendedError } from '../../errors/helpers.js';
-import {
-  UserDocument,
-  UserLoginRegisterPayload,
-} from '../../types/userTypes.js';
+import { UserDocument, UserLoginPayload } from '../../types/userTypes.js';
 
 const { JWT_SECRET } = process.env;
 
 const loginService = async (
   username: string,
   password: string
-): Promise<UserLoginRegisterPayload> => {
-  let user: UserDocument;
+): Promise<UserLoginPayload> => {
+  let user: UserDocument | null;
   try {
     user = await User.getByUsername(username);
     if (!user) {
       const error = new ExtendedError('Incorrect Email or Password');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (user.status === 'pending') {
+      const error = new ExtendedError('Please verify account');
       error.statusCode = 401;
       throw error;
     }
@@ -67,6 +70,7 @@ const loginService = async (
     email: user.email,
     firstName: user.firstName,
     lastInit: user.lastInit,
+    status: user.status,
     lastActivity: user.lastActivity,
     token,
   };

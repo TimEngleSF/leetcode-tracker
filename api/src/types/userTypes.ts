@@ -7,16 +7,37 @@ export interface UserDocument extends Document {
   firstName: string;
   lastInit: string;
   password: string;
+  status: 'pending' | 'verified';
   questions: number[];
   lastActivity: Date;
 }
 
-export interface UserLoginRegisterPayload {
+export interface UserRegisterPayload {
   _id: string;
   username: string;
   email: string;
   firstName: string;
   lastInit: string;
   lastActivity: Date;
+  status: 'pending' | 'verified';
+}
+
+export interface UserLoginPayload extends UserRegisterPayload {
   token: string;
 }
+
+export type CreateUserInService = {
+  displayUsername: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastInit: string;
+};
+
+export type CreateUserInDb = {
+  displayUsername: string;
+  email: string;
+  hashedPass: string;
+  firstName: string;
+  lastInit: string;
+};
