@@ -103,10 +103,15 @@ const registerUserService = async (
     from: 'verify@lctracker.com',
     to: createUserResult.email,
     subject: 'Verify Your Email',
-    html: `<p>Hi ${createUserResult.firstName},</p>
-             <p>Please click the link below to verify your email address:</p>
-             <a href="${verificationUrl}">Verify Email</a>
-             <p>This link will expire in 1 hour.</p>`,
+    html: `
+      <body style=" display: flex; margin-top: 2rem; background-color: #282828; color: #66ff66; font-family: 'Courier New', Courier, monospace;">
+        <div style="display: flex; flex-direction: column; align-items: start; margin: 0 auto; max-width: 500px;">
+          <p style="font-size: 32px; margin: 0px 0px;">Hello ${createUserResult.firstName},</p>
+          <p style="font-size: 20px; margin: 12px 0px;">Please click the link below to verify your email address:</p>
+          <a style="display: inline-block; background-color: #66ff66; margin: 12px 0 ; padding: 20px 10px; text-decoration:none; color: black; font-weight: 600; border-radius: 11px;" href="${verificationUrl}">Verify Email</a>
+          <p>This link will expire in 1 hour.</p>
+        </div>
+      </body>`,
   };
 
   transport.sendMail(mailOptions);

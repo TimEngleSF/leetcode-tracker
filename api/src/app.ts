@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
-// @ts-ignore
+import path from 'path';
+import url from 'url';
 import morgan from 'morgan';
 import connectDb from './db/connection.js';
 import routes from './routes/index.js';
@@ -12,14 +13,19 @@ import errorHandler from './middleware/errorHandler.js';
 const app = express();
 const PORT: any = process.env.PORT;
 
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const startServer = async () => {
   try {
     const db = await connectDb();
+    app.set('view engine', 'ejs');
+    app.set('views', path.join(__dirname, '/views'));
 
     app.use(morgan('dev'));
+
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-
+    app.use(express.static(path.join(__dirname, '/public')));
     app.use('/', routes.authRouter);
 
     app.use(isAuth);

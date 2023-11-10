@@ -2,7 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 // import writeErrorToFile from '../../errors/writeError.js';
 import loginService from '../../service/Auth/login-user.js';
 import { loginReqSchema, registerReqSchema } from './authReqSchemas.js';
+import User from '../../models/User.js';
 import registerUserService from '../../service/Auth/register-user.js';
+import validateUserService from '../../service/Auth/validate-user.js';
 
 const Auth = {
   postLogin: async (req: Request, res: Response, next: NextFunction) => {
@@ -42,6 +44,16 @@ const Auth = {
     } catch (error) {
       return next(error);
     }
+  },
+
+  getValidateUser: async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.params.token;
+    const { success, firstName, username } = await validateUserService(token);
+    if (!success) {
+      return res.render('validate-user-error');
+    }
+
+    res.render('validate-user', { firstName, username });
   },
 };
 

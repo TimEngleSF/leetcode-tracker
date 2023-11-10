@@ -5,7 +5,7 @@ import { UserDocument, CreateUserInDb } from '../types/userTypes.js';
 
 const User = {
   getUser: async (
-    key: 'username' | '_id' | 'email',
+    key: 'username' | '_id' | 'email' | 'verificationToken',
     value: string | ObjectId
   ): Promise<UserDocument | null> => {
     try {
@@ -52,6 +52,17 @@ const User = {
     try {
       email = email.toLowerCase();
       const result = await User.getUser('email', email);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getByVerificationToken: async (
+    verificationToken: string
+  ): Promise<UserDocument | null> => {
+    try {
+      const result = await User.getUser('verificationToken', verificationToken);
       return result;
     } catch (error) {
       throw error;
@@ -139,11 +150,13 @@ const User = {
       if (!updateResult) {
         throw new Error();
       }
-      return { ...updateResult };
+      return updateResult;
     } catch (error: any) {
       console.log(error);
       const catchError = new ExtendedError(
-        `Database Error: There was an error updating the user\n${error.message}`
+        `Database Error: There was an error updating the user${
+          error.message ? `\n${error.message}` : ''
+        }`
       );
       catchError.statusCode = 500;
       throw catchError;
@@ -160,6 +173,18 @@ const User = {
         key: 'verificationToken',
         value: token,
       });
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateStatus: async (
+    _id: string | ObjectId,
+    status: 'pending' | 'verified'
+  ) => {
+    try {
+      const result = await User.update({ _id, key: 'status', value: status });
       return result;
     } catch (error) {
       throw error;
