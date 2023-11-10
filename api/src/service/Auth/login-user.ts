@@ -57,11 +57,12 @@ const loginService = async (
     if (error.statusCode) {
       throw error;
     }
-    const internalError = new ExtendedError(
+    const extendedError = new ExtendedError(
       `Internal Service Error: ${error.message}`
     );
-    internalError.statusCode = 500;
-    throw internalError;
+    extendedError.statusCode = 500;
+    extendedError.stack = error.stack;
+    throw extendedError;
   }
 
   if (!user._id) {

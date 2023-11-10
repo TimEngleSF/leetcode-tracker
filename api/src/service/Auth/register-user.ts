@@ -65,8 +65,9 @@ const registerUserService = async (
   }
 
   if (!process.env.EMAIL_VERIFICATION_SECRET) {
-    console.log('Missing EMAIL_VERIFICATION_SECRET');
-    const error = new ExtendedError('Internal Service Error');
+    const error = new ExtendedError(
+      'Internal Service Error: Missing EMAIL_VERIFICATION_SECRET'
+    );
     error.statusCode = 500;
     throw error;
   }

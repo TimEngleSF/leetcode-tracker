@@ -21,6 +21,7 @@ const User = {
       const extendedError = new ExtendedError(
         `Database Error: ${error.message}`
       );
+      extendedError.stack = error.stack;
       extendedError.statusCode = 500;
       throw extendedError;
     }
@@ -107,11 +108,12 @@ const User = {
 
       return result;
     } catch (error: any) {
-      const catchError = new ExtendedError(
+      const extendedError = new ExtendedError(
         'Database Error: There was an error creating user'
       );
-      catchError.statusCode = 500;
-      throw catchError;
+      extendedError.statusCode = 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
     }
   },
 
@@ -153,13 +155,14 @@ const User = {
       return updateResult;
     } catch (error: any) {
       console.log(error);
-      const catchError = new ExtendedError(
+      const extendedError = new ExtendedError(
         `Database Error: There was an error updating the user${
           error.message ? `\n${error.message}` : ''
         }`
       );
-      catchError.statusCode = 500;
-      throw catchError;
+      extendedError.statusCode = 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
     }
   },
 

@@ -1,6 +1,7 @@
 import 'dotenv/config.js';
 import { MongoClient, Db, Collection } from 'mongodb';
 import { UserDocument } from '../types/userTypes.js';
+import { BlacklistDocument } from '../types/blacklistTypes.js';
 
 let db: Db;
 
@@ -25,8 +26,15 @@ const connectDb = async () => {
 };
 
 export const getCollection = async (
-  collectionString: 'users' | 'questions' | 'questionData' | 'securityAnswers'
-): Promise<Collection | Collection<UserDocument>> => {
+  collectionString:
+    | 'users'
+    | 'questions'
+    | 'questionData'
+    | 'securityAnswers'
+    | 'blacklistTokens'
+): Promise<
+  Collection | Collection<UserDocument> | Collection<BlacklistDocument>
+> => {
   try {
     const db = await connectDb();
     const collection = db.collection(collectionString);

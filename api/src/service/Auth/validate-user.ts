@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import { ExtendedError } from '../../errors/helpers.js';
 import { UserDocument } from '../../types/userTypes.js';
+import Blacklist from '../../models/Blacklist.js';
 
 const { EMAIL_VERIFICATION_SECRET } = process.env;
 export const validateUserService = async (
@@ -18,9 +19,11 @@ export const validateUserService = async (
     }
     jwt.verify(token, EMAIL_VERIFICATION_SECRET);
   } catch (error: any) {
-    error = new ExtendedError(
+    const extendedError = new ExtendedError(
       `There was an error decoding the JWT Token: ${error.message}`
     );
+    extendedError.stack = error.stack;
+    console.log(extendedError);
     return { success: false, firstName: null, username: null };
   }
 
@@ -30,8 +33,10 @@ export const validateUserService = async (
       return { success: false, firstName: null, username: null };
     }
     await User.updateStatus(userResult._id, 'verified');
+    await Blacklist.addBlacklistToken(token, 'EMAIL_VERIFICATION_SECRET');
   } catch (error) {
-    throw error;
+    console.log(error);
+    return { success: false, firstName: null, username: null };
   }
   // TODO: Blacklist the token
   return {
