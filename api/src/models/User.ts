@@ -9,7 +9,9 @@ const User = {
     value: string | ObjectId
   ): Promise<UserDocument | null> => {
     try {
-      const collection = await getCollection('users');
+      const collection = (await getCollection(
+        'users'
+      )) as Collection<UserDocument>;
       const result = await collection.findOne<UserDocument>({ [key]: value });
       return result;
     } catch (error: any) {
@@ -63,12 +65,13 @@ const User = {
     firstName,
     lastInit,
   }: CreateUserInDb): Promise<UserDocument> => {
-    let collection: Collection;
+    let collection: Collection<UserDocument>;
     try {
-      collection = await getCollection('users');
+      collection = (await getCollection('users')) as Collection<UserDocument>;
     } catch (error) {
       throw error;
     }
+
     try {
       const insertedResult = await collection.insertOne({
         username: displayUsername.toLowerCase(),
@@ -78,6 +81,8 @@ const User = {
         firstName,
         lastInit,
         status: 'pending',
+        questions: [],
+        verificationToken: null,
         lastActivity: new Date(),
       });
       const result = await collection.findOne<UserDocument>({
@@ -96,6 +101,68 @@ const User = {
       );
       catchError.statusCode = 500;
       throw catchError;
+    }
+  },
+
+  update: async ({
+    _id,
+    key,
+    value,
+  }: {
+    _id: string | ObjectId;
+    key:
+      | 'username'
+      | 'email'
+      | 'password'
+      | 'firstName'
+      | 'lastInit'
+      | 'status'
+      | 'verificationToken';
+    value: string;
+  }): Promise<UserDocument> => {
+    if (typeof _id === 'string') {
+      _id = new ObjectId(_id);
+    }
+    let collection: Collection<UserDocument>;
+    try {
+      collection = (await getCollection('users')) as Collection<UserDocument>;
+    } catch (error) {
+      throw error;
+    }
+    try {
+      const updateResult = (await collection.findOneAndUpdate(
+        { _id },
+        { $set: { [key]: value } },
+        { projection: { password: 0 }, returnDocument: 'after' }
+      )) as UserDocument;
+
+      if (!updateResult) {
+        throw new Error();
+      }
+      return { ...updateResult };
+    } catch (error: any) {
+      console.log(error);
+      const catchError = new ExtendedError(
+        `Database Error: There was an error updating the user\n${error.message}`
+      );
+      catchError.statusCode = 500;
+      throw catchError;
+    }
+  },
+
+  updateVerificationToken: async (
+    _id: string | ObjectId,
+    token: string
+  ): Promise<UserDocument> => {
+    try {
+      const result = await User.update({
+        _id,
+        key: 'verificationToken',
+        value: token,
+      });
+      return result;
+    } catch (error) {
+      throw error;
     }
   },
 };
