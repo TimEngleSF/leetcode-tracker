@@ -7,7 +7,8 @@ import {
 } from '../types/blacklistTypes.js';
 import { ExtendedError } from '../errors/helpers.js';
 
-const { EMAIL_VERIFICATION_SECRET, JWT_SECRET } = process.env;
+const { EMAIL_VERIFICATION_SECRET, JWT_SECRET, PASSWORD_VERIFICATION_SECRET } =
+  process.env;
 
 const Blacklist = {
   findOne: async ({
@@ -60,7 +61,10 @@ const Blacklist = {
 
   addBlacklistToken: async (
     token: string,
-    secretName: 'EMAIL_VERIFICATION_SECRET' | 'JWT_SECRET'
+    secretName:
+      | 'EMAIL_VERIFICATION_SECRET'
+      | 'JWT_SECRET'
+      | 'PASSWORD_VERIFICATION_SECRET'
   ) => {
     let decodedToken: DecodedTokenExpiration;
     let payload: { token: string; exp: number };
@@ -69,6 +73,8 @@ const Blacklist = {
       secret = EMAIL_VERIFICATION_SECRET;
     } else if (secretName === 'JWT_SECRET') {
       secret = JWT_SECRET;
+    } else if (secretName === 'PASSWORD_VERIFICATION_SECRET') {
+      secret = PASSWORD_VERIFICATION_SECRET;
     }
     if (!secret) {
       const error = new ExtendedError('Server missing secret');

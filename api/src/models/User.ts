@@ -179,6 +179,22 @@ const User = {
     }
   },
 
+  updatePassword: async (
+    _id: string | ObjectId,
+    hashedPass: string
+  ): Promise<UserDocument> => {
+    try {
+      const result = await User.update({
+        _id,
+        key: 'password',
+        value: hashedPass,
+      });
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   updateVerificationToken: async (
     _id: string | ObjectId,
     token: string
