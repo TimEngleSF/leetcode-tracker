@@ -5,7 +5,7 @@ import { UserDocument, CreateUserInDb } from '../types/userTypes.js';
 
 const User = {
   getUser: async (
-    key: 'username' | '_id' | 'email' | 'verificationToken',
+    key: 'username' | '_id' | 'email' | 'verificationToken' | 'passwordToken',
     value: string | ObjectId
   ): Promise<UserDocument | null> => {
     try {
@@ -70,6 +70,17 @@ const User = {
     }
   },
 
+  getByPasswordToken: async (
+    passwordToken: string
+  ): Promise<UserDocument | null> => {
+    try {
+      const result = await User.getUser('passwordToken', passwordToken);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   create: async ({
     displayUsername,
     email,
@@ -95,6 +106,7 @@ const User = {
         status: 'pending',
         questions: [],
         verificationToken: null,
+        passwordToken: null,
         lastActivity: new Date(),
       });
       const result = await collection.findOne<UserDocument>({
@@ -130,7 +142,8 @@ const User = {
       | 'firstName'
       | 'lastInit'
       | 'status'
-      | 'verificationToken';
+      | 'verificationToken'
+      | 'passwordToken';
     value: string;
   }): Promise<UserDocument> => {
     if (typeof _id === 'string') {
@@ -174,6 +187,22 @@ const User = {
       const result = await User.update({
         _id,
         key: 'verificationToken',
+        value: token,
+      });
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updatePasswordToken: async (
+    _id: string | ObjectId,
+    token: string
+  ): Promise<UserDocument> => {
+    try {
+      const result = await User.update({
+        _id,
+        key: 'passwordToken',
         value: token,
       });
       return result;
