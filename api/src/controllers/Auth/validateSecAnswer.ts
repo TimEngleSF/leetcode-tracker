@@ -1,6 +1,6 @@
 import { Request, Response } from 'express-serve-static-core';
 import AuthModel from '../../models/Auth/index.js';
-import authReqSchemas from './authReqSchemas.js'; // import writeErrorToFile from '../../errors/writeError.js';
+import { authReqSchemas } from './authReqSchemas.js'; // import writeErrorToFile from '../../errors/writeError.js';
 
 export const validateSecAnswer = async (req: Request, res: Response) => {
   const { body } = req;

@@ -9,6 +9,7 @@ import { API_URL } from '../apiConfigInit.js';
 
 const registerToAPI = async (answers: {
   username: string;
+  email: string;
   firstName: string;
   lastInit: string;
   password: string;
@@ -18,9 +19,10 @@ const registerToAPI = async (answers: {
     street: string;
   };
 }) => {
-  const { username, firstName, lastInit, password, secAns } = answers;
+  const { username, email, firstName, lastInit, password, secAns } = answers;
   const payload = {
     username,
+    email,
     firstName,
     lastInit,
     password,
@@ -43,7 +45,8 @@ const registerToAPI = async (answers: {
 const registerUser = async (): Promise<void> => {
   const answers = await registrationPrompt();
   const registerPayload = {
-    username: answers.username.toLowerCase().trim(),
+    username: answers.username.trim(),
+    email: answers.email.trim(),
     firstName: answers.firstName.trim(),
     lastInit: answers.lastInit.trim(),
     password: answers.password,
@@ -56,7 +59,7 @@ const registerUser = async (): Promise<void> => {
   const data = await registerToAPI(registerPayload);
 
   if (data.message) {
-    console.log(chalk.redBright(data.message));
+    console.log(chalk.redBright(data.message, data.error));
     return await registerUser();
   }
 

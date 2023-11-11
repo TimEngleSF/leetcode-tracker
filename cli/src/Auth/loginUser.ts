@@ -38,7 +38,7 @@ export const loginUser = async (username?: string, password?: string) => {
     }
 
     const userObject = {
-      LC_USERNAME: data.username,
+      LC_USERNAME: data.username.toLowerCase(),
       LC_ID: data._id,
       LC_TOKEN: data.token,
       LC_FIRSTNAME: data.firstName,
