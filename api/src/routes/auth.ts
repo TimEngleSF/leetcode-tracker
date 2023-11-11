@@ -22,4 +22,9 @@ authRouter.post(
   Controllers.Auth.SubAuth.postResetPasswordSendEmail
 );
 
+authRouter.post(
+  '/set-password',
+  Controllers.Auth.SubAuth.postResetPasswordForm
+);
+
 export default authRouter;
