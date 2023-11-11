@@ -1,27 +1,21 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import {
+  emailSchema,
+  usernameFirstNameSchema,
+  lastInitSchema,
+  passwordSchema,
+} from './validation/validationSchema.js';
 
 const registrationPrompt = async () => {
   const answers = await inquirer.prompt([
     {
       type: 'input',
-      name: 'firstName',
-      message: "What's your first name? ",
+      name: 'email',
+      message: 'Enter an email: ',
       validate: (input) => {
-        return (
-          (input.length >= 2 && input.length <= 10) ||
-          'First name shoud be between 2 and 10 characters'
-        );
-      },
-    },
-    {
-      type: 'input',
-      name: 'lastInit',
-      message: "What's your last initial? ",
-      validate: (input) => {
-        return (
-          input.length === 1 || 'Last initial should be exactly 1 character'
-        );
+        const { error } = emailSchema.validate(input);
+        return error ? error.message : true;
       },
     },
     {
@@ -29,10 +23,26 @@ const registrationPrompt = async () => {
       name: 'username',
       message: 'Enter a username: ',
       validate: (input) => {
-        return (
-          (input.length >= 2 && input.length <= 10) ||
-          'Username shoud be between 2 and 10 characters'
-        );
+        const { error } = usernameFirstNameSchema.validate(input);
+        return error ? error.message : true;
+      },
+    },
+    {
+      type: 'input',
+      name: 'firstName',
+      message: "What's your first name? ",
+      validate: (input) => {
+        const { error } = usernameFirstNameSchema.validate(input);
+        return error ? error.message : true;
+      },
+    },
+    {
+      type: 'input',
+      name: 'lastInit',
+      message: "What's your last initial? ",
+      validate: (input) => {
+        const { error } = lastInitSchema.validate(input);
+        return error ? error.message : true;
       },
     },
 
@@ -41,10 +51,8 @@ const registrationPrompt = async () => {
       name: 'password',
       message: 'Please choose a simple password: ',
       validate: (input) => {
-        return (
-          (input.length >= 4 && input.length <= 10) ||
-          'Password shoud be between 4 and 10 characters'
-        );
+        const { error } = passwordSchema.validate(input);
+        return error ? error.message : true;
       },
     },
     {
