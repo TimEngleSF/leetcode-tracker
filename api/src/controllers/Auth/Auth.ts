@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-// import writeErrorToFile from '../../errors/writeError.js';
 import loginService from '../../service/Auth/login-user.js';
 import { loginReqSchema, registerReqSchema } from './authReqSchemas.js';
 import User from '../../models/User.js';

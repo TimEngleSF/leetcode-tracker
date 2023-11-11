@@ -2,29 +2,19 @@ import express from 'express';
 import Controllers from '../controllers/index.js';
 const authRouter = express.Router();
 
-authRouter.post('/login', Controllers.Auth.SubAuth.postLogin);
+authRouter.post('/login', Controllers.Auth.postLogin);
 
-authRouter.post('/register', Controllers.Auth.SubAuth.postRegister);
+authRouter.post('/register', Controllers.Auth.postRegister);
 
-authRouter.put('/reset', Controllers.Auth.resetPass);
+authRouter.get('/verify/:token', Controllers.Auth.getValidateUser);
 
-authRouter.get('/verify/:token', Controllers.Auth.SubAuth.getValidateUser);
+authRouter.get('/reset', Controllers.Auth.getResetPasswordSendEmail);
 
-authRouter.post('/validate', Controllers.Auth.validateSecAnswer);
+authRouter.get('/reset/:token', Controllers.Auth.getResetPasswordForm);
 
-authRouter.get('/reset', Controllers.Auth.SubAuth.getResetPasswordSendEmail);
+authRouter.post('/reset', Controllers.Auth.postResetPasswordSendEmail);
+authRouter.post('/reset-password', Controllers.Auth.postResetPasswordSendEmail);
 
-authRouter.get('/reset/:token', Controllers.Auth.SubAuth.getResetPasswordForm);
-
-authRouter.post('/reset', Controllers.Auth.SubAuth.postResetPasswordSendEmail);
-authRouter.post(
-  '/reset-password',
-  Controllers.Auth.SubAuth.postResetPasswordSendEmail
-);
-
-authRouter.post(
-  '/set-password',
-  Controllers.Auth.SubAuth.postResetPasswordForm
-);
+authRouter.post('/set-password', Controllers.Auth.postResetPasswordForm);
 
 export default authRouter;
