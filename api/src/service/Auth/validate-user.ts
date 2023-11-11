@@ -32,8 +32,14 @@ export const validateUserService = async (
     if (!userResult || !userResult._id) {
       return { success: false, firstName: null, username: null };
     }
-    await User.updateStatus(userResult._id, 'verified');
-    await Blacklist.addBlacklistToken(token, 'EMAIL_VERIFICATION_SECRET');
+    await Promise.all([
+      User.updateStatus(userResult._id, 'verified'),
+      User.updateVerificationToken(userResult._id, ''),
+      Blacklist.addBlacklistToken(token, 'EMAIL_VERIFICATION_SECRET'),
+    ]);
+    // await User.updateStatus(userResult._id, 'verified');
+    // await User.updateVerificationToken(userResult._id, '');
+    // await Blacklist.addBlacklistToken(token, 'EMAIL_VERIFICATION_SECRET');
   } catch (error) {
     console.log(error);
     return { success: false, firstName: null, username: null };
