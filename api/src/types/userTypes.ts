@@ -10,6 +10,7 @@ export interface UserDocument extends Document {
   password: string;
   status: 'pending' | 'verified';
   verificationToken: string | null;
+  passwordToken: string | null;
   questions: number[];
   lastActivity: Date;
 }

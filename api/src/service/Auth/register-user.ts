@@ -18,6 +18,8 @@ import { ExtendedError } from '../../errors/helpers.js';
 
 // });
 
+const { BASE_URL } = process.env;
+
 var transport = nodemailer.createTransport({
   host: 'sandbox.smtp.mailtrap.io',
   port: 2525,
@@ -86,7 +88,7 @@ const registerUserService = async (
     throw error;
   }
 
-  const verificationUrl = `http://localhost:3000/verify/${verificationToken}`;
+  const verificationUrl = `${BASE_URL}/verify/${verificationToken}`;
 
   try {
     // "if" is a Typescript issue, always expect _id

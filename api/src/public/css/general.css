@@ -1,0 +1,26 @@
+body {
+  background-color: #282828;
+  font-family: 'Source Code Pro', 'Courier New', Courier, monospace;
+  color: #66ff66;
+}
+
+input {
+  background-color: #282828;
+  border: solid 0.5px #66ff66;
+  border-radius: 3px;
+  font-family: inherit;
+  color: inherit;
+  text-indent: 4px;
+}
+
+input:focus {
+  outline: solid 1.5px #66ff66;
+}
+
+.btn {
+  background-color: #66ff66;
+  border: none;
+  color: #282828;
+  font-family: inherit;
+  cursor: pointer;
+}
