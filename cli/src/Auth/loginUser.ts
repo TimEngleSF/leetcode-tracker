@@ -6,11 +6,15 @@ import chalk from 'chalk';
 
 import loginPrompt from './Prompts/loginPrompt.js';
 import { API_URL } from '../apiConfigInit.js';
+import { UserLoginResult } from '../Types/api.js';
 
-const loginToAPI = async (answers: { username: string; password: string }) => {
-  const { username, password } = answers;
+const loginToAPI = async (answers: {
+  email: string;
+  password: string;
+}): Promise<UserLoginResult> => {
+  const { email, password } = answers;
   const payload = {
-    username: username.toLowerCase().trim(),
+    username: email.toLowerCase().trim(),
     password,
   };
   const { data } = await axios({
@@ -23,14 +27,14 @@ const loginToAPI = async (answers: { username: string; password: string }) => {
   return data;
 };
 
-export const loginUser = async (username?: string, password?: string) => {
+export const loginUser = async (email?: string, password?: string) => {
   const __filename = url.fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   let data;
   let isTesting = false;
   try {
-    if (username && password) {
-      data = await loginToAPI({ username, password });
+    if (email && password) {
+      data = await loginToAPI({ email, password });
       isTesting = true;
     } else {
       const answers = await loginPrompt();
@@ -38,12 +42,12 @@ export const loginUser = async (username?: string, password?: string) => {
     }
 
     const userObject = {
-      LC_USERNAME: data.username.toLowerCase(),
-      LC_DISPLAYNAME: data.username,
-      LC_ID: data._id,
+      LC_USERNAME: data.user.username.toLowerCase(),
+      LC_DISPLAYNAME: data.user.username,
+      LC_ID: data.user._id,
       LC_TOKEN: data.token,
-      LC_FIRSTNAME: data.firstName,
-      LC_LASTINIT: data.lastInit,
+      LC_FIRSTNAME: data.user.firstName,
+      LC_LASTINIT: data.user.lastInit,
     };
 
     const payload = JSON.stringify(userObject);

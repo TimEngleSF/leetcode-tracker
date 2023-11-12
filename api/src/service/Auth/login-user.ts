@@ -12,7 +12,7 @@ const loginService = async (
 ): Promise<UserLoginPayload> => {
   let user: UserDocument | null;
   try {
-    user = await User.getByUsername(username);
+    user = await User.getByEmail(username);
     if (!user) {
       const error = new ExtendedError('Incorrect Email or Password');
       error.statusCode = 401;
@@ -70,13 +70,15 @@ const loginService = async (
   }
 
   const payload = {
-    _id: user._id.toHexString(),
-    username: user.displayUsername,
-    email: user.email,
-    firstName: user.firstName,
-    lastInit: user.lastInit,
-    status: user.status,
-    lastActivity: user.lastActivity,
+    user: {
+      _id: user._id.toHexString(),
+      username: user.displayUsername,
+      email: user.email,
+      firstName: user.firstName,
+      lastInit: user.lastInit,
+      status: user.status,
+      lastActivity: user.lastActivity,
+    },
     token,
   };
   return payload;

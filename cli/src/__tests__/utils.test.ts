@@ -65,7 +65,7 @@ describe('Utility functions', () => {
       await logout();
       // run getUserJSON and store
       const jsonData = await getUserJSON();
-      await loginUser('timmy', 'password');
+      await loginUser('test@email.com', 'password');
       // check to see if each property is null using &&
       expect(
         jsonData.LC_FIRSTNAME &&

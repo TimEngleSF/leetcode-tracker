@@ -1,15 +1,17 @@
 import express from 'express';
 import Controllers from '../controllers/index.js';
+import authRateLimiter from '../middleware/authRateLimit.js';
 const authRouter = express.Router();
 
 authRouter.get('/status', Controllers.Auth.getStatus);
 
-authRouter.post('/login', Controllers.Auth.postLogin);
+authRouter.post('/login', authRateLimiter, Controllers.Auth.postLogin);
 
-authRouter.post('/register', Controllers.Auth.postRegister);
+authRouter.post('/register', authRateLimiter, Controllers.Auth.postRegister);
 
 authRouter.get('/verify/:token', Controllers.Auth.getValidateUser);
 
+// Reset Pass endpoints
 authRouter.get('/reset', Controllers.Auth.getResetPasswordSendEmail);
 
 authRouter.get('/reset/:token', Controllers.Auth.getResetPasswordForm);

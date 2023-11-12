@@ -1,13 +1,15 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import authSelectionPrompt from '../../../Auth/Prompts/authSelectionPrompt.js';
+import { isLoggedIn } from '../../../utils.js';
 
 describe('authSelectionPrompt', () => {
-  let promptStub: any, getUserJSONStub: any;
+  let promptStub: any, getUserJSONStub: any, isLoggedInStub: any;
 
   beforeEach(() => {
     promptStub = sinon.stub();
     getUserJSONStub = sinon.stub();
+    isLoggedInStub = sinon.stub();
   });
 
   it('should prompt for login if user is not logged in and chooses Login', async () => {
@@ -16,10 +18,10 @@ describe('authSelectionPrompt', () => {
       LC_ID: null,
       LC_TOKEN: null,
     });
-    promptStub.resolves({ authSelect: 'Login' });
+    promptStub.resolves({ authSelect: 'login' });
 
     const result = await authSelectionPrompt(promptStub, getUserJSONStub);
-
+    console.log(result);
     expect(result).to.equal('login');
     expect(promptStub.calledOnce).to.be.true;
   });
@@ -30,7 +32,7 @@ describe('authSelectionPrompt', () => {
       LC_ID: null,
       LC_TOKEN: null,
     });
-    promptStub.resolves({ authSelect: 'Register' });
+    promptStub.resolves({ authSelect: 'register' });
 
     const result = await authSelectionPrompt(promptStub, getUserJSONStub);
 
@@ -45,7 +47,13 @@ describe('authSelectionPrompt', () => {
       LC_TOKEN: 'token',
     });
 
-    const result = await authSelectionPrompt(promptStub, getUserJSONStub);
+    isLoggedInStub.resolves(true);
+
+    const result = await authSelectionPrompt(
+      promptStub,
+      getUserJSONStub,
+      isLoggedInStub
+    );
 
     expect(result).to.be.false;
     expect(promptStub.called).to.be.false;

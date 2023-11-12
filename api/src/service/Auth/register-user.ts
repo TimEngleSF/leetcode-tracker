@@ -2,11 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import User from '../../models/User.js';
-import {
-  CreateUserInService,
-  UserDocument,
-  UserRegisterPayload,
-} from '../../types/userTypes.js';
+import { CreateUserInService, UserDocument } from '../../types/userTypes.js';
 import { ExtendedError } from '../../errors/helpers.js';
 import Blacklist from '../../models/Blacklist.js';
 

@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
-
+import open from 'open';
 import mainLoop from './mainLoop.js';
 import authSelectionPrompt from './Auth/Prompts/authSelectionPrompt.js';
 import registerUser from './Auth/registerUser.js';
 import loginUser from './Auth/loginUser.js';
 import { getUserJSON, isLoggedIn, printHeader } from './utils.js';
+import { API_URL } from './apiConfigInit.js';
 
 if (await isLoggedIn()) {
   await handleRun();
@@ -28,26 +29,22 @@ async function handleRun() {
 
 async function handleNonLoggedInUsers() {
   console.clear();
+
   printHeader();
 
   let success = false;
   while (!success) {
     const authSelect = await authSelectionPrompt();
-    switch (authSelect) {
-      case 'register':
-        await handleRegistrationFlow();
-        break;
-      case 'login':
-        await handleLoginFlow();
-        success = true;
-        break;
-      case 'reset':
-        // await handleResetFlow();
-        break;
-      default:
-        await handleDefaultFlow();
-        success = true;
-        break;
+    if (authSelect === 'register') {
+      await handleRegistrationFlow();
+    } else if (authSelect === 'login') {
+      await handleLoginFlow();
+      success = true;
+    } else if (authSelect === 'reset') {
+      await handleResetFlow();
+    } else {
+      success = true;
+      await handleDefaultFlow();
     }
   }
 }
@@ -60,7 +57,6 @@ async function handleRegistrationFlow() {
   console.log(
     chalk.bgGreen('A verification link has been sent to your email.')
   );
-  await authSelectionPrompt();
 }
 
 async function handleLoginFlow() {
@@ -69,6 +65,13 @@ async function handleLoginFlow() {
   console.clear();
   printHeader();
   await handleRun();
+}
+
+async function handleResetFlow() {
+  console.log(chalk.green('Opening reset password form in browser...'));
+  open(`${API_URL}/reset`);
+  console.clear();
+  printHeader();
 }
 
 async function handleDefaultFlow() {
