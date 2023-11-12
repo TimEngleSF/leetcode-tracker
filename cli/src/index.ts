@@ -43,7 +43,10 @@ if (authSelect === 'register') {
   await registerUser();
   console.clear();
   printHeader();
-  await mainLoop();
+  console.log(
+    chalk.bgGreen('A verification link has been sent to your email.')
+  );
+  await authSelectionPrompt();
 } else if (authSelect === 'login') {
   console.log(chalk.green('Logging in...'));
   await loginUser();

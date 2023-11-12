@@ -9,7 +9,7 @@ export interface UserDocument extends Document {
   lastInit: string;
   password: string;
   status: 'pending' | 'verified';
-  verificationToken: string | null;
+  verificationToken: string;
   passwordToken: string | null;
   questions: number[];
   lastActivity: Date;
@@ -43,4 +43,5 @@ export type CreateUserInDb = {
   hashedPass: string;
   firstName: string;
   lastInit: string;
+  verificationToken: string;
 };
