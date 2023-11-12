@@ -1,7 +1,12 @@
 import axios from 'axios';
 import inquirer from 'inquirer';
 
-import { getAuthHeaders, getUserJSON, logout } from '../../utils.js';
+import {
+  getAuthHeaders,
+  getUserJSON,
+  isLoggedIn,
+  logout,
+} from '../../utils.js';
 import { API_URL } from '../../apiConfigInit.js';
 
 const userJSON = async () => {
@@ -30,11 +35,12 @@ const isValidToken = async () => {
 
 const authSelectionPrompt = async (
   prompt = inquirer.prompt,
-  userJSONInstance = userJSON
+  userJSONInstance = userJSON,
+  isLoggedInFunction = isLoggedIn
 ) => {
   const { LC_USERNAME, LC_ID, LC_TOKEN } = await userJSONInstance();
 
-  if (!LC_USERNAME || !LC_ID || !LC_TOKEN || !(await isValidToken())) {
+  if (!LC_USERNAME || !LC_ID || !LC_TOKEN || !(await isLoggedInFunction())) {
     const answers = await prompt({
       type: 'list',
       name: 'authSelect',
