@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-// import writeErrorToFile from '../../errors/writeError.js';
 import loginService from '../../service/Auth/login-user.js';
 import { loginReqSchema, registerReqSchema } from './authReqSchemas.js';
 import User from '../../models/User.js';
 import registerUserService from '../../service/Auth/register-user.js';
 import validateUserService from '../../service/Auth/validate-user.js';
 import setPasswordTokenService from '../../service/Auth/set-password-token.js';
+import Blacklist from '../../models/Blacklist.js';
+import setNewPasswordService from '../../service/Auth/set-new-password.js';
 
 const Auth = {
   postLogin: async (req: Request, res: Response, next: NextFunction) => {
@@ -93,11 +94,15 @@ const Auth = {
         throw new Error();
       }
       jwt.verify(token, PASSWORD_VERIFICATION_SECRET);
-      const userDocument = await User.getByPasswordToken(token);
-      if (!userDocument) {
-        throw new Error();
+      const [userDocument, blacklistDocument] = await Promise.all([
+        User.getByPasswordToken(token),
+        Blacklist.findByToken(token),
+      ]);
+      if (!userDocument || blacklistDocument) {
+        throw new Error('A user could not be found, or token is blacklisted');
       }
     } catch (error) {
+      console.log(error);
       return res.render('Auth/password/invalid-reset-password');
     }
     return res.render('Auth/password/reset-password', {
@@ -112,10 +117,14 @@ const Auth = {
     res: Response,
     next: NextFunction
   ) => {
-    // TODO: Add functionality to reset password, remember to check if passwords match
-    // confirm passwords match if not set correct message,
-    // confirm password is of valid length, if not set correct message
-    // if either of these fail redirect them to getResetPasswordForm using the token that is passed from the from
+    const { password, token } = req.body;
+    try {
+      await setNewPasswordService(password, token);
+      return res.render('Auth/password/reset-password-success');
+    } catch (error) {
+      console.log(error);
+      res.redirect(`/reset/${token}`);
+    }
   },
 };
 

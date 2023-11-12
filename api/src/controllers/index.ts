@@ -1,4 +1,4 @@
-import { Auth } from './Auth/index.js';
+import Auth from './Auth/Auth.js';
 import { Leaderboard } from './Leaderboard/index.js';
 import { Questions } from './Questions/index.js';
 import { Users } from './Users/index.js';
