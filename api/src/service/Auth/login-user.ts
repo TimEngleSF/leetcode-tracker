@@ -12,7 +12,7 @@ const loginService = async (
 ): Promise<UserLoginPayload> => {
   let user: UserDocument | null;
   try {
-    user = await User.getByUsername(username);
+    user = await User.getByEmail(username);
     if (!user) {
       const error = new ExtendedError('Incorrect Email or Password');
       error.statusCode = 401;

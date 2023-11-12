@@ -1,13 +1,16 @@
 import inquirer from 'inquirer';
+import chalk from 'chalk';
+import { emailSchema } from './validation/validationSchema.js';
 
 const loginPrompt = async () => {
   const answers = await inquirer.prompt([
     {
       type: 'input',
-      name: 'username',
-      message: 'Please enter your username',
+      name: 'email',
+      message: 'Please enter your email',
       validate: (input) => {
-        return input.length <= 10 || 'Username shoud be 10 or less characters';
+        const { error } = emailSchema.validate(input);
+        return error ? chalk.red(error.message) : true;
       },
     },
     {

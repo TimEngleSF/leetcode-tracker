@@ -9,12 +9,12 @@ import { API_URL } from '../apiConfigInit.js';
 import { UserLoginResult } from '../Types/api.js';
 
 const loginToAPI = async (answers: {
-  username: string;
+  email: string;
   password: string;
 }): Promise<UserLoginResult> => {
-  const { username, password } = answers;
+  const { email, password } = answers;
   const payload = {
-    username: username.toLowerCase().trim(),
+    username: email.toLowerCase().trim(),
     password,
   };
   const { data } = await axios({
@@ -27,14 +27,14 @@ const loginToAPI = async (answers: {
   return data;
 };
 
-export const loginUser = async (username?: string, password?: string) => {
+export const loginUser = async (email?: string, password?: string) => {
   const __filename = url.fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   let data;
   let isTesting = false;
   try {
-    if (username && password) {
-      data = await loginToAPI({ username, password });
+    if (email && password) {
+      data = await loginToAPI({ email, password });
       isTesting = true;
     } else {
       const answers = await loginPrompt();
