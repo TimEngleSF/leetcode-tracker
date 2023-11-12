@@ -6,8 +6,12 @@ import chalk from 'chalk';
 
 import loginPrompt from './Prompts/loginPrompt.js';
 import { API_URL } from '../apiConfigInit.js';
+import { UserLoginResult } from '../Types/api.js';
 
-const loginToAPI = async (answers: { username: string; password: string }) => {
+const loginToAPI = async (answers: {
+  username: string;
+  password: string;
+}): Promise<UserLoginResult> => {
   const { username, password } = answers;
   const payload = {
     username: username.toLowerCase().trim(),
@@ -38,12 +42,12 @@ export const loginUser = async (username?: string, password?: string) => {
     }
 
     const userObject = {
-      LC_USERNAME: data.username.toLowerCase(),
-      LC_DISPLAYNAME: data.username,
-      LC_ID: data._id,
+      LC_USERNAME: data.user.username.toLowerCase(),
+      LC_DISPLAYNAME: data.user.username,
+      LC_ID: data.user._id,
       LC_TOKEN: data.token,
-      LC_FIRSTNAME: data.firstName,
-      LC_LASTINIT: data.lastInit,
+      LC_FIRSTNAME: data.user.firstName,
+      LC_LASTINIT: data.user.lastInit,
     };
 
     const payload = JSON.stringify(userObject);
