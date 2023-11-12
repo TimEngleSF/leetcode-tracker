@@ -2,6 +2,8 @@ import express from 'express';
 import Controllers from '../controllers/index.js';
 const authRouter = express.Router();
 
+authRouter.get('/status', Controllers.Auth.getStatus);
+
 authRouter.post('/login', Controllers.Auth.postLogin);
 
 authRouter.post('/register', Controllers.Auth.postRegister);
@@ -13,6 +15,7 @@ authRouter.get('/reset', Controllers.Auth.getResetPasswordSendEmail);
 authRouter.get('/reset/:token', Controllers.Auth.getResetPasswordForm);
 
 authRouter.post('/reset', Controllers.Auth.postResetPasswordSendEmail);
+
 authRouter.post('/reset-password', Controllers.Auth.postResetPasswordSendEmail);
 
 authRouter.post('/set-password', Controllers.Auth.postResetPasswordForm);

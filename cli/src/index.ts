@@ -1,85 +1,23 @@
 #!/usr/bin/env node
 
-import { program } from 'commander';
 import chalk from 'chalk';
-import updateNotifier from 'update-notifier';
-import packageJson from './package.json' assert { type: 'json' };
 
 import mainLoop from './mainLoop.js';
 import authSelectionPrompt from './Auth/Prompts/authSelectionPrompt.js';
 import registerUser from './Auth/registerUser.js';
 import loginUser from './Auth/loginUser.js';
-import { getUserJSON, printHeader } from './utils.js';
-import addQuestionToDB from './Questions/addQuestionToDB.js';
-import resetPass from './Auth/resetPass/resetPass.js';
+import { getUserJSON, isLoggedIn, printHeader } from './utils.js';
 
-let userObject;
-
-// Define the options using Commander
-program
-  .option('-r, --run', 'Begin running an instance of LeetCode Tracker')
-  .option('-l, --login', 'Login to your account')
-  .option('-a, --add', 'Add question data')
-  .option('-b, --dummyB', 'Dummy option B')
-  .option('--register', 'Create an account');
-
-// Parse the command line arguments
-program.parse();
-
-const options = program.opts();
-
-// If there are no options
-
-console.clear();
-printHeader();
-updateNotifier({ pkg: packageJson }).notify({
-  message: 'Run `{updateCommand}` to update.',
-  isGlobal: true,
-});
-
-const authSelect = await authSelectionPrompt();
-if (authSelect === 'register') {
-  console.log(chalk.green('Registering user...'));
-  await registerUser();
-  console.clear();
-  printHeader();
-  console.log(
-    chalk.bgGreen('A verification link has been sent to your email.')
-  );
-  await authSelectionPrompt();
-} else if (authSelect === 'login') {
-  console.log(chalk.green('Logging in...'));
-  await loginUser();
-  console.clear();
-  printHeader();
-  await mainLoop();
-} else if (authSelect === 'reset') {
-  await resetPass();
+if (await isLoggedIn()) {
+  await handleRun();
 } else {
-  userObject = await getUserJSON();
-  console.clear();
-  printHeader();
-  console.log(
-    chalk.green(
-      ` Welcome ${userObject.LC_FIRSTNAME} ${userObject.LC_LASTINIT}\n`
-    )
-  );
-
-  await mainLoop();
+  await handleNonLoggedInUsers();
 }
 
-// Run based on options
-if (options.login) {
+async function handleRun() {
   console.clear();
   printHeader();
-  console.log(chalk.green('You have selected the login option.'));
-  await loginUser();
-}
-
-if (options.run) {
-  console.clear();
-  printHeader();
-  userObject = await getUserJSON();
+  const userObject = await getUserJSON();
   console.log(
     chalk.green(
       `Welcome ${userObject.LC_FIRSTNAME} ${userObject.LC_LASTINIT}.\n`
@@ -88,14 +26,59 @@ if (options.run) {
   await mainLoop();
 }
 
-if (options.add) {
+async function handleNonLoggedInUsers() {
   console.clear();
   printHeader();
-  await addQuestionToDB();
+
+  let success = false;
+  while (!success) {
+    const authSelect = await authSelectionPrompt();
+    switch (authSelect) {
+      case 'register':
+        await handleRegistrationFlow();
+        break;
+      case 'login':
+        await handleLoginFlow();
+        success = true;
+        break;
+      case 'reset':
+        // await handleResetFlow();
+        break;
+      default:
+        await handleDefaultFlow();
+        success = true;
+        break;
+    }
+  }
 }
 
-if (options.register) {
+async function handleRegistrationFlow() {
+  console.log(chalk.green('Registering user...'));
+  await registerUser();
   console.clear();
   printHeader();
-  await registerUser();
+  console.log(
+    chalk.bgGreen('A verification link has been sent to your email.')
+  );
+  await authSelectionPrompt();
+}
+
+async function handleLoginFlow() {
+  console.log(chalk.green('Logging in...'));
+  await loginUser();
+  console.clear();
+  printHeader();
+  await handleRun();
+}
+
+async function handleDefaultFlow() {
+  const userObject = await getUserJSON();
+  console.clear();
+  printHeader();
+  console.log(
+    chalk.green(
+      `Welcome ${userObject.LC_FIRSTNAME} ${userObject.LC_LASTINIT}\n`
+    )
+  );
+  await mainLoop();
 }

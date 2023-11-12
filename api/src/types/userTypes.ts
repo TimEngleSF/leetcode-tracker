@@ -1,3 +1,4 @@
+import { JwtPayload } from 'jsonwebtoken';
 import { Document, ObjectId } from 'mongodb';
 
 export interface UserDocument extends Document {
@@ -45,3 +46,9 @@ export type CreateUserInDb = {
   lastInit: string;
   verificationToken: string;
 };
+
+export interface UserToken extends JwtPayload {
+  userId: string;
+  email: string;
+  username: string;
+}

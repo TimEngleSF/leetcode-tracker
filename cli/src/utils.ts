@@ -6,11 +6,12 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import axios from 'axios';
 import { API_URL } from './apiConfigInit.js';
+import { UserObject } from './Types/user.js';
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const getUserJSON = async () => {
+export const getUserJSON = async (): Promise<UserObject> => {
   const data = (
     await fs.readFile(path.join(__dirname, 'user.json'))
   ).toString();
@@ -74,4 +75,25 @@ export const getQuestionData = async (
     headers: authHeaders,
   });
   return data;
+};
+
+export const isLoggedIn = async () => {
+  const userObject = await getUserJSON();
+  if (!userObject.LC_TOKEN) {
+    return false;
+  }
+  try {
+    const { status } = await axios({
+      method: 'GET',
+      url: `${API_URL}/status`,
+      headers: { Authorization: `Bearer ${userObject.LC_TOKEN}` },
+    });
+    if (status !== 200) {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+
+  return true;
 };

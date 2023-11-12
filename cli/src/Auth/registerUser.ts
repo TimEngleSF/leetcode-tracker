@@ -1,7 +1,4 @@
 import axios from 'axios';
-import fs from 'fs/promises';
-import path from 'path';
-import url from 'url';
 import chalk from 'chalk';
 
 import registrationPrompt from './Prompts/registrationPrompt.js';
@@ -45,23 +42,6 @@ const registerUser = async (): Promise<void> => {
   if (data.message) {
     console.log(chalk.redBright(data.message, data.error));
     return await registerUser();
-  }
-
-  try {
-    const __filename = url.fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-
-    const userObject = {
-      LC_USERNAME: data.username,
-      LC_ID: data._id,
-      LC_TOKEN: data.token,
-    };
-
-    const payload = JSON.stringify(userObject);
-
-    await fs.writeFile(path.join(__dirname, '..', '/user.json'), payload);
-  } catch (error) {
-    console.error(error);
   }
 };
 
