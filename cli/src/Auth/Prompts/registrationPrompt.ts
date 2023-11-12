@@ -6,8 +6,35 @@ import {
   lastInitSchema,
   passwordSchema,
 } from './validation/validationSchema.js';
+import { RegistrationPrompt } from '../../Types/prompts.js';
 
-const registrationPrompt = async () => {
+const passwordPrompt = async (): Promise<{ password: string } | null> => {
+  const passwordAnswers = await inquirer.prompt([
+    {
+      type: 'password',
+      name: 'password',
+      message: 'Please choose a simple password: ',
+      validate: (input) => {
+        const { error } = passwordSchema.validate(input);
+        return error ? chalk.red(error.message) : true;
+      },
+    },
+    {
+      type: 'password',
+      name: 'passwordCheck',
+      message: 'Please re-enter your password: ',
+    },
+  ]);
+
+  if (passwordAnswers.password !== passwordAnswers.passwordCheck) {
+    console.log(chalk.red('Passwords did not match. Please try again.'));
+    return await passwordPrompt();
+  }
+
+  return passwordAnswers.password;
+};
+
+const registrationPrompt = async (): Promise<RegistrationPrompt> => {
   const answers = await inquirer.prompt([
     {
       type: 'input',
@@ -15,7 +42,7 @@ const registrationPrompt = async () => {
       message: 'Enter an email: ',
       validate: (input) => {
         const { error } = emailSchema.validate(input);
-        return error ? error.message : true;
+        return error ? chalk.red(error.message) : true;
       },
     },
     {
@@ -24,7 +51,7 @@ const registrationPrompt = async () => {
       message: 'Enter a username: ',
       validate: (input) => {
         const { error } = usernameFirstNameSchema.validate(input);
-        return error ? error.message : true;
+        return error ? chalk.red(error.message) : true;
       },
     },
     {
@@ -33,7 +60,7 @@ const registrationPrompt = async () => {
       message: "What's your first name? ",
       validate: (input) => {
         const { error } = usernameFirstNameSchema.validate(input);
-        return error ? error.message : true;
+        return error ? chalk.red(error.message) : true;
       },
     },
     {
@@ -42,70 +69,13 @@ const registrationPrompt = async () => {
       message: "What's your last initial? ",
       validate: (input) => {
         const { error } = lastInitSchema.validate(input);
-        return error ? error.message : true;
-      },
-    },
-
-    {
-      type: 'password',
-      name: 'password',
-      message: 'Please choose a simple password: ',
-      validate: (input) => {
-        const { error } = passwordSchema.validate(input);
-        return error ? error.message : true;
-      },
-    },
-    {
-      type: 'password',
-      name: 'passwordCheck',
-      message: 'Please re-enter your password: ',
-      validate: async (input, answers) => {
-        return input === answers.password || 'Passwords do not match.';
-      },
-    },
-    {
-      type: 'input',
-      name: 'secColor',
-      message: `${chalk.bgRed(
-        'Security questions to reset password'
-      )}\nWhat is your favorite color?`,
-      filter: (input) => {
-        return input.toLowerCase();
-      },
-      validate: (input) => {
-        return (
-          (input.length >= 2 && input.length <= 10) ||
-          'Answer shoud be between 2 and 10 characters'
-        );
-      },
-    },
-    {
-      type: 'input',
-      name: 'secYOB',
-      message: 'What year were you born?',
-      validate: (input) => {
-        return (
-          input.length === 4 || 'Year of birth should be exactly 4 characters'
-        );
-      },
-    },
-    {
-      type: 'input',
-      name: 'secStreet',
-      message: 'Which street did you grow up on?',
-      filter: (input) => {
-        return input.toLowerCase();
-      },
-      validate: (input) => {
-        return (
-          (input.length >= 2 && input.length <= 10) ||
-          'Answer shoud be between 2 and 10 characters'
-        );
+        return error ? chalk.red(error.message) : true;
       },
     },
   ]);
 
-  return answers;
+  const passwordAnswer = await passwordPrompt();
+  return { ...answers, password: passwordAnswer };
 };
 
 export default registrationPrompt;
