@@ -2,7 +2,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { Document, ObjectId } from 'mongodb';
 
 export interface UserDocument extends Document {
-  _id?: ObjectId;
+  _id: ObjectId;
   username: string;
   displayUsername: string;
   email: string;

@@ -35,9 +35,7 @@ const setNewPasswordService = async (password: string, token: string) => {
     if (!userDocument) {
       throw new Error('A user could not be found');
     }
-    if (!userDocument._id) {
-      throw new Error('Could not locate an _id field within userDocument');
-    }
+
     await User.updatePassword(userDocument._id, hashedPass);
   } catch (error) {
     throw error;

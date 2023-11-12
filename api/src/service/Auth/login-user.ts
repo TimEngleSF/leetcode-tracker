@@ -65,10 +65,6 @@ const loginService = async (
     throw extendedError;
   }
 
-  if (!user._id) {
-    throw new Error('New user is missing an _id property'); // Unexpected Error, TypeScript issue
-  }
-
   const payload = {
     user: {
       _id: user._id.toHexString(),

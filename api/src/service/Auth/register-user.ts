@@ -120,13 +120,7 @@ const registerUserService = async (
   const verificationUrl = `${BASE_URL}/verify/${verificationToken}`;
 
   try {
-    // "if" is a Typescript issue, always expect _id
-    if (createUserResult._id) {
-      await User.updateVerificationToken(
-        createUserResult._id,
-        verificationToken
-      );
-    }
+    await User.updateVerificationToken(createUserResult._id, verificationToken);
   } catch (error) {
     throw error;
   }
