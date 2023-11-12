@@ -1,7 +1,8 @@
 import 'dotenv/config.js';
-import { MongoClient, Db, Collection } from 'mongodb';
+import { MongoClient, Db, Collection, Document } from 'mongodb';
 import { UserDocument } from '../types/userTypes.js';
 import { BlacklistDocument } from '../types/blacklistTypes.js';
+import { QuestionDocument } from '../types/questionTypes.js';
 
 let db: Db;
 
@@ -25,23 +26,16 @@ const connectDb = async () => {
   return db;
 };
 
-export const getCollection = async (
-  collectionString:
-    | 'users'
-    | 'questions'
-    | 'questionData'
-    | 'securityAnswers'
-    | 'blacklistTokens'
-): Promise<
-  Collection | Collection<UserDocument> | Collection<BlacklistDocument>
-> => {
+export const getCollection = async <T extends Document>(
+  collectionName: 'users' | 'blacklistTokens' | 'questions' | 'questionData'
+): Promise<Collection<T>> => {
   try {
     const db = await connectDb();
-    const collection = db.collection(collectionString);
+    const collection = db.collection<T>(collectionName);
     return collection;
   } catch (error: any) {
     error.statusCode = 500;
-    error.message = `Database Error: An error occured while connecting to collection ${collectionString}`;
+    error.message = `Database Error: An error occured while connecting to collection ${collectionName}`;
     throw error;
   }
 };
