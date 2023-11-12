@@ -16,17 +16,16 @@ export interface UserDocument extends Document {
   lastActivity: Date;
 }
 
-export interface UserRegisterPayload {
-  _id: string;
-  username: string;
-  email: string;
-  firstName: string;
-  lastInit: string;
-  lastActivity: Date;
-  status: 'pending' | 'verified';
-}
-
-export interface UserLoginPayload extends UserRegisterPayload {
+export interface UserLoginPayload {
+  user: {
+    _id: string;
+    username: string;
+    email: string;
+    firstName: string;
+    lastInit: string;
+    lastActivity: Date;
+    status: 'pending' | 'verified';
+  };
   token: string;
 }
 

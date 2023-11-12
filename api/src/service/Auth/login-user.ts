@@ -70,13 +70,15 @@ const loginService = async (
   }
 
   const payload = {
-    _id: user._id.toHexString(),
-    username: user.displayUsername,
-    email: user.email,
-    firstName: user.firstName,
-    lastInit: user.lastInit,
-    status: user.status,
-    lastActivity: user.lastActivity,
+    user: {
+      _id: user._id.toHexString(),
+      username: user.displayUsername,
+      email: user.email,
+      firstName: user.firstName,
+      lastInit: user.lastInit,
+      status: user.status,
+      lastActivity: user.lastActivity,
+    },
     token,
   };
   return payload;
