@@ -10,6 +10,24 @@ import Blacklist from '../../models/Blacklist.js';
 import setNewPasswordService from '../../service/Auth/set-new-password.js';
 
 const Auth = {
+  getStatus: (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.get('Authorization');
+    if (!authHeader) {
+      return res.status(422).send({ status: 'invalid' });
+    }
+    const token = authHeader?.split(' ')[1];
+    const { JWT_SECRET } = process.env;
+    if (!JWT_SECRET) {
+      return res.status(422).send({ status: 'invalid' });
+    }
+    try {
+      jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+      return res.status(401).send({ status: 'invalid' });
+    }
+    return res.status(200).send({ status: 'valid' });
+  },
+
   postLogin: async (req: Request, res: Response, next: NextFunction) => {
     let { error } = loginReqSchema.validate(req.body);
     if (error) {
