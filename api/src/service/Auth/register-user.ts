@@ -8,6 +8,7 @@ import {
   UserRegisterPayload,
 } from '../../types/userTypes.js';
 import { ExtendedError } from '../../errors/helpers.js';
+import Blacklist from '../../models/Blacklist.js';
 
 // const transporter = nodemailer.createTransport({
 // service: 'gmail', // or 'SendGrid', 'Outlook', etc.
@@ -46,24 +47,41 @@ const registerUserService = async (
     throw error;
   }
 
-  if (usernameResult || emailResult) {
+  if (
+    (usernameResult && usernameResult.status === 'verified') ||
+    (emailResult && emailResult.status === 'verified')
+  ) {
     const error = new ExtendedError('Username or Email already in use.');
     error.statusCode = 400;
     throw error;
-  }
-
-  const hashedPass = await bcrypt.hash(password, 12);
-
-  try {
-    createUserResult = await User.create({
-      displayUsername,
-      email,
-      hashedPass,
-      firstName,
-      lastInit,
-    });
-  } catch (error) {
-    throw error;
+  } else if (usernameResult && usernameResult.status === 'pending') {
+    try {
+      if (usernameResult._id) {
+        await Promise.all([
+          User.deleteById(usernameResult?._id),
+          Blacklist.addBlacklistToken(
+            usernameResult.verificationToken,
+            'EMAIL_VERIFICATION_SECRET'
+          ),
+        ]);
+      }
+    } catch (error: any) {
+      throw error;
+    }
+  } else if (emailResult && emailResult.status === 'pending') {
+    try {
+      if (emailResult._id) {
+        await Promise.all([
+          User.deleteById(emailResult?._id),
+          Blacklist.addBlacklistToken(
+            emailResult.verificationToken,
+            'EMAIL_VERIFICATION_SECRET'
+          ),
+        ]);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   if (!process.env.EMAIL_VERIFICATION_SECRET) {
@@ -76,7 +94,7 @@ const registerUserService = async (
 
   try {
     verificationToken = jwt.sign(
-      { email: createUserResult.email },
+      { username: displayUsername.toLowerCase(), email: email.toLowerCase() },
       process.env.EMAIL_VERIFICATION_SECRET,
       { expiresIn: '1h' }
     );
@@ -85,6 +103,21 @@ const registerUserService = async (
       `Internal Service Error: ${error.message}`
     );
     updatedError.statusCode = 500;
+    throw error;
+  }
+
+  const hashedPass = await bcrypt.hash(password, 12);
+
+  try {
+    createUserResult = await User.create({
+      displayUsername,
+      email,
+      hashedPass,
+      firstName,
+      lastInit,
+      verificationToken,
+    });
+  } catch (error) {
     throw error;
   }
 

@@ -87,6 +87,7 @@ const User = {
     hashedPass,
     firstName,
     lastInit,
+    verificationToken,
   }: CreateUserInDb): Promise<UserDocument> => {
     let collection: Collection<UserDocument>;
     try {
@@ -105,7 +106,7 @@ const User = {
         lastInit,
         status: 'pending',
         questions: [],
-        verificationToken: null,
+        verificationToken,
         passwordToken: null,
         lastActivity: new Date(),
       });
@@ -119,6 +120,25 @@ const User = {
       }
 
       return result;
+    } catch (error: any) {
+      const extendedError = new ExtendedError(
+        'Database Error: There was an error creating user'
+      );
+      extendedError.statusCode = 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
+    }
+  },
+
+  deleteById: async (_id: string | ObjectId) => {
+    if (typeof _id === 'string') {
+      _id = new ObjectId(_id);
+    }
+    let collection: Collection<UserDocument>;
+
+    try {
+      collection = (await getCollection('users')) as Collection<UserDocument>;
+      await collection.deleteOne({ _id });
     } catch (error: any) {
       const extendedError = new ExtendedError(
         'Database Error: There was an error creating user'

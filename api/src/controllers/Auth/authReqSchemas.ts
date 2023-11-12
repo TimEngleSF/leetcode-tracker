@@ -1,14 +1,5 @@
 import Joi from 'joi';
 
-export const authReqSchemas = {
-  validateSecAnswer: Joi.object({
-    username: Joi.string().required(),
-    yob: Joi.string().required(),
-    color: Joi.string(),
-    street: Joi.string(),
-  }),
-};
-
 export const registerReqSchema = Joi.object({
   username: Joi.string().required(),
   email: Joi.string().email().required(),
