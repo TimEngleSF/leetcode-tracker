@@ -23,10 +23,9 @@ const addQuestionToDB = async (
       throw new Error('There was an error with your inputs');
     }
     const payload = {
-      userID: userInfo.LC_ID,
+      userId: userInfo.LC_ID,
       username: userInfo.LC_USERNAME,
       questNum: answers.questNum,
-      diff: answers.diff,
       passed: answers.passed,
       speed: answers.speed || null,
     };
@@ -51,7 +50,7 @@ const addQuestionToDB = async (
       JSON.stringify(error)
     );
     if (!testing) {
-      console.log(chalk.red(error));
+      console.log(chalk.red(`${error}`));
     }
   }
 };
