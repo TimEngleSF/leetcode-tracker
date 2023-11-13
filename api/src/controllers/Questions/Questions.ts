@@ -79,16 +79,6 @@ const Questions = {
     // TODO: update to use params
     const { olderThan, newerThan } = req.body;
     try {
-      //   const reviewQuestionResults = await Question.getReviewQuestions(
-      //     new ObjectId(userId),
-      //     olderThan,
-      //     newerThan
-      //   );
-      //   const formattedResults = await Promise.all(
-      //     reviewQuestionResults.map((questionNumber) =>
-      //       Question.getQuestionInfo(questionNumber)
-      //     )
-      //   );
       const result = await getReviewQuestionService(
         userId,
         newerThan,

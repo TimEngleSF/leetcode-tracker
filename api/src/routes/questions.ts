@@ -6,11 +6,12 @@ questionsRouter.get(
   '/',
   Controllers.Questions.subQuestions.getQuestionsByUserId
 );
-// questionsRouter.get('/review', Controllers.Questions.getReviewQuestions);
+
 questionsRouter.get(
   '/review',
   Controllers.Questions.subQuestions.getReviewQuestions
 );
+
 questionsRouter.get(
   '/data/:questId',
   Controllers.Questions.subQuestions.getQuestionInfo
