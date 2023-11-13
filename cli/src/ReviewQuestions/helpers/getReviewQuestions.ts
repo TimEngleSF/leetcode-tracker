@@ -13,7 +13,7 @@ export const getReviewQuestions = async (
     const authHeaders = await authHeadersInstance();
     const { data, status } = await axiosInstance({
       method: 'GET',
-      url: `${API_URL}/review`,
+      url: `${API_URL}/questions/review`,
       headers: authHeaders,
       data: reviewRangeSelection,
     });

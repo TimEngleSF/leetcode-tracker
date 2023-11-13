@@ -1,13 +1,13 @@
-import { Collection, ObjectId, WithId } from 'mongodb';
+import { Collection, ObjectId } from 'mongodb';
 import { getCollection } from '../db/connection.js';
 import {
-  AddQuestionRequest,
   NewQuestion,
   QuestionInfoDocument,
   QuestionDocument,
   QuestionByUserIdQueryResult,
 } from '../types/questionTypes.js';
 import { ExtendedError } from '../errors/helpers.js';
+import { convertDaysToMillis } from './helpers/questionHelpers.js';
 
 const Question = {
   addQuestion: async (questionData: NewQuestion): Promise<void> => {
@@ -54,6 +54,7 @@ const Question = {
       throw extendedError;
     }
   },
+
   getQuestionsByUser: async (
     userId: ObjectId,
     question?: number
@@ -91,6 +92,73 @@ const Question = {
       return [];
     }
     return result;
+  },
+
+  getReviewQuestions: async (
+    userId: ObjectId,
+    newerThan: number,
+    olderThan: number
+  ): Promise<number[] | []> => {
+    let collection: Collection<QuestionDocument>;
+    let excludeResults: Partial<QuestionDocument>[];
+
+    try {
+      collection = await getCollection<QuestionDocument>('questions');
+    } catch (error) {
+      throw error;
+    }
+    const currentTime = new Date().getTime();
+    const endOfRangeMillis = currentTime - convertDaysToMillis(olderThan);
+    const startOfRangeMillis = currentTime - convertDaysToMillis(newerThan);
+
+    // Stage 1: Get excluded questNums
+    // This will prevent including recently completed question in the "older" time ranges
+    try {
+      excludeResults = await collection
+        .find({
+          userId: new ObjectId(userId),
+          created: { $gte: new Date(endOfRangeMillis) },
+        })
+        .project({ questNum: 1, _id: 0 })
+        .toArray();
+    } catch (error) {
+      throw error;
+    }
+
+    const excludeQuestNums = excludeResults.map((doc) => doc.questNum);
+
+    // Stage 2: Actual query
+    const results = await collection
+      .aggregate([
+        {
+          $match: {
+            userId: new ObjectId(userId),
+            questNum: { $nin: excludeQuestNums }, // Dont include these older documents
+            created: {
+              $gte: new Date(startOfRangeMillis),
+              $lte: new Date(endOfRangeMillis),
+            },
+          },
+        },
+        {
+          $sort: { created: -1 },
+        },
+        {
+          $group: { _id: '$questNum' },
+        },
+        {
+          $group: {
+            _id: null,
+            uniqueQuestNums: { $push: '$_id' },
+          },
+        },
+        {
+          $project: { _id: 0, reviewQuestions: '$uniqueQuestNums' },
+        },
+      ])
+      .toArray();
+
+    return results[0]?.reviewQuestions || [];
   },
 };
 export default Question;

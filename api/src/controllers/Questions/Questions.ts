@@ -8,6 +8,8 @@ import Question from '../../models/Question.js';
 import postQuestionService from '../../service/Questions/add-question.js';
 import getQuestionsByUserIdService from '../../service/Questions/get-questions-userId.js';
 import { parse } from 'dotenv';
+import { ObjectId } from 'mongodb';
+import getReviewQuestionService from '../../service/Questions/get-review-questions.js';
 
 const Questions = {
   getQuestionInfo: async (req: Request, res: Response, next: NextFunction) => {
@@ -65,6 +67,36 @@ const Questions = {
       return res.status(204).send();
     } catch (error) {
       next(error);
+    }
+  },
+
+  getReviewQuestions: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { userId }: { userId: string } = (req as any).user;
+    // TODO: update to use params
+    const { olderThan, newerThan } = req.body;
+    try {
+      //   const reviewQuestionResults = await Question.getReviewQuestions(
+      //     new ObjectId(userId),
+      //     olderThan,
+      //     newerThan
+      //   );
+      //   const formattedResults = await Promise.all(
+      //     reviewQuestionResults.map((questionNumber) =>
+      //       Question.getQuestionInfo(questionNumber)
+      //     )
+      //   );
+      const result = await getReviewQuestionService(
+        userId,
+        newerThan,
+        olderThan
+      );
+      return res.status(200).send(result);
+    } catch (error) {
+      throw error;
     }
   },
 };
