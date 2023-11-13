@@ -13,7 +13,7 @@ export const selectQuestionNum = async (
   const answer = await prompt([
     {
       type: 'number',
-      name: 'questID',
+      name: 'questId',
       message: "Enter a question number to view it's leaderboard",
       validate: validate.questNum,
     },

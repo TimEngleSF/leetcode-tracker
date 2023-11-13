@@ -14,7 +14,7 @@ const loginToAPI = async (answers: {
 }): Promise<UserLoginResult> => {
   const { email, password } = answers;
   const payload = {
-    username: email.toLowerCase().trim(),
+    email: email.toLowerCase().trim(),
     password,
   };
   const { data } = await axios({

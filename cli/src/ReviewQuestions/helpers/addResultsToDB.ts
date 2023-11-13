@@ -16,7 +16,7 @@ export const addResultsToDB = async (
     const authHeaders = await authHeadersInstance();
     const userJSON = await getUserJSONInstance();
     const payload = {
-      userID: userJSON.LC_ID,
+      userId: userJSON.LC_ID,
       username: userJSON.LC_USERNAME,
       questNum,
       passed,

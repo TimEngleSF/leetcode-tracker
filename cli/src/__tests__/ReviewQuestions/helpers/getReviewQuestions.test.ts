@@ -13,7 +13,7 @@ describe('getReviewQuestions', () => {
       data: [
         {
           _id: '64ff67ebdf188afbd9d2f86c',
-          questID: 22,
+          questId: 22,
           title: 'Generate Parentheses',
           url: 'https://leetcode.com/problems/generate-parentheses/',
           diff: 'Medium',
@@ -53,7 +53,7 @@ describe('getReviewQuestions', () => {
     expect(data).to.deep.equal([
       {
         _id: '64ff67ebdf188afbd9d2f86c',
-        questID: 22,
+        questId: 22,
         title: 'Generate Parentheses',
         url: 'https://leetcode.com/problems/generate-parentheses/',
         diff: 'Medium',

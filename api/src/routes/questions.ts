@@ -2,11 +2,22 @@ import express from 'express';
 import Controllers from '../controllers/index.js';
 const questionsRouter = express.Router();
 
-questionsRouter.get('/', Controllers.Questions.getAllQuestionsByUser);
-questionsRouter.get('/:questID', Controllers.Questions.getQuestion);
-questionsRouter.get('/review', Controllers.Questions.getReviewQuestions);
-questionsRouter.get('/data/:questID', Controllers.Questions.getQuestionData);
+questionsRouter.get(
+  '/',
+  Controllers.Questions.subQuestions.getQuestionsByUserId
+);
 
-questionsRouter.post('/add', Controllers.Questions.addQuestion);
+questionsRouter.get(
+  '/review',
+  Controllers.Questions.subQuestions.getReviewQuestions
+);
+
+questionsRouter.get(
+  '/data/:questId',
+  Controllers.Questions.subQuestions.getQuestionInfo
+);
+
+questionsRouter.get('/:questId', Controllers.Questions.getQuestion);
+questionsRouter.post('/add', Controllers.Questions.subQuestions.postQuestion);
 
 export default questionsRouter;

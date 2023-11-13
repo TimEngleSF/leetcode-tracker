@@ -40,9 +40,9 @@ const Auth = {
         .status(422)
         .send({ message: 'Validation Error', error: error.details[0].message });
     }
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
-      const result = await loginService(username, password);
+      const result = await loginService(email, password);
       return res.status(200).json(result);
     } catch (error) {
       return next(error);

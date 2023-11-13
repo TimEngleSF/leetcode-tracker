@@ -1,4 +1,4 @@
-import { Collection, Document, ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { getCollection } from '../db/connection.js';
 import { ExtendedError } from '../errors/helpers.js';
 import { UserDocument, CreateUserInDb } from '../types/userTypes.js';
@@ -9,9 +9,7 @@ const User = {
     value: string | ObjectId
   ): Promise<UserDocument | null> => {
     try {
-      const collection = (await getCollection(
-        'users'
-      )) as Collection<UserDocument>;
+      const collection = await getCollection<UserDocument>('users');
       const result = await collection.findOne<UserDocument>({ [key]: value });
       return result;
     } catch (error: any) {
@@ -89,14 +87,15 @@ const User = {
     lastInit,
     verificationToken,
   }: CreateUserInDb): Promise<UserDocument> => {
-    let collection: Collection<UserDocument>;
-    try {
-      collection = (await getCollection('users')) as Collection<UserDocument>;
-    } catch (error) {
-      throw error;
-    }
+    // let collection: Collection<UserDocument>;
+    // try {
+    //   collection = await getCollection('users');
+    // } catch (error) {
+    //   throw error;
+    // }
 
     try {
+      const collection = await getCollection<Partial<UserDocument>>('users');
       const insertedResult = await collection.insertOne({
         username: displayUsername.toLowerCase(),
         displayUsername,
@@ -134,10 +133,9 @@ const User = {
     if (typeof _id === 'string') {
       _id = new ObjectId(_id);
     }
-    let collection: Collection<UserDocument>;
 
     try {
-      collection = (await getCollection('users')) as Collection<UserDocument>;
+      const collection = await getCollection<UserDocument>('users');
       await collection.deleteOne({ _id });
     } catch (error: any) {
       const extendedError = new ExtendedError(
@@ -169,13 +167,9 @@ const User = {
     if (typeof _id === 'string') {
       _id = new ObjectId(_id);
     }
-    let collection: Collection<UserDocument>;
+
     try {
-      collection = (await getCollection('users')) as Collection<UserDocument>;
-    } catch (error) {
-      throw error;
-    }
-    try {
+      const collection = await getCollection<UserDocument>('users');
       const updateResult = (await collection.findOneAndUpdate(
         { _id },
         { $set: { [key]: value } },

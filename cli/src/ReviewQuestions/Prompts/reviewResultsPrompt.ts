@@ -1,6 +1,6 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import { validate } from '../../Questions/Prompts/utils.js';
+import { validate } from '../../Questions/Prompts/validation.js';
 import { printHeader } from '../../utils.js';
 
 export const reviewResultsPrompt = async (promptInstance = inquirer.prompt) => {

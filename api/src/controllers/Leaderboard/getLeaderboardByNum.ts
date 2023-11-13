@@ -3,9 +3,9 @@ import LeaderModel from '../../models/Leaderboard/index.js';
 // import writeErrorToFile from '../../errors/writeError.js';
 
 export const getLeaderboardByNum = async (req: Request, res: Response) => {
-  const { questID } = req.params;
+  const { questId } = req.params;
   try {
-    const { code, data } = await LeaderModel.getLeaderboardByNum(questID);
+    const { code, data } = await LeaderModel.getLeaderboardByNum(questId);
     // res.status(code).send(data);
     res.status(code).send(data);
   } catch (error: any) {

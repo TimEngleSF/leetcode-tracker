@@ -11,7 +11,7 @@ interface GeneralInfo {
   questNum: number;
   diff: number;
   username: string;
-  userID: string;
+  userId: string;
 }
 
 interface Question {
@@ -96,7 +96,7 @@ const getAllUserQuestsByQuestNum = async (questNum: number) => {
 
     const response = await axios({
       method: 'GET',
-      url: `${API_URL}/questions/?userID=${user.LC_ID}&question=${questNum}`,
+      url: `${API_URL}/questions/?userId=${user.LC_ID}&question=${questNum}`,
       headers: { ...authHeaders },
     });
     const data: ApiResponse = response.data;

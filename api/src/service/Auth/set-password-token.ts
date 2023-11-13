@@ -56,11 +56,6 @@ const setPasswordTokenService = async (email: string) => {
   const passwordResetUrl = `${BASE_URL}/reset/${token}`;
 
   try {
-    // Typescript workaround
-    if (!userDocument._id) {
-      const extendedError = new ExtendedError('User missing _id field');
-      throw extendedError;
-    }
     await User.updatePasswordToken(userDocument._id, token);
   } catch (error) {
     throw error;

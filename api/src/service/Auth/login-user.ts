@@ -7,12 +7,12 @@ import { UserDocument, UserLoginPayload } from '../../types/userTypes.js';
 const { JWT_SECRET } = process.env;
 
 const loginService = async (
-  username: string,
+  email: string,
   password: string
 ): Promise<UserLoginPayload> => {
   let user: UserDocument | null;
   try {
-    user = await User.getByEmail(username);
+    user = await User.getByEmail(email);
     if (!user) {
       const error = new ExtendedError('Incorrect Email or Password');
       error.statusCode = 401;
@@ -63,10 +63,6 @@ const loginService = async (
     extendedError.statusCode = 500;
     extendedError.stack = error.stack;
     throw extendedError;
-  }
-
-  if (!user._id) {
-    throw new Error('New user is missing an _id property'); // Unexpected Error, TypeScript issue
   }
 
   const payload = {

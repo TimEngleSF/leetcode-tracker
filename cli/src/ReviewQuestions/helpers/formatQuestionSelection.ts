@@ -2,7 +2,7 @@ import chalk from 'chalk';
 
 interface Question {
   _id: string;
-  questID: number;
+  questId: number;
   title: string;
   url: string;
   diff: string;
@@ -10,7 +10,7 @@ interface Question {
 
 export const formatQuestionSelection = (questions: Question[]) => {
   return questions.map((question: Question) => {
-    const idString = question.questID.toString().padEnd(5, ' ');
+    const idString = question.questId.toString().padEnd(5, ' ');
     const titleString = question.title.padEnd(40, ' ');
 
     const diffString =
@@ -24,7 +24,7 @@ export const formatQuestionSelection = (questions: Question[]) => {
       name: `${idString}${titleString}${diffString}`,
       value: {
         url: question.url,
-        questNum: question.questID,
+        questNum: question.questId,
       },
     };
   });

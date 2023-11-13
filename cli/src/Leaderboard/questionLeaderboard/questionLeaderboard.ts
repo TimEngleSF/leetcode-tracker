@@ -10,14 +10,14 @@ import writeErrorToFile from '../../errors/writeError.js';
 
 export const questionLeaderboard: any = async () => {
   try {
-    const { questID, sortingSelection } = await selectQuestionNum();
+    const { questId, sortingSelection } = await selectQuestionNum();
     const authHeader = await getAuthHeaders();
-    const questionData: { questID?: number; title?: string } =
-      await getQuestionData(questID);
+    const questionData: { questId?: number; title?: string } =
+      await getQuestionData(questId);
 
     const { data } = await axios({
       method: 'GET',
-      url: `${API_URL}/leaderboard/${questID}`,
+      url: `${API_URL}/leaderboard/${questId}`,
       headers: { ...authHeader },
     });
 
@@ -34,7 +34,7 @@ export const questionLeaderboard: any = async () => {
     console.clear();
     printHeader();
     console.log(
-      chalk.magenta(`${questionData.questID}. ${questionData.title}\n`)
+      chalk.magenta(`${questionData.questId}. ${questionData.title}\n`)
     );
     if (!userDisplayText.includes('undefined')) {
       console.log(userDisplayText);
