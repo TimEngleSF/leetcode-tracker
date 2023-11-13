@@ -5,3 +5,10 @@ export interface RegistrationPrompt {
   lastInit: string;
   password: string;
 }
+
+export interface QuestionAnswer {
+  questNum: number;
+  diff: number;
+  passed: boolean;
+  speed: number | null;
+}

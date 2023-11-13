@@ -1,14 +1,9 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { getQuestionData } from '../../utils.js';
-import { validate } from './utils.js';
+import { QuestionAnswer } from '../../Types/prompts.js';
+import { validate } from './validation.js';
 
-interface QuestionAnswer {
-  questNum: number;
-  diff: number;
-  passed: boolean;
-  speed: number | null;
-}
 const addQuestionPrompt = async (
   prompt = inquirer.prompt,
   getQuestData = getQuestionData,
