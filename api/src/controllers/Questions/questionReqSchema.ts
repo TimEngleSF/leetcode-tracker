@@ -7,3 +7,7 @@ export const postQuestionSchema = joi.object({
   passed: joi.boolean().required(),
   speed: joi.number(),
 });
+
+export const getQuestionInfoSchema = joi.object({
+  quest: joi.number().required(),
+});

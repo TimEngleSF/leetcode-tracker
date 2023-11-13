@@ -3,9 +3,9 @@ import QuestModel from '../../models/Questions/index.js';
 // import writeErrorToFile from '../../errors/writeError.js';
 
 export const getQuestionData = async (req: Request, res: Response) => {
-  const { questID } = req.params;
+  const { questId } = req.params;
   try {
-    const { code, data } = await QuestModel.getQuestionData(questID);
+    const { code, data } = await QuestModel.getQuestionData(questId);
     res.status(code).send(data);
   } catch (error) {
     // await writeErrorToFile(error);

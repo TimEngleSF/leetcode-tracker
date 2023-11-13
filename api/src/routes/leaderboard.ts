@@ -3,6 +3,6 @@ import Controllers from '../controllers/index.js';
 const leaderboardRouter = express.Router();
 
 leaderboardRouter.get('/', Controllers.Leaderboard.getGeneralLeaderBoard);
-leaderboardRouter.get('/:questID', Controllers.Leaderboard.getLeaderboardByNum);
+leaderboardRouter.get('/:questId', Controllers.Leaderboard.getLeaderboardByNum);
 
 export default leaderboardRouter;

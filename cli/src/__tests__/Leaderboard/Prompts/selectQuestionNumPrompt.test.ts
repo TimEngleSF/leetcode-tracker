@@ -12,7 +12,7 @@ describe('selectQuestionNumPrompt', () => {
   });
 
   it('should return a number', async () => {
-    promptStub.resolves({ questID: 11 });
+    promptStub.resolves({ questId: 11 });
     const result = await selectQuestionNum(promptStub, true);
     expect(typeof result).to.eq('object');
   });

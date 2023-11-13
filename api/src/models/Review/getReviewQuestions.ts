@@ -17,7 +17,7 @@ export const getReviewQuestions = async (
     const questionsData = await Promise.all(
       questionResults.map(
         async (quest: number) =>
-          await questInfoCollection.findOne({ questID: quest })
+          await questInfoCollection.findOne({ questId: quest })
       )
     );
 
