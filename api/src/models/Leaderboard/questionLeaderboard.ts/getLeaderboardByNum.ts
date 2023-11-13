@@ -27,7 +27,7 @@ export const getLeaderboardByNum = async (questNum: string) => {
         },
         {
           $group: {
-            _id: '$userID',
+            _id: '$userId',
             questNum: { $first: '$questNum' },
             passedCount: { $sum: { $cond: ['$passed', 1, 0] } },
             minSpeed: { $min: '$speed' },
