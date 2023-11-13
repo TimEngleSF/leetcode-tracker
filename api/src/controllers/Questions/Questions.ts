@@ -2,9 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import {
   postQuestionSchema,
   getQuestionInfoSchema,
+  getQuestionsByUserIdSchema,
 } from './questionReqSchema.js';
 import Question from '../../models/Question.js';
 import postQuestionService from '../../service/Questions/add-question.js';
+import getQuestionsByUserIdService from '../../service/Questions/get-questions-userId.js';
+import { parse } from 'dotenv';
 
 const Questions = {
   getQuestionInfo: async (req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +23,36 @@ const Questions = {
     } catch (error) {
       next(error);
     }
+  },
+
+  getQuestionsByUserId: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { userId, question } = req.query;
+    let result;
+    const { error } = getQuestionsByUserIdSchema.validate({ userId, question });
+    if (error) {
+      return res.status(422).send(error.details[0].message);
+    }
+    if (typeof userId !== 'string') {
+      return res.status(422).send('Invalid userId');
+    }
+    if (question && typeof question !== 'string') {
+      return res.status(422).send('Invalid questionId');
+    }
+    try {
+      if (question) {
+        const parsedQuestion = Number.parseInt(question, 10);
+        result = await getQuestionsByUserIdService(userId, parsedQuestion);
+      } else {
+        result = await getQuestionsByUserIdService(userId);
+      }
+    } catch (error) {
+      next(error);
+    }
+    return res.status(200).send(result);
   },
 
   postQuestion: async (req: Request, res: Response, next: NextFunction) => {
