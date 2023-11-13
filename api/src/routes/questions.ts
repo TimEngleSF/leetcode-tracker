@@ -7,6 +7,6 @@ questionsRouter.get('/:questID', Controllers.Questions.getQuestion);
 questionsRouter.get('/review', Controllers.Questions.getReviewQuestions);
 questionsRouter.get('/data/:questID', Controllers.Questions.getQuestionData);
 
-questionsRouter.post('/add', Controllers.Questions.addQuestion);
+questionsRouter.post('/add', Controllers.Questions.subQuestions.postQuestion);
 
 export default questionsRouter;
