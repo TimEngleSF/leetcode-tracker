@@ -5,6 +5,7 @@ import {
   NewQuestion,
   QuestionInfoDocument,
   QuestionDocument,
+  QuestionByUserIdQueryResult,
 } from '../types/questionTypes.js';
 import { ExtendedError } from '../errors/helpers.js';
 
@@ -56,7 +57,7 @@ const Question = {
   getQuestionsByUser: async (
     userId: ObjectId,
     question?: number
-  ): Promise<WithId<QuestionDocument>[] | undefined> => {
+  ): Promise<QuestionByUserIdQueryResult[] | []> => {
     let result;
     let collection: Collection<QuestionDocument>;
     try {
@@ -69,13 +70,13 @@ const Question = {
       if (!question) {
         const cursor = collection.find(
           { userId },
-          { projection: { _id: 0, userId: 0 } }
+          { projection: { _id: 0, username: 0, userId: 0 } }
         );
         result = await cursor.toArray();
       } else {
         const cursor = collection.find(
           { userId, questNum: question },
-          { projection: { _id: 0, userId: 0 } }
+          { projection: { _id: 0, userId: 0, username: 0, questNum: 0 } }
         );
         result = await cursor.toArray();
       }
@@ -85,6 +86,9 @@ const Question = {
       );
       extendedError.statusCode = 500;
       extendedError.stack = error.stack;
+    }
+    if (!result) {
+      return [];
     }
     return result;
   },

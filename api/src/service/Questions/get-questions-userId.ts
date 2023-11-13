@@ -1,14 +1,17 @@
 import { WithId } from 'mongodb';
 import Question from '../../models/Question.js';
 import User from '../../models/User.js';
-import { QuestionDocument } from '../../types/questionTypes.js';
+import {
+  QuestionDocument,
+  getQuestionsByUserIdResponse,
+} from '../../types/questionTypes.js';
 import { ExtendedError } from '../../errors/helpers.js';
 import { UserDocument } from '../../types/userTypes.js';
 
 const getQuestionsByUserIdService = async (
   userId: string,
   question?: number
-): Promise<WithId<QuestionDocument>[]> => {
+): Promise<getQuestionsByUserIdResponse> => {
   let result;
   let user: UserDocument | null;
   // Check if user exists
@@ -38,8 +41,23 @@ const getQuestionsByUserIdService = async (
     }
   }
 
-  if (!result) return [];
-  return result;
+  if (!result)
+    return {
+      general: {
+        questNum: question,
+        username: user.displayUsername,
+        userId: user._id.toHexString(),
+      },
+      questions: [],
+    };
+  return {
+    general: {
+      questNum: question,
+      username: user.displayUsername,
+      userId: user._id.toHexString(),
+    },
+    questions: [...result],
+  };
 };
 
 export default getQuestionsByUserIdService;

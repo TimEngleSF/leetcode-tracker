@@ -39,3 +39,19 @@ export type AddQuestionRequest = {
   passed: boolean;
   speed?: number;
 };
+
+export interface QuestionByUserIdQueryResult {
+  questNum?: number;
+  passed: boolean;
+  speed?: number;
+  created: Date;
+}
+
+export interface getQuestionsByUserIdResponse {
+  general: {
+    questNum?: number;
+    username: string;
+    userId: string;
+  };
+  questions: QuestionByUserIdQueryResult[];
+}
