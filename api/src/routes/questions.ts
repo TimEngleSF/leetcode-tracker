@@ -17,7 +17,10 @@ questionsRouter.get(
   Controllers.Questions.subQuestions.getQuestionInfo
 );
 
-questionsRouter.get('/:questId', Controllers.Questions.getQuestion);
+questionsRouter.get(
+  '/:questId',
+  Controllers.Questions.subQuestions.getQuestion
+);
 questionsRouter.post('/add', Controllers.Questions.subQuestions.postQuestion);
 
 export default questionsRouter;

@@ -29,6 +29,31 @@ const Question = {
     }
   },
 
+  getQuestion: async (questId: string | ObjectId) => {
+    if (typeof questId === 'string') {
+      questId = new ObjectId(questId);
+    }
+    try {
+      const collection = await getCollection<QuestionDocument>('questions');
+      const result = await collection.findOne<QuestionDocument>({
+        _id: questId,
+      });
+      if (!result) {
+        const extendedError = new ExtendedError('No question found');
+        extendedError.statusCode = 404;
+        throw extendedError;
+      }
+      return result;
+    } catch (error: any) {
+      const extendedError = new ExtendedError(
+        `There was an error getting the question information: ${error.message}`
+      );
+      extendedError.statusCode = error.statusCode || 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
+    }
+  },
+
   getQuestionInfo: async (questId: number): Promise<QuestionInfoDocument> => {
     try {
       const collection = await getCollection<QuestionInfoDocument>(
