@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import { ExtendedError } from '../../errors/helpers.js';
 import { UserDocument, UserLoginPayload } from '../../types/userTypes.js';
+import { date } from 'joi';
 
 const { JWT_SECRET } = process.env;
 
@@ -19,6 +20,8 @@ const loginService = async (
       throw error;
     }
 
+    user.lastActivity = new Date();
+    await User.updateLastActivity(user?._id);
     if (user.status === 'pending') {
       const error = new ExtendedError('Please verify account');
       error.statusCode = 401;
