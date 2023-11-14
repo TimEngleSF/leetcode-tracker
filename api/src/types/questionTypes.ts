@@ -55,3 +55,7 @@ export interface getQuestionsByUserIdResponse {
   };
   questions: QuestionByUserIdQueryResult[];
 }
+
+export interface GetGeneralLeaderboardQuery extends Document {
+  passedCount: number;
+}
