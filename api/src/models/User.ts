@@ -5,7 +5,13 @@ import { UserDocument, CreateUserInDb } from '../types/userTypes.js';
 
 const User = {
   getUser: async (
-    key: 'username' | '_id' | 'email' | 'verificationToken' | 'passwordToken',
+    key:
+      | 'username'
+      | '_id'
+      | 'email'
+      | 'verificationToken'
+      | 'passwordToken'
+      | 'lastActivity',
     value: string | ObjectId
   ): Promise<UserDocument | null> => {
     try {
@@ -87,13 +93,6 @@ const User = {
     lastInit,
     verificationToken,
   }: CreateUserInDb): Promise<UserDocument> => {
-    // let collection: Collection<UserDocument>;
-    // try {
-    //   collection = await getCollection('users');
-    // } catch (error) {
-    //   throw error;
-    // }
-
     try {
       const collection = await getCollection<Partial<UserDocument>>('users');
       const insertedResult = await collection.insertOne({
@@ -161,8 +160,9 @@ const User = {
       | 'lastInit'
       | 'status'
       | 'verificationToken'
-      | 'passwordToken';
-    value: string;
+      | 'passwordToken'
+      | 'lastActivity';
+    value: string | Date;
   }): Promise<UserDocument> => {
     if (typeof _id === 'string') {
       _id = new ObjectId(_id);
@@ -247,6 +247,19 @@ const User = {
   ) => {
     try {
       const result = await User.update({ _id, key: 'status', value: status });
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateLastActivity: async (_id: string | ObjectId) => {
+    try {
+      const result = await User.update({
+        _id,
+        key: 'lastActivity',
+        value: new Date(),
+      });
       return result;
     } catch (error) {
       throw error;

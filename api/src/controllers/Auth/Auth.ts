@@ -100,7 +100,6 @@ const Auth = {
       await setPasswordTokenService(email);
       res.render('Auth/password/token-set');
     } catch (error) {
-      console.log(error);
       res.render('Auth/password/token-set');
     }
   },
@@ -125,7 +124,6 @@ const Auth = {
         throw new Error('A user could not be found, or token is blacklisted');
       }
     } catch (error) {
-      console.log(error);
       return res.render('Auth/password/invalid-reset-password');
     }
     return res.render('Auth/password/reset-password', {
@@ -145,7 +143,6 @@ const Auth = {
       await setNewPasswordService(password, token);
       return res.render('Auth/password/reset-password-success');
     } catch (error) {
-      console.log(error);
       res.redirect(`/reset/${token}`);
     }
   },

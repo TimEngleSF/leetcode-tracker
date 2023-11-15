@@ -55,3 +55,26 @@ export interface getQuestionsByUserIdResponse {
   };
   questions: QuestionByUserIdQueryResult[];
 }
+
+export interface GetGeneralLeaderboardQuery extends Document {
+  userId: ObjectId;
+  passedCount: number;
+  name: string;
+  lastActivity: Date;
+}
+
+export interface GetUserPassedCount extends Document {
+  passedCount: number;
+}
+
+export interface GeneralLeaderboardUserData {
+  userId: string;
+  passedCount: number;
+  name: string;
+  rank?: number;
+}
+
+export interface GeneralLeaderboardServiceReturn {
+  userData: GeneralLeaderboardUserData | null;
+  leaderboardData: GetGeneralLeaderboardQuery[];
+}

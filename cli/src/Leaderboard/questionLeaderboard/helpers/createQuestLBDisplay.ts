@@ -11,7 +11,7 @@ export const createQuestLBDisplay = async (data: any) => {
   // Format and push rowData to table
 
   interface DataRow {
-    _id: string;
+    userId: string;
     firstName: string;
     lastInit: string;
     passedCount: number;
@@ -21,7 +21,8 @@ export const createQuestLBDisplay = async (data: any) => {
 
   const typedData: DataRow[] = data;
   typedData.forEach((row, i) => {
-    if (row._id === LC_ID) {
+    console.log(row);
+    if (row.userId === LC_ID) {
       userDisplayData.rank = i + 1;
       userDisplayData.name = `${row.firstName} ${row.lastInit}.`;
     }

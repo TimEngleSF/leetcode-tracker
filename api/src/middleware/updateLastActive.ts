@@ -28,10 +28,9 @@ const updateLastActive = async (
   if (!userId) {
     res.status(401).json({ msg: 'Unauthorized' });
   } else {
-    const userObjID = new ObjectId(userId);
-    const result = await usersCollection.updateOne(
-      { _id: userObjID },
-      { $set: { lastActivity: Date.now() } }
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { lastActivity: new Date() } }
     );
     next();
   }

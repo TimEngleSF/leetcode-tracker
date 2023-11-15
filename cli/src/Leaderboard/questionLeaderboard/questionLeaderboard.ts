@@ -14,7 +14,6 @@ export const questionLeaderboard: any = async () => {
     const authHeader = await getAuthHeaders();
     const questionData: { questId?: number; title?: string } =
       await getQuestionData(questId);
-
     const { data } = await axios({
       method: 'GET',
       url: `${API_URL}/leaderboard/${questId}`,

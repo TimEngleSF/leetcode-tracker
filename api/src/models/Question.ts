@@ -5,6 +5,8 @@ import {
   QuestionInfoDocument,
   QuestionDocument,
   QuestionByUserIdQueryResult,
+  GetGeneralLeaderboardQuery,
+  GetUserPassedCount,
 } from '../types/questionTypes.js';
 import { ExtendedError } from '../errors/helpers.js';
 import { convertDaysToMillis } from './helpers/questionHelpers.js';
@@ -24,6 +26,31 @@ const Question = {
         `There was an error adding the question result: ${error.message}`
       );
       extendedError.statusCode = 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
+    }
+  },
+
+  getQuestion: async (questId: string | ObjectId) => {
+    if (typeof questId === 'string') {
+      questId = new ObjectId(questId);
+    }
+    try {
+      const collection = await getCollection<QuestionDocument>('questions');
+      const result = await collection.findOne<QuestionDocument>({
+        _id: questId,
+      });
+      if (!result) {
+        const extendedError = new ExtendedError('No question found');
+        extendedError.statusCode = 404;
+        throw extendedError;
+      }
+      return result;
+    } catch (error: any) {
+      const extendedError = new ExtendedError(
+        `There was an error getting the question information: ${error.message}`
+      );
+      extendedError.statusCode = error.statusCode || 500;
       extendedError.stack = error.stack;
       throw extendedError;
     }
@@ -159,6 +186,172 @@ const Question = {
       .toArray();
 
     return results[0]?.reviewQuestions || [];
+  },
+
+  getGeneralLeaderBoard: async (): Promise<GetGeneralLeaderboardQuery[]> => {
+    try {
+      const collection = await getCollection<QuestionDocument>('questions');
+
+      const cursor = collection.aggregate([
+        {
+          $match: {
+            passed: true,
+          },
+        },
+        {
+          $group: {
+            _id: '$userId',
+            passedCount: { $sum: 1 },
+          },
+        },
+        {
+          $match: {
+            passedCount: { $gt: 1 },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'userInfo',
+          },
+        },
+        {
+          $unwind: '$userInfo',
+        },
+        {
+          $project: {
+            userId: '$_id',
+            _id: 0,
+            name: {
+              $concat: [
+                '$userInfo.firstName',
+                ' ',
+                { $substrCP: ['$userInfo.lastInit', 0, 1] },
+                '.',
+              ],
+            },
+            passedCount: 1,
+            lastActivity: '$userInfo.lastActivity',
+          },
+        },
+        {
+          $sort: { passedCount: -1 },
+        },
+      ]);
+
+      const result = await cursor.toArray();
+      return result as GetGeneralLeaderboardQuery[];
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+
+  getQuestionLeaderboard: async (targetQuestion: number) => {
+    try {
+      if (!(await Question.getQuestionInfo(targetQuestion))) {
+        const extendedError = new ExtendedError(
+          `There is no question with an ID of ${targetQuestion}`
+        );
+        extendedError.statusCode = 404;
+        throw ExtendedError;
+      }
+
+      const collection = await getCollection<QuestionDocument>('questions');
+
+      const cursor = collection.aggregate([
+        {
+          $match: {
+            questNum: targetQuestion,
+            passed: true,
+          },
+        },
+        {
+          $group: {
+            _id: '$userId',
+            passedCount: { $sum: 1 },
+            minSpeed: { $min: '$speed' },
+            mostRecent: { $max: '$created' },
+          },
+        },
+        {
+          $match: {
+            passedCount: { $gt: 0 },
+          },
+        },
+        {
+          $sort: { passedCount: -1 },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'userData',
+          },
+        },
+        {
+          $unwind: '$userData',
+        },
+        {
+          $project: {
+            _id: 0,
+            userId: '$_id',
+            questNum: 1,
+            passedCount: 1,
+            minSpeed: 1,
+            mostRecent: 1,
+            firstName: '$userData.firstName',
+            lastInit: '$userData.lastInit',
+          },
+        },
+      ]);
+      const result = await cursor.toArray();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getUserLeaderBoardResults: async (
+    userId: string | ObjectId
+  ): Promise<GetUserPassedCount> => {
+    if (typeof userId === 'string') {
+      userId = new ObjectId(userId);
+    }
+    try {
+      const collection = await getCollection<QuestionDocument>('questions');
+      const cursor = collection.aggregate([
+        {
+          $match: {
+            userId,
+            passed: true,
+          },
+        },
+        {
+          $group: {
+            _id: '$userId',
+            passedCount: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ['$passed', true],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      ]);
+      const result = await cursor.toArray();
+      return result[0] as GetUserPassedCount;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 export default Question;

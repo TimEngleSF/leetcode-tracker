@@ -16,3 +16,7 @@ export const getQuestionsByUserIdSchema = joi.object({
   userId: joi.string().required(),
   question: joi.number(),
 });
+
+export const getQuestionByIdSchema = joi.object({
+  questId: joi.string().required(),
+});
