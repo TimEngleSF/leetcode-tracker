@@ -3,10 +3,13 @@ import Question from '../../models/Question.js';
 import { UserDocument } from '../../types/userTypes.js';
 import User from '../../models/User.js';
 import { ExtendedError } from '../../errors/helpers.js';
+import { GeneralLeaderboardServiceReturn } from '../../types/questionTypes.js';
 
 // TODO: Setup return type
 // TODO: Setup comment code
-const getGeneralLeaderBoardService = async (userId: string) => {
+const getGeneralLeaderBoardService = async (
+  userId: string
+): Promise<GeneralLeaderboardServiceReturn> => {
   try {
     const leaderResults = await Question.getGeneralLeaderBoard();
 

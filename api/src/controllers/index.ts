@@ -1,5 +1,5 @@
 import Auth from './Auth/Auth.js';
-import { Leaderboard } from './Leaderboard/index.js';
+import Leaderboard from './Leaderboard/Leaderboard.js';
 // import { Questions } from './Questions/index.js';
 import { Users } from './Users/index.js';
 import Questions from './Questions/Questions.js';
