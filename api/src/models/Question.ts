@@ -5,6 +5,7 @@ import {
   QuestionInfoDocument,
   QuestionDocument,
   QuestionByUserIdQueryResult,
+  GetGeneralLeaderboardQuery,
 } from '../types/questionTypes.js';
 import { ExtendedError } from '../errors/helpers.js';
 import { convertDaysToMillis } from './helpers/questionHelpers.js';
@@ -184,6 +185,106 @@ const Question = {
       .toArray();
 
     return results[0]?.reviewQuestions || [];
+  },
+
+  getGeneralLeaderBoard: async (): Promise<GetGeneralLeaderboardQuery[]> => {
+    try {
+      const collection = await getCollection<QuestionDocument>('questions');
+
+      const cursor = collection.aggregate([
+        {
+          $match: {
+            passed: true,
+          },
+        },
+        {
+          $group: {
+            _id: '$userId',
+            passedCount: { $sum: 1 },
+          },
+        },
+        {
+          $match: {
+            passedCount: { $gt: 1 },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'userInfo',
+          },
+        },
+        {
+          $unwind: '$userInfo',
+        },
+        {
+          $project: {
+            userId: '$_id',
+            name: {
+              $concat: [
+                '$userInfo.firstName',
+                ' ',
+                { $substrCP: ['$userInfo.lastInit', 0, 1] },
+                '.',
+              ],
+            },
+            passedCount: 1,
+            lastActivity: '$userInfo.lastActivity',
+          },
+        },
+        {
+          $sort: { passedCount: -1 },
+        },
+      ]);
+
+      const result = await cursor.toArray();
+      console.log(result);
+      return result as GetGeneralLeaderboardQuery[];
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+
+  getUserLeaderBoardResults: async (
+    userId: string | ObjectId
+  ): Promise<GetGeneralLeaderboardQuery> => {
+    if (typeof userId === 'string') {
+      userId = new ObjectId(userId);
+    }
+    try {
+      const collection = await getCollection<QuestionDocument>('questions');
+      const cursor = collection.aggregate([
+        {
+          $match: {
+            userId,
+            passed: true,
+          },
+        },
+        {
+          $group: {
+            _id: '$userId',
+            passedCount: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ['$passed', true],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      ]);
+      const result = await cursor.toArray();
+      return result[0] as GetGeneralLeaderboardQuery;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 export default Question;
