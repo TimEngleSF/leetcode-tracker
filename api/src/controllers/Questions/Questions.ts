@@ -17,7 +17,6 @@ const Questions = {
       return res.status(422).send(error.details[0].message);
     }
     const questId = Number.parseInt(req.params.questId, 10);
-
     try {
       const result = await Question.getQuestionInfo(questId);
       return res.status(200).send(result);
