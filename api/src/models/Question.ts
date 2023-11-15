@@ -297,7 +297,6 @@ const Question = {
         },
         {
           $project: {
-            _id: 0,
             userId: '$_id',
             questNum: 1,
             passedCount: 1,
