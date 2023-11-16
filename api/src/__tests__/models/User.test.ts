@@ -61,7 +61,6 @@ describe('User moded', () => {
   });
 
   beforeEach(() => {
-    // Reset stubs before each test
     if (findOneStub) {
       findOneStub.restore();
     }
@@ -84,7 +83,7 @@ describe('User moded', () => {
       const invalidId = '123';
       try {
         const user = await User.getById(invalidId);
-        expect(user).to.be.null; // or whatever behavior is expected
+        expect(user).to.be.null; 
       } catch (error: any) {
         expect(error.message).to.include('input must be a 24');
       }
