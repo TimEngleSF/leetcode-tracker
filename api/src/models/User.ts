@@ -1,9 +1,18 @@
-import { ObjectId } from 'mongodb';
+import { ObjectId, Db } from 'mongodb';
 import { getCollection } from '../db/connection.js';
 import { ExtendedError } from '../errors/helpers.js';
 import { UserDocument, CreateUserInDb } from '../types/userTypes.js';
+import { injectDb } from './helpers/injectDb.js';
+
+let collection = await getCollection<Partial<UserDocument>>('users');
 
 const User = {
+  injectDb: (db: Db) => {
+    if (process.env.NODE_ENV === 'test') {
+      collection = injectDb<Partial<UserDocument>>(db, 'users');
+    }
+  },
+
   getUser: async (
     key:
       | 'username'
@@ -15,7 +24,7 @@ const User = {
     value: string | ObjectId
   ): Promise<UserDocument | null> => {
     try {
-      const collection = await getCollection<UserDocument>('users');
+      // const collection = await getCollection<UserDocument>('users');
       const result = await collection.findOne<UserDocument>({ [key]: value });
       return result;
     } catch (error: any) {
@@ -32,10 +41,10 @@ const User = {
   },
 
   getById: async (_id: string | ObjectId): Promise<UserDocument | null> => {
-    if (typeof _id === 'string') {
-      _id = new ObjectId(_id);
-    }
     try {
+      if (typeof _id === 'string') {
+        _id = new ObjectId(_id);
+      }
       const result = await User.getUser('_id', _id);
       return result;
     } catch (error) {
@@ -45,7 +54,7 @@ const User = {
 
   getByUsername: async (username: string): Promise<UserDocument | null> => {
     try {
-      username = username.toLowerCase();
+      username = username.toLowerCase().trim();
       const result = await User.getUser('username', username);
       return result;
     } catch (error) {
@@ -55,7 +64,7 @@ const User = {
 
   getByEmail: async (email: string): Promise<UserDocument | null> => {
     try {
-      email = email.toLowerCase();
+      email = email.toLowerCase().trim();
       const result = await User.getUser('email', email);
       return result;
     } catch (error) {
@@ -94,7 +103,7 @@ const User = {
     verificationToken,
   }: CreateUserInDb): Promise<UserDocument> => {
     try {
-      const collection = await getCollection<Partial<UserDocument>>('users');
+      // const collection = await getCollection<Partial<UserDocument>>('users');
       const insertedResult = await collection.insertOne({
         username: displayUsername.toLowerCase(),
         displayUsername,
@@ -134,7 +143,7 @@ const User = {
     }
 
     try {
-      const collection = await getCollection<UserDocument>('users');
+      // const collection = await getCollection<UserDocument>('users');
       await collection.deleteOne({ _id });
     } catch (error: any) {
       const extendedError = new ExtendedError(
@@ -169,7 +178,7 @@ const User = {
     }
 
     try {
-      const collection = await getCollection<UserDocument>('users');
+      // const collection = await getCollection<UserDocument>('users');
       const updateResult = (await collection.findOneAndUpdate(
         { _id },
         { $set: { [key]: value } },

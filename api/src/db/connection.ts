@@ -1,9 +1,10 @@
 import 'dotenv/config.js';
-import { MongoClient, Db, Collection, Document } from 'mongodb';
+import { MongoClient, Db, Collection, Document, ClientSession } from 'mongodb';
 import { UserDocument } from '../types/userTypes.js';
 import { BlacklistDocument } from '../types/blacklistTypes.js';
 import { QuestionDocument } from '../types/questionTypes.js';
 
+let client: MongoClient | undefined;
 let db: Db;
 
 // const USERNAME = encodeURIComponent(process.env.DB_USER);
@@ -20,7 +21,7 @@ const connectDb = async () => {
     return db;
   }
 
-  const client = await MongoClient.connect(URI);
+  client = await MongoClient.connect(URI);
 
   db = client.db(DB_NAME);
   return db;
@@ -37,6 +38,16 @@ export const getCollection = async <T extends Document>(
     error.statusCode = 500;
     error.message = `Database Error: An error occured while connecting to collection ${collectionName}`;
     throw error;
+  }
+};
+
+export const closeDb = async () => {
+  if (client) {
+    try {
+      await client.close();
+    } catch (error) {
+      console.error('Error closing the database connection:', error);
+    }
   }
 };
 
