@@ -131,6 +131,7 @@ describe('User model', () => {
       });
     });
 
+
     describe('getByEmail', () => {
       it('should return an object with correct properties and values', async () => {
         const user = await User.getByEmail(newUser.email);
