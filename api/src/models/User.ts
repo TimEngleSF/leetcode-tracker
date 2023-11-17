@@ -103,11 +103,12 @@ const User = {
     verificationToken,
   }: CreateUserInDb): Promise<UserDocument> => {
     try {
+      firstName = firstName.trim();
       // const collection = await getCollection<Partial<UserDocument>>('users');
       const insertedResult = await collection.insertOne({
-        username: displayUsername.toLowerCase(),
-        displayUsername,
-        email: email.toLowerCase(),
+        username: displayUsername.toLowerCase().trim(),
+        displayUsername: displayUsername.trim(),
+        email: email.toLowerCase().trim(),
         password: hashedPass,
         firstName: firstName[0].toUpperCase() + firstName.substring(1),
         lastInit: lastInit.toUpperCase(),
@@ -143,7 +144,6 @@ const User = {
     }
 
     try {
-      // const collection = await getCollection<UserDocument>('users');
       await collection.deleteOne({ _id });
     } catch (error: any) {
       const extendedError = new ExtendedError(
