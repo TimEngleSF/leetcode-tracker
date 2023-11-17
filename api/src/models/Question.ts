@@ -1,4 +1,4 @@
-import { Collection, ObjectId } from 'mongodb';
+import { Collection, ObjectId, Db } from 'mongodb';
 import { getCollection } from '../db/connection.js';
 import {
   NewQuestion,
@@ -6,17 +6,21 @@ import {
   QuestionDocument,
   QuestionByUserIdQueryResult,
   GetGeneralLeaderboardQuery,
-  GetUserPassedCount,
 } from '../types/questionTypes.js';
 import { ExtendedError } from '../errors/helpers.js';
+import { injectDb } from './helpers/injectDb.js';
 import { convertDaysToMillis } from './helpers/questionHelpers.js';
 
+let collection = await getCollection<Partial<QuestionDocument>>('questions');
+
 const Question = {
+  injectDb: (db: Db) => {
+    if (process.env.NODE_ENV === 'test') {
+      collection = injectDb<Partial<QuestionDocument>>(db, 'users');
+    }
+  },
   addQuestion: async (questionData: NewQuestion): Promise<void> => {
     try {
-      const collection = await getCollection<Partial<QuestionDocument>>(
-        'questions'
-      );
       const result = await collection.insertOne({ ...questionData });
       if (!result.acknowledged) {
         throw new Error('Insertion not acknowledged');
@@ -36,7 +40,7 @@ const Question = {
       questId = new ObjectId(questId);
     }
     try {
-      const collection = await getCollection<QuestionDocument>('questions');
+      // const collection = await getCollection<QuestionDocument>('questions');
       const result = await collection.findOne<QuestionDocument>({
         _id: questId,
       });
@@ -188,63 +192,90 @@ const Question = {
     return results[0]?.reviewQuestions || [];
   },
 
-  getGeneralLeaderBoard: async (): Promise<GetGeneralLeaderboardQuery[]> => {
+  getGeneralLeaderBoard: async (
+    userId: string | ObjectId
+  ): Promise<GetGeneralLeaderboardQuery> => {
+    if (typeof userId === 'string') {
+      userId = new ObjectId(userId);
+    }
     try {
       const collection = await getCollection<QuestionDocument>('questions');
-
       const cursor = collection.aggregate([
         {
-          $match: {
-            passed: true,
+          $facet: {
+            generalLeaderBoard: [
+              // Your first pipeline for general leaderboard
+              { $match: { passed: true } },
+              { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
+              { $match: { passedCount: { $gt: 1 } } },
+              {
+                $lookup: {
+                  from: 'users',
+                  localField: '_id',
+                  foreignField: '_id',
+                  as: 'userInfo',
+                },
+              },
+              { $unwind: '$userInfo' },
+              {
+                $project: {
+                  userId: '$_id',
+                  _id: 0,
+                  name: {
+                    $concat: [
+                      '$userInfo.firstName',
+                      ' ',
+                      { $substrCP: ['$userInfo.lastInit', 0, 1] },
+                      '.',
+                    ],
+                  },
+                  passedCount: 1,
+                  lastActivity: '$userInfo.lastActivity',
+                },
+              },
+              { $sort: { passedCount: -1 } },
+            ],
+            userResult: [
+              // Your second pipeline for user-specific leaderboard
+              { $match: { userId, passed: true } },
+              { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
+              {
+                $lookup: {
+                  from: 'users',
+                  localField: '_id',
+                  foreignField: '_id',
+                  as: 'loggedInUserInfo',
+                },
+              },
+              { $unwind: '$loggedInUserInfo' },
+              {
+                $project: {
+                  userId: '$_id',
+                  name: {
+                    $concat: [
+                      '$loggedInUserInfo.firstName',
+                      ' ',
+                      { $substrCP: ['$loggedInUserInfo.lastInit', 0, 1] },
+                      '.',
+                    ],
+                  },
+                  passedCount: 1,
+                  _id: 0,
+                },
+              },
+            ],
           },
-        },
-        {
-          $group: {
-            _id: '$userId',
-            passedCount: { $sum: 1 },
-          },
-        },
-        {
-          $match: {
-            passedCount: { $gt: 1 },
-          },
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: '_id',
-            foreignField: '_id',
-            as: 'userInfo',
-          },
-        },
-        {
-          $unwind: '$userInfo',
-        },
-        {
-          $project: {
-            userId: '$_id',
-            _id: 0,
-            name: {
-              $concat: [
-                '$userInfo.firstName',
-                ' ',
-                { $substrCP: ['$userInfo.lastInit', 0, 1] },
-                '.',
-              ],
-            },
-            passedCount: 1,
-            lastActivity: '$userInfo.lastActivity',
-          },
-        },
-        {
-          $sort: { passedCount: -1 },
         },
       ]);
 
-      const result = await cursor.toArray();
-      return result as GetGeneralLeaderboardQuery[];
+      const [result] = await cursor.toArray();
+      return {
+        leaderboardResult: result.generalLeaderBoard,
+        userResult: result.userResult[0]
+          ? result.userResult[0]
+          : { _id: userId, passedCount: 0 },
+      };
     } catch (error) {
-      console.log(error);
       throw error;
     }
   },
@@ -310,45 +341,6 @@ const Question = {
       ]);
       const result = await cursor.toArray();
       return result;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  getUserLeaderBoardResults: async (
-    userId: string | ObjectId
-  ): Promise<GetUserPassedCount> => {
-    if (typeof userId === 'string') {
-      userId = new ObjectId(userId);
-    }
-    try {
-      const collection = await getCollection<QuestionDocument>('questions');
-      const cursor = collection.aggregate([
-        {
-          $match: {
-            userId,
-            passed: true,
-          },
-        },
-        {
-          $group: {
-            _id: '$userId',
-            passedCount: {
-              $sum: {
-                $cond: [
-                  {
-                    $eq: ['$passed', true],
-                  },
-                  1,
-                  0,
-                ],
-              },
-            },
-          },
-        },
-      ]);
-      const result = await cursor.toArray();
-      return result[0] as GetUserPassedCount;
     } catch (error) {
       throw error;
     }
