@@ -19,9 +19,9 @@ const Blacklist = {
     value: string | ObjectId;
   }) => {
     try {
-      const collection = (await getCollection(
+      const collection = await getCollection<BlacklistDocument>(
         'blacklistTokens'
-      )) as Collection<BlacklistDocument>;
+      );
       const result = collection.findOne<BlacklistDocument>({ [key]: value });
 
       return result;
@@ -94,9 +94,9 @@ const Blacklist = {
     if (decodedToken.exp) {
       payload = { token, exp: decodedToken.exp * 1000 };
       try {
-        const collection = (await getCollection(
+        const collection = await getCollection<BlacklistDocument>(
           'blacklistTokens'
-        )) as Collection<BlacklistDocument>;
+        );
         const insertedResult = await collection.insertOne(payload);
         if (!insertedResult.acknowledged) {
           const error = new ExtendedError(
@@ -117,6 +117,9 @@ const Blacklist = {
     }
   },
 
-  removeExpiredTokens: async () => {},
+  removeExpiredTokens: async () => {
+    try {
+    } catch (error) {}
+  },
 };
 export default Blacklist;
