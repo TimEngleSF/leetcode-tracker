@@ -1,51 +1,38 @@
-import { Document, ObjectId } from 'mongodb';
 import Question from '../../models/Question.js';
-import { UserDocument } from '../../types/userTypes.js';
-import User from '../../models/User.js';
-import { ExtendedError } from '../../errors/helpers.js';
 import { GeneralLeaderboardServiceReturn } from '../../types/questionTypes.js';
 
-// TODO: Setup return type
-// TODO: Setup comment code
 const getGeneralLeaderBoardService = async (
   userId: string
 ): Promise<GeneralLeaderboardServiceReturn> => {
   try {
-    const leaderResults = await Question.getGeneralLeaderBoard();
+    // Query DB for leaderboard and users results
+    const { leaderboardResult, userResult } =
+      await Question.getGeneralLeaderBoard(userId);
 
+    //Get the logged in user's rank
     let loggedInUserRank;
-    leaderResults.forEach((result, i) => {
+    leaderboardResult.forEach((result, i) => {
       if (result.userId.toHexString() === userId) {
         loggedInUserRank = i + 1;
       }
     });
 
-    const userResults = await Question.getUserLeaderBoardResults(userId);
-    const userInfo = await User.getById(userId);
-    console.log(userResults, userInfo, userId);
-    if (!userResults || !userInfo) {
-      const extendedError = new ExtendedError(
-        `No question data has been added for user`
-      );
-      extendedError.statusCode = 404;
-      throw extendedError;
-    }
-
     let responseData;
-    if (userResults) {
+    // Build response data based on user's passed count
+    // TODO: update the front end to display to handle if user's passed count is 0 so else statementso we can always
+    // send the first conditions responseData
+    if (userResult.passedCount > 0) {
       responseData = {
         userData: {
-          userId,
-          name: `${userInfo.firstName} ${userInfo.lastInit}`,
-          passedCount: userResults.passedCount,
+          ...userResult,
           rank: loggedInUserRank,
         },
-        leaderboardData: leaderResults.slice(0, 10),
+        leaderboardData: leaderboardResult.slice(0, 10),
       };
     } else {
       responseData = {
         userData: null,
-        leaderboardData: leaderResults.slice(0, 10),
+        leaderboardData: leaderboardResult.slice(0, 10),
       };
     }
 
