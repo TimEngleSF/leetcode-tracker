@@ -12,21 +12,7 @@ import { ExtendedError } from '../../errors/helpers.js';
 
 const { expect } = chai;
 
-const userDocumentProperties = (user: UserDocument) => {
-  '_id' &&
-    'username' &&
-    'displayUsername' &&
-    'password' &&
-    'firstname' &&
-    'lastInit' &&
-    'status' &&
-    'verificationToken' &&
-    'passwordToken' &&
-    'questions' &&
-    'lastActivity';
-};
-
-describe('User moded', () => {
+describe('User model', () => {
   let mongoServer: MongoMemoryServer;
   let client: MongoClient;
   let db: Db;
@@ -61,190 +47,321 @@ describe('User moded', () => {
   });
 
   beforeEach(() => {
-    // Reset stubs before each test
     if (findOneStub) {
       findOneStub.restore();
     }
   });
 
-  describe('getById', () => {
-    it('should return an object with correct properties and values', async () => {
-      const user = await User.getById(newUser._id);
-      expect(user).not.to.be.null;
-      expect(user).to.deep.equal(newUser);
+  describe('get methods', () => {
+    describe('getById', () => {
+      it('should return an object with correct properties and values', async () => {
+        const user = await User.getById(newUser._id);
+        expect(user).not.to.be.null;
+        expect(user).to.deep.equal(newUser);
+      });
+
+      it('should return null for a non-existent ID', async () => {
+        const nonExistentId = new ObjectId();
+        const user = await User.getById(nonExistentId);
+        expect(user).to.be.null;
+      });
+
+      it('should handle invalid ID format gracefully', async () => {
+        const invalidId = '123';
+        try {
+          const user = await User.getById(invalidId);
+          expect(user).to.be.null;
+        } catch (error: any) {
+          expect(error.message).to.include('input must be a 24');
+        }
+      });
+
+      it('should transform errors and include a statusCode with them', async () => {
+        findOneStub = sinon
+          .stub(Collection.prototype, 'findOne')
+          .throws(new Error('Simulated error'));
+
+        try {
+          await User.getById(newUser._id);
+          throw new Error('Expected error was not thrown');
+        } catch (error: any) {
+          expect(error).to.be.instanceOf(ExtendedError);
+          expect(error).to.have.property('statusCode', 500);
+          expect(error.message).to.include('Database Error:');
+        } finally {
+          findOneStub.restore();
+        }
+      });
     });
 
-    it('should return null for a non-existent ID', async () => {
-      const nonExistentId = new ObjectId();
-      const user = await User.getById(nonExistentId);
-      expect(user).to.be.null;
+    describe('getByUsername', () => {
+      it('should return an object with correct properties and values', async () => {
+        const user = await User.getByUsername(newUser.username);
+        expect(user).not.to.be.null;
+        expect(user).to.deep.equal(newUser);
+      });
+
+      it('should not be dependent on casing and whitespace', async () => {
+        const user = await User.getByUsername(
+          `   ${newUser.displayUsername}  `
+        );
+        expect(user).not.to.be.null;
+        expect(user).to.deep.equal(newUser);
+      });
+
+      it('should return null for a non-existent username', async () => {
+        const user = await User.getByUsername('randomUser');
+        expect(user).to.be.null;
+      });
+
+      it('should transform errors and include a statusCode with them', async () => {
+        findOneStub = sinon
+          .stub(Collection.prototype, 'findOne')
+          .throws(new Error('Simulated error'));
+
+        try {
+          await User.getByUsername(newUser.username);
+          throw new Error('Expected error was not thrown');
+        } catch (error: any) {
+          expect(error).to.be.instanceOf(ExtendedError);
+          expect(error).to.have.property('statusCode', 500);
+          expect(error.message).to.include('Database Error:');
+        } finally {
+          findOneStub.restore();
+        }
+      });
     });
 
-    it('should handle invalid ID format gracefully', async () => {
-      const invalidId = '123';
-      try {
-        const user = await User.getById(invalidId);
-        expect(user).to.be.null; // or whatever behavior is expected
-      } catch (error: any) {
-        expect(error.message).to.include('input must be a 24');
-      }
+    describe('getByEmail', () => {
+      it('should return an object with correct properties and values', async () => {
+        const user = await User.getByEmail(newUser.email);
+        expect(user).not.to.be.null;
+        expect(user).to.deep.equal(newUser);
+      });
+
+      it('should not be dependent on casing and whitespace', async () => {
+        const user = await User.getByEmail(
+          `   ${newUser.email.toUpperCase()}  `
+        );
+        expect(user).not.to.be.null;
+        expect(user).to.deep.equal(newUser);
+      });
+
+      it('should return null for a non-existent email', async () => {
+        const user = await User.getByEmail('randomUser@email.com');
+        expect(user).to.be.null;
+      });
+
+      it('should transform errors and include a statusCode with them', async () => {
+        findOneStub = sinon
+          .stub(Collection.prototype, 'findOne')
+          .throws(new Error('Simulated error'));
+
+        try {
+          await User.getByEmail(newUser.email);
+          throw new Error('Expected error was not thrown');
+        } catch (error: any) {
+          expect(error).to.be.instanceOf(ExtendedError);
+          expect(error).to.have.property('statusCode', 500);
+          expect(error.message).to.include('Database Error:');
+        } finally {
+          findOneStub.restore();
+        }
+      });
     });
 
-    it('should transform errors and include a statusCode with them', async () => {
-      findOneStub = sinon
-        .stub(Collection.prototype, 'findOne')
-        .throws(new Error('Simulated error'));
+    describe('getByVerificationToken', () => {
+      it('should return an object with correct properties and values', async () => {
+        const user = await User.getByVerificationToken(
+          newUser.verificationToken
+        );
+        expect(user).not.to.be.null;
+        expect(user).to.deep.equal(newUser);
+      });
 
-      try {
-        await User.getById(newUser._id);
-        throw new Error('Expected error was not thrown');
-      } catch (error: any) {
-        expect(error).to.be.instanceOf(ExtendedError);
-        expect(error).to.have.property('statusCode', 500);
-        expect(error.message).to.include('Database Error:');
-      } finally {
-        findOneStub.restore();
-      }
+      it('should return null for a non-existent verificationToken', async () => {
+        const user = await User.getByVerificationToken(
+          'someTokenThatDoesNotExist'
+        );
+        expect(user).to.be.null;
+      });
+
+      it('should transform errors and include a statusCode with them', async () => {
+        findOneStub = sinon
+          .stub(Collection.prototype, 'findOne')
+          .throws(new Error('Simulated error'));
+
+        try {
+          await User.getByVerificationToken(newUser.verificationToken);
+          throw new Error('Expected error was not thrown');
+        } catch (error: any) {
+          expect(error).to.be.instanceOf(ExtendedError);
+          expect(error).to.have.property('statusCode', 500);
+          expect(error.message).to.include('Database Error:');
+        } finally {
+          findOneStub.restore();
+        }
+      });
+    });
+
+    describe('getByPasswordToken', () => {
+      const passwordToken = 'somePasswordToken';
+      before(async () => {
+        newUser = { ...newUser, passwordToken };
+        await User.updatePasswordToken(newUser._id, passwordToken);
+      });
+
+      it('should return an object with correct properties and values', async () => {
+        const user = await User.getByPasswordToken(passwordToken);
+        expect(user).not.to.be.null;
+        expect(user).to.deep.equal(newUser);
+      });
+
+      it('should return null for a non-existent passwordToken', async () => {
+        const user = await User.getByPasswordToken('someTokenThatDoesNotExist');
+        expect(user).to.be.null;
+      });
+
+      it('should transform errors and include a statusCode with them', async () => {
+        findOneStub = sinon
+          .stub(Collection.prototype, 'findOne')
+          .throws(new Error('Simulated error'));
+
+        try {
+          await User.getByPasswordToken(passwordToken);
+          throw new Error('Expected error was not thrown');
+        } catch (error: any) {
+          expect(error).to.be.instanceOf(ExtendedError);
+          expect(error).to.have.property('statusCode', 500);
+          expect(error.message).to.include('Database Error:');
+        } finally {
+          findOneStub.restore();
+        }
+      });
     });
   });
 
-  describe('getByUsername', () => {
-    it('should return an object with correct properties and values', async () => {
-      const user = await User.getByUsername(newUser.username);
-      expect(user).not.to.be.null;
-      expect(user).to.deep.equal(newUser);
-    });
+  describe('create method', () => {
+    describe('create', () => {
+      let createdUser: UserDocument;
+      let sanatizedUser: UserDocument;
+      let errorUser: UserDocument;
+      let sanitizedUserPayload: any;
+      let insertOneStub: SinonStub;
 
-    it('should not be dependent on casing and whitespace', async () => {
-      const user = await User.getByUsername(`   ${newUser.displayUsername}  `);
-      expect(user).not.to.be.null;
-      expect(user).to.deep.equal(newUser);
-    });
+      const errorUserPayload = {
+        displayUsername: 'Testing',
+        email: 'testing@email.com',
+        firstName: 'Test',
+        lastInit: 'T',
+        hashedPass: 'password',
+        verificationToken: 'token',
+      };
+      before(async () => {
+        let createdUserPass = await bcrypt.hash(faker.internet.password(), 12);
+        createdUser = await User.create({
+          displayUsername: faker.internet.userName(),
+          email: faker.internet.email(),
+          hashedPass: createdUserPass,
+          firstName: faker.person.firstName(),
+          lastInit: faker.string.alpha(1),
+          verificationToken: 'someToken',
+        });
 
-    it('should return null for a non-existent username', async () => {
-      const user = await User.getByUsername('randomUser');
-      expect(user).to.be.null;
-    });
+        sanitizedUserPayload = {
+          displayUsername: '    TeST    ',
+          email: '  Test@Email.com   ',
+          hashedPass: createdUserPass,
+          firstName: '  first  ',
+          lastInit: 'n',
+          verificationToken: 'someToken',
+        };
+        sanatizedUser = await User.create(sanitizedUserPayload);
+      });
 
-    it('should transform errors and include a statusCode with them', async () => {
-      findOneStub = sinon
-        .stub(Collection.prototype, 'findOne')
-        .throws(new Error('Simulated error'));
+      after(async () => {
+        await User.deleteById(createdUser._id);
+        await User.deleteById(sanatizedUser._id);
+      });
 
-      try {
-        await User.getByUsername(newUser.username);
-        throw new Error('Expected error was not thrown');
-      } catch (error: any) {
-        expect(error).to.be.instanceOf(ExtendedError);
-        expect(error).to.have.property('statusCode', 500);
-        expect(error.message).to.include('Database Error:');
-      } finally {
-        findOneStub.restore();
-      }
-    });
-  });
+      beforeEach(async () => {
+        if (findOneStub) {
+          findOneStub.restore();
+        }
+        if (insertOneStub) {
+          insertOneStub.restore();
+        }
+        await db
+          .collection('users')
+          .deleteOne({ email: errorUserPayload.email });
+      });
 
-  describe('getByEmail', () => {
-    it('should return an object with correct properties and values', async () => {
-      const user = await User.getByEmail(newUser.email);
-      expect(user).not.to.be.null;
-      expect(user).to.deep.equal(newUser);
-    });
+      it('should return a new user object with the correct properties', () => {
+        expect(createdUser).to.not.be.null;
+        expect(createdUser).has.property(
+          '_id' &&
+            'username' &&
+            'displayUsername' &&
+            'email' &&
+            'password' &&
+            'firstName' &&
+            'lastInit' &&
+            'validationToken' &&
+            'passwordToken' &&
+            'lastActivity'
+        );
+      });
 
-    it('should not be dependent on casing and whitespace', async () => {
-      const user = await User.getByEmail(`   ${newUser.email.toUpperCase()}  `);
-      expect(user).not.to.be.null;
-      expect(user).to.deep.equal(newUser);
-    });
+      it('should sanitize the input data', async () => {
+        expect(sanatizedUser.username).to.equal(
+          sanitizedUserPayload.displayUsername.toLowerCase().trim()
+        );
+        expect(sanatizedUser.displayUsername).to.equal(
+          sanitizedUserPayload.displayUsername.trim()
+        );
+        expect(sanatizedUser.email).to.equal(
+          sanitizedUserPayload.email.toLowerCase().trim()
+        );
+        const trimmedFirstName = sanitizedUserPayload.firstName.trim();
+        expect(sanatizedUser.firstName).to.equal(
+          `${trimmedFirstName[0].toUpperCase()}${trimmedFirstName.substring(1)}`
+        );
+        expect(sanatizedUser.lastInit).to.equal(
+          sanitizedUserPayload.lastInit.toUpperCase()
+        );
+      });
 
-    it('should return null for a non-existent email', async () => {
-      const user = await User.getByEmail('randomUser@email.com');
-      expect(user).to.be.null;
-    });
+      it('should throw an error if the created user was not inserted into the database', async () => {
+        insertOneStub = sinon
+          .stub(Collection.prototype, 'findOne')
+          .throws(new Error('Simulated Error'));
+        try {
+          errorUser = await User.create(errorUserPayload);
+          expect.fail('Expected an error but none was thrown');
+        } catch (error: any) {
+          expect(error).to.be.an.instanceOf(ExtendedError);
+          expect(error).to.have.property('statusCode', 500);
+          expect(error.message).to.include('Database Error:');
+        } finally {
+          insertOneStub.restore();
+        }
+      });
 
-    it('should transform errors and include a statusCode with them', async () => {
-      findOneStub = sinon
-        .stub(Collection.prototype, 'findOne')
-        .throws(new Error('Simulated error'));
-
-      try {
-        await User.getByEmail(newUser.email);
-        throw new Error('Expected error was not thrown');
-      } catch (error: any) {
-        expect(error).to.be.instanceOf(ExtendedError);
-        expect(error).to.have.property('statusCode', 500);
-        expect(error.message).to.include('Database Error:');
-      } finally {
-        findOneStub.restore();
-      }
-    });
-  });
-
-  describe('getByVerificationToken', () => {
-    it('should return an object with correct properties and values', async () => {
-      const user = await User.getByVerificationToken(newUser.verificationToken);
-      expect(user).not.to.be.null;
-      expect(user).to.deep.equal(newUser);
-    });
-
-    it('should return null for a non-existent verificationToken', async () => {
-      const user = await User.getByVerificationToken(
-        'someTokenThatDoesNotExist'
-      );
-      expect(user).to.be.null;
-    });
-
-    it('should transform errors and include a statusCode with them', async () => {
-      findOneStub = sinon
-        .stub(Collection.prototype, 'findOne')
-        .throws(new Error('Simulated error'));
-
-      try {
-        await User.getByVerificationToken(newUser.verificationToken);
-        throw new Error('Expected error was not thrown');
-      } catch (error: any) {
-        expect(error).to.be.instanceOf(ExtendedError);
-        expect(error).to.have.property('statusCode', 500);
-        expect(error.message).to.include('Database Error:');
-      } finally {
-        findOneStub.restore();
-      }
-    });
-  });
-
-  describe('getByPasswordToken', () => {
-    const passwordToken = 'somePasswordToken';
-    before(async () => {
-      newUser = { ...newUser, passwordToken };
-      await User.updatePasswordToken(newUser._id, passwordToken);
-    });
-
-    it('should return an object with correct properties and values', async () => {
-      const user = await User.getByPasswordToken(passwordToken);
-      expect(user).not.to.be.null;
-      expect(user).to.deep.equal(newUser);
-    });
-
-    it('should return null for a non-existent passwordToken', async () => {
-      const user = await User.getByPasswordToken('someTokenThatDoesNotExist');
-      expect(user).to.be.null;
-    });
-
-    it('should transform errors and include a statusCode with them', async () => {
-      findOneStub = sinon
-        .stub(Collection.prototype, 'findOne')
-        .throws(new Error('Simulated error'));
-
-      try {
-        await User.getByPasswordToken(passwordToken);
-        throw new Error('Expected error was not thrown');
-      } catch (error: any) {
-        expect(error).to.be.instanceOf(ExtendedError);
-        expect(error).to.have.property('statusCode', 500);
-        expect(error.message).to.include('Database Error:');
-      } finally {
-        findOneStub.restore();
-      }
+      it('should throw an error if the created user was not found in the database', async () => {
+        findOneStub = sinon
+          .stub(Collection.prototype, 'findOne')
+          .resolves(null);
+        try {
+          errorUser = await User.create(errorUserPayload);
+          expect.fail('Expected an error but none was thrown');
+        } catch (error: any) {
+          expect(error).to.be.an.instanceOf(ExtendedError);
+          expect(error).to.have.property('statusCode', 500);
+          expect(error.message).to.include('Database Error:');
+        } finally {
+          findOneStub.restore();
+        }
+      });
     });
   });
 });
