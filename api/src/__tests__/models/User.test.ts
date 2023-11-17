@@ -2,7 +2,6 @@ import { Db, MongoClient, Collection, ObjectId } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import chai from 'chai';
 import sinon, { SinonStub } from 'sinon';
 import User from '../../models/User.js';
@@ -361,6 +360,72 @@ describe('User model', () => {
         } finally {
           findOneStub.restore();
         }
+      });
+    });
+  });
+
+  describe('update methods', () => {
+    let updatedPassword: string;
+    describe('updatePassword', () => {
+      it('should a return a User Document with an updated password', async () => {
+        updatedPassword = faker.internet.password();
+        await User.updatePassword(newUser._id, updatedPassword);
+        const result = await User.getById(newUser._id);
+        expect(result?.password).to.not.equal(newUser.password);
+        expect(result).to.deep.equal({ ...newUser, password: updatedPassword });
+      });
+    });
+
+    describe('updateVerificationToken', () => {
+      it('should return a User Document with an updated verificationToken', async () => {
+        const updatedToken = faker.string.alphanumeric(32);
+        const result = await User.updateVerificationToken(
+          newUser._id,
+          updatedToken
+        );
+
+        expect(result?.verificationToken).to.be.a.string;
+        expect(result?.verificationToken).to.have.length(32);
+        expect(result?.verificationToken).to.not.equal(
+          newUser.verificationToken
+        );
+      });
+    });
+
+    describe('updatePasswordToken', () => {
+      it('should return a User Document with an updated passwordToken', async () => {
+        const updatedToken = faker.string.alphanumeric(32);
+        const result = await User.updatePasswordToken(
+          newUser._id,
+          updatedToken
+        );
+
+        expect(result?.passwordToken).to.be.a.string;
+        expect(result?.passwordToken).to.equal(updatedToken);
+        expect(result?.passwordToken).to.have.length(32);
+        expect(result?.passwordToken).to.not.equal(newUser.passwordToken);
+      });
+    });
+
+    describe('updateStatus', () => {
+      it('should return a User Document with an updated status', async () => {
+        const updatedStatus = 'verified';
+        const result = await User.updateStatus(newUser._id, updatedStatus);
+
+        expect(newUser.status).to.equal('pending');
+        expect(result?.status).to.be.a.string;
+        expect(result?.status).to.equal('verified');
+        expect(result?.status).to.not.equal(newUser.status);
+      });
+    });
+
+    describe('updateLastActivity', () => {
+      it('should return a User Document with an updated status', async () => {
+        const result = await User.updateLastActivity(newUser._id);
+
+        expect(result.lastActivity).to.be.a('date');
+        expect(result.lastActivity).to.not.equal(newUser.lastActivity);
+        expect(result.lastActivity).to.greaterThan(newUser.lastActivity);
       });
     });
   });
