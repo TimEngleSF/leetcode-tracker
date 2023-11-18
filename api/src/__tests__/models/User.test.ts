@@ -8,6 +8,7 @@ import User, { assignUserCollection, userCollection } from '../../models/User';
 import { closeDb } from '../../db/connection';
 import { UserDocument } from '../../types/userTypes';
 import { ExtendedError } from '../../errors/helpers';
+import { createMockDb } from '../helpers';
 // import Question from '../../models/Question.js';
 
 const { expect } = chai;
@@ -56,17 +57,14 @@ describe('User model', () => {
   let mongoServer: MongoMemoryServer;
   let client: MongoClient;
   let db: Db;
+  let uri: string;
   let newUser: UserDocument;
   let findOneStub: SinonStub;
 
   before(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    client = new MongoClient(uri);
-    await client.connect();
-    db = client.db('lc-test-db');
+    // User.injectDb(db);
+    ({ mongoServer, client, db, uri } = await createMockDb());
 
-    User.injectDb(db);
     // Question.
 
     const newUserPass = await bcrypt.hash(faker.internet.password(), 12);
