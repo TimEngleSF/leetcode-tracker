@@ -1,15 +1,23 @@
-import { ObjectId, Db } from 'mongodb';
-import { getCollection } from '../db/connection.js';
-import { ExtendedError } from '../errors/helpers.js';
-import { UserDocument, CreateUserInDb } from '../types/userTypes.js';
-import { injectDb } from './helpers/injectDb.js';
+import { ObjectId, Db, Collection } from 'mongodb';
+import { getCollection } from '../db/connection';
+import { ExtendedError } from '../errors/helpers';
+import { UserDocument, CreateUserInDb } from '../types/userTypes';
+import { injectDb } from './helpers/injectDb';
 
-let collection = await getCollection<Partial<UserDocument>>('users');
+export let userCollection: Collection<Partial<UserDocument>>;
+
+export const assignUserCollection = async () => {
+  if (!userCollection && process.env.NODE_ENV !== 'test') {
+    userCollection = await getCollection<Partial<UserDocument>>('users');
+  }
+};
+
+assignUserCollection();
 
 const User = {
   injectDb: (db: Db) => {
     if (process.env.NODE_ENV === 'test') {
-      collection = injectDb<Partial<UserDocument>>(db, 'users');
+      userCollection = injectDb<Partial<UserDocument>>(db, 'users');
     }
   },
 
@@ -24,8 +32,12 @@ const User = {
     value: string | ObjectId
   ): Promise<UserDocument | null> => {
     try {
-      // const collection = await getCollection<UserDocument>('users');
-      const result = await collection.findOne<UserDocument>({ [key]: value });
+      if (key === '_id' && typeof value === 'string') {
+        value = new ObjectId(value);
+      }
+      const result = await userCollection.findOne<UserDocument>({
+        [key]: value,
+      });
       return result;
     } catch (error: any) {
       if (error.statusCode) {
@@ -104,8 +116,7 @@ const User = {
   }: CreateUserInDb): Promise<UserDocument> => {
     try {
       firstName = firstName.trim();
-      // const collection = await getCollection<Partial<UserDocument>>('users');
-      const insertedResult = await collection.insertOne({
+      const insertedResult = await userCollection.insertOne({
         username: displayUsername.toLowerCase().trim(),
         displayUsername: displayUsername.trim(),
         email: email.toLowerCase().trim(),
@@ -118,7 +129,7 @@ const User = {
         passwordToken: null,
         lastActivity: new Date(),
       });
-      const result = await collection.findOne<UserDocument>({
+      const result = await userCollection.findOne<UserDocument>({
         _id: insertedResult.insertedId,
       });
 
@@ -144,7 +155,7 @@ const User = {
     }
 
     try {
-      await collection.deleteOne({ _id });
+      await userCollection.deleteOne({ _id });
     } catch (error: any) {
       const extendedError = new ExtendedError(
         'Database Error: There was an error creating user'
@@ -178,8 +189,7 @@ const User = {
     }
 
     try {
-      // const collection = await getCollection<UserDocument>('users');
-      const updateResult = (await collection.findOneAndUpdate(
+      const updateResult = (await userCollection.findOneAndUpdate(
         { _id },
         { $set: { [key]: value } },
         { projection: { password: 0 }, returnDocument: 'after' }
@@ -190,7 +200,6 @@ const User = {
       }
       return updateResult;
     } catch (error: any) {
-      console.log(error);
       const extendedError = new ExtendedError(
         `Database Error: There was an error updating the user${
           error.message ? `\n${error.message}` : ''
