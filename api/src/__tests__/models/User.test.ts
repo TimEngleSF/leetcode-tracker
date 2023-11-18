@@ -4,12 +4,53 @@ import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import chai from 'chai';
 import sinon, { SinonStub } from 'sinon';
-import User from '../../models/User.js';
-import { closeDb } from '../../db/connection.js';
-import { UserDocument } from '../../types/userTypes.js';
-import { ExtendedError } from '../../errors/helpers.js';
+import User, { assignUserCollection, userCollection } from '../../models/User';
+import { closeDb } from '../../db/connection';
+import { UserDocument } from '../../types/userTypes';
+import { ExtendedError } from '../../errors/helpers';
+// import Question from '../../models/Question.js';
 
 const { expect } = chai;
+
+const stub = {
+  error: {
+    findOneStub: (): SinonStub =>
+      sinon
+        .stub(Collection.prototype, 'findOne')
+        .throws(new Error('Simulated Error')),
+    findOneAndUpdate: () =>
+      sinon
+        .stub(Collection.prototype, 'findOneAndUpdate')
+        .throws(new Error('Simulated error')),
+    insertOneStub: () =>
+      sinon
+        .stub(Collection.prototype, 'findOne')
+        .throws(new Error('Simulated Error')),
+    withStatusCode: {
+      findOneStub: (): SinonStub => {
+        const error = new ExtendedError('Simulated error');
+        error.statusCode = 500;
+        return sinon.stub(Collection.prototype, 'findOne').throws(error);
+      },
+    },
+  },
+  null: {
+    findOneStub: (): SinonStub =>
+      sinon.stub(Collection.prototype, 'findOne').resolves(null),
+    updateOneStub: (): SinonStub =>
+      sinon.stub(Collection.prototype, 'findOneAndUpdate').resolves(null),
+  },
+};
+
+const testErrorTransformation = async (action: Function) => {
+  try {
+    await action();
+    expect.fail('Expected an error but none was thrown');
+  } catch (error: any) {
+    expect(error).to.be.an.instanceOf(ExtendedError);
+    expect(error.statusCode).to.be.equal(500);
+  }
+};
 
 describe('User model', () => {
   let mongoServer: MongoMemoryServer;
@@ -26,6 +67,7 @@ describe('User model', () => {
     db = client.db('lc-test-db');
 
     User.injectDb(db);
+    // Question.
 
     const newUserPass = await bcrypt.hash(faker.internet.password(), 12);
     newUser = await User.create({
@@ -45,13 +87,35 @@ describe('User model', () => {
     await mongoServer.stop();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     if (findOneStub) {
       findOneStub.restore();
     }
   });
 
+  describe('assignCollection', () => {
+    it('should not assign a collection when env.NODE_ENV equals test', () => {
+      const collectionBeforeAssignment = userCollection;
+      assignUserCollection();
+      expect(userCollection).to.deep.equal(collectionBeforeAssignment);
+    });
+  });
+
   describe('get methods', () => {
+    describe('getUser', () => {
+      it('should return an object with correct properties and values', async () => {
+        const user = await User.getUser('_id', newUser._id.toHexString());
+        expect(user).not.to.be.null;
+        expect(user).to.deep.equal(newUser);
+      });
+      it('should immedietly throw an error instead of transforming in catch block if caught error has a status code', async () => {
+        findOneStub = stub.error.withStatusCode.findOneStub();
+        await testErrorTransformation(() =>
+          User.getUser('_id', newUser._id.toHexString())
+        );
+        findOneStub.restore();
+      });
+    });
     describe('getById', () => {
       it('should return an object with correct properties and values', async () => {
         const user = await User.getById(newUser._id);
@@ -70,26 +134,16 @@ describe('User model', () => {
         try {
           const user = await User.getById(invalidId);
           expect(user).to.be.null;
+          expect.fail('Expected an error but none was thrown');
         } catch (error: any) {
           expect(error.message).to.include('input must be a 24');
         }
       });
 
       it('should transform errors and include a statusCode with them', async () => {
-        findOneStub = sinon
-          .stub(Collection.prototype, 'findOne')
-          .throws(new Error('Simulated error'));
-
-        try {
-          await User.getById(newUser._id);
-          throw new Error('Expected error was not thrown');
-        } catch (error: any) {
-          expect(error).to.be.instanceOf(ExtendedError);
-          expect(error).to.have.property('statusCode', 500);
-          expect(error.message).to.include('Database Error:');
-        } finally {
-          findOneStub.restore();
-        }
+        findOneStub = stub.error.findOneStub();
+        await testErrorTransformation(() => User.getById(newUser._id));
+        findOneStub.restore();
       });
     });
 
@@ -114,20 +168,11 @@ describe('User model', () => {
       });
 
       it('should transform errors and include a statusCode with them', async () => {
-        findOneStub = sinon
-          .stub(Collection.prototype, 'findOne')
-          .throws(new Error('Simulated error'));
-
-        try {
-          await User.getByUsername(newUser.username);
-          throw new Error('Expected error was not thrown');
-        } catch (error: any) {
-          expect(error).to.be.instanceOf(ExtendedError);
-          expect(error).to.have.property('statusCode', 500);
-          expect(error.message).to.include('Database Error:');
-        } finally {
-          findOneStub.restore();
-        }
+        findOneStub = stub.error.findOneStub();
+        await testErrorTransformation(() =>
+          User.getByUsername(newUser.username)
+        );
+        findOneStub.restore();
       });
     });
 
@@ -153,20 +198,9 @@ describe('User model', () => {
       });
 
       it('should transform errors and include a statusCode with them', async () => {
-        findOneStub = sinon
-          .stub(Collection.prototype, 'findOne')
-          .throws(new Error('Simulated error'));
-
-        try {
-          await User.getByEmail(newUser.email);
-          throw new Error('Expected error was not thrown');
-        } catch (error: any) {
-          expect(error).to.be.instanceOf(ExtendedError);
-          expect(error).to.have.property('statusCode', 500);
-          expect(error.message).to.include('Database Error:');
-        } finally {
-          findOneStub.restore();
-        }
+        findOneStub = stub.error.findOneStub();
+        await testErrorTransformation(() => User.getByEmail(newUser.email));
+        findOneStub.restore();
       });
     });
 
@@ -187,20 +221,11 @@ describe('User model', () => {
       });
 
       it('should transform errors and include a statusCode with them', async () => {
-        findOneStub = sinon
-          .stub(Collection.prototype, 'findOne')
-          .throws(new Error('Simulated error'));
-
-        try {
-          await User.getByVerificationToken(newUser.verificationToken);
-          throw new Error('Expected error was not thrown');
-        } catch (error: any) {
-          expect(error).to.be.instanceOf(ExtendedError);
-          expect(error).to.have.property('statusCode', 500);
-          expect(error.message).to.include('Database Error:');
-        } finally {
-          findOneStub.restore();
-        }
+        findOneStub = stub.error.findOneStub();
+        await testErrorTransformation(() =>
+          User.getByVerificationToken(newUser.verificationToken)
+        );
+        findOneStub.restore();
       });
     });
 
@@ -223,20 +248,11 @@ describe('User model', () => {
       });
 
       it('should transform errors and include a statusCode with them', async () => {
-        findOneStub = sinon
-          .stub(Collection.prototype, 'findOne')
-          .throws(new Error('Simulated error'));
-
-        try {
-          await User.getByPasswordToken(passwordToken);
-          throw new Error('Expected error was not thrown');
-        } catch (error: any) {
-          expect(error).to.be.instanceOf(ExtendedError);
-          expect(error).to.have.property('statusCode', 500);
-          expect(error.message).to.include('Database Error:');
-        } finally {
-          findOneStub.restore();
-        }
+        findOneStub = stub.error.findOneStub();
+        await testErrorTransformation(() =>
+          User.getByPasswordToken(passwordToken)
+        );
+        findOneStub.restore();
       });
     });
   });
@@ -331,58 +347,92 @@ describe('User model', () => {
         );
       });
 
-      it('should throw an error if the created user was not inserted into the database', async () => {
-        insertOneStub = sinon
-          .stub(Collection.prototype, 'findOne')
-          .throws(new Error('Simulated Error'));
-        try {
-          errorUser = await User.create(errorUserPayload);
-          expect.fail('Expected an error but none was thrown');
-        } catch (error: any) {
-          expect(error).to.be.an.instanceOf(ExtendedError);
-          expect(error).to.have.property('statusCode', 500);
-          expect(error.message).to.include('Database Error:');
-        } finally {
-          insertOneStub.restore();
-        }
+      it('should transform errors and include a statusCode with them', async () => {
+        insertOneStub = stub.error.insertOneStub();
+        await testErrorTransformation(() => User.create(errorUserPayload));
+        insertOneStub.restore();
       });
 
       it('should throw an error if the created user was not found in the database', async () => {
-        findOneStub = sinon
-          .stub(Collection.prototype, 'findOne')
-          .resolves(null);
-        try {
-          errorUser = await User.create(errorUserPayload);
-          expect.fail('Expected an error but none was thrown');
-        } catch (error: any) {
-          expect(error).to.be.an.instanceOf(ExtendedError);
-          expect(error).to.have.property('statusCode', 500);
-          expect(error.message).to.include('Database Error:');
-        } finally {
-          findOneStub.restore();
-        }
+        findOneStub = stub.null.findOneStub();
+        await testErrorTransformation(() => User.create(errorUserPayload));
+        findOneStub.restore();
       });
     });
   });
 
   describe('update methods', () => {
-    let updatedPassword: string;
-    describe('updatePassword', () => {
-      it('should a return a User Document with an updated password', async () => {
-        updatedPassword = faker.internet.password();
-        await User.updatePassword(newUser._id, updatedPassword);
+    let updatedValue: string;
+    let findOneAndUpdateStub: SinonStub;
+
+    beforeEach(() => {
+      if (findOneAndUpdateStub) {
+        findOneAndUpdateStub.restore();
+      }
+      if (findOneStub) {
+        findOneStub.restore();
+      }
+    });
+
+    after(async () => {
+      await closeDb();
+    });
+
+    describe('update', () => {
+      it('should a return a User Document with an updated value', async () => {
+        updatedValue = faker.internet.password();
+        await User.update({
+          _id: newUser._id.toHexString(),
+          key: 'password',
+          value: updatedValue,
+        });
         const result = await User.getById(newUser._id);
         expect(result?.password).to.not.equal(newUser.password);
-        expect(result).to.deep.equal({ ...newUser, password: updatedPassword });
+        expect(result).to.deep.equal({
+          ...newUser,
+          password: updatedValue,
+        });
+      });
+      it('should throw an error if the updateOne returns null', async () => {
+        findOneAndUpdateStub = stub.null.updateOneStub();
+        updatedValue = faker.internet.password();
+        await testErrorTransformation(() =>
+          User.update({
+            _id: newUser._id.toHexString(),
+            key: 'password',
+            value: updatedValue,
+          })
+        );
+        findOneAndUpdateStub.restore();
+      });
+    });
+    describe('updatePassword', () => {
+      it('should a return a User Document with an updated password', async () => {
+        updatedValue = faker.internet.password();
+        await User.updatePassword(newUser._id, updatedValue);
+        const result = await User.getById(newUser._id);
+        expect(result?.password).to.not.equal(newUser.password);
+        expect(result).to.deep.equal({
+          ...newUser,
+          password: updatedValue,
+        });
+      });
+      it('should throw a transformed error if an error is encountered ', async () => {
+        findOneAndUpdateStub = stub.error.findOneAndUpdate();
+        updatedValue = faker.internet.password();
+        await testErrorTransformation(() =>
+          User.updatePassword(newUser._id, updatedValue)
+        );
+        findOneAndUpdateStub.restore();
       });
     });
 
     describe('updateVerificationToken', () => {
       it('should return a User Document with an updated verificationToken', async () => {
-        const updatedToken = faker.string.alphanumeric(32);
+        updatedValue = faker.string.alphanumeric(32);
         const result = await User.updateVerificationToken(
           newUser._id,
-          updatedToken
+          updatedValue
         );
 
         expect(result?.verificationToken).to.be.a.string;
@@ -390,6 +440,14 @@ describe('User model', () => {
         expect(result?.verificationToken).to.not.equal(
           newUser.verificationToken
         );
+      });
+      it('should throw a transformed error if an error is encountered ', async () => {
+        findOneAndUpdateStub = stub.error.findOneAndUpdate();
+        updatedValue = faker.string.alphanumeric(32);
+        await testErrorTransformation(() =>
+          User.updateVerificationToken(newUser._id, updatedValue)
+        );
+        findOneAndUpdateStub.restore();
       });
     });
 
@@ -406,17 +464,32 @@ describe('User model', () => {
         expect(result?.passwordToken).to.have.length(32);
         expect(result?.passwordToken).to.not.equal(newUser.passwordToken);
       });
+
+      it('should throw a transformed error if an error is encountered ', async () => {
+        findOneAndUpdateStub = stub.error.findOneAndUpdate();
+        updatedValue = faker.string.alphanumeric(32);
+        await testErrorTransformation(() =>
+          User.updatePasswordToken(newUser._id, updatedValue)
+        );
+        findOneAndUpdateStub.restore();
+      });
     });
 
     describe('updateStatus', () => {
       it('should return a User Document with an updated status', async () => {
-        const updatedStatus = 'verified';
-        const result = await User.updateStatus(newUser._id, updatedStatus);
+        const result = await User.updateStatus(newUser._id, 'verified');
 
         expect(newUser.status).to.equal('pending');
         expect(result?.status).to.be.a.string;
         expect(result?.status).to.equal('verified');
         expect(result?.status).to.not.equal(newUser.status);
+      });
+      it('should throw a transformed error if an error is encountered ', async () => {
+        findOneAndUpdateStub = stub.error.findOneAndUpdate();
+        await testErrorTransformation(() =>
+          User.updateStatus(newUser._id, 'verified')
+        );
+        findOneAndUpdateStub.restore();
       });
     });
 
@@ -427,6 +500,13 @@ describe('User model', () => {
         expect(result.lastActivity).to.be.a('date');
         expect(result.lastActivity).to.not.equal(newUser.lastActivity);
         expect(result.lastActivity).to.greaterThan(newUser.lastActivity);
+      });
+      it('should throw a transformed error if an error is encountered ', async () => {
+        findOneAndUpdateStub = stub.error.findOneAndUpdate();
+        await testErrorTransformation(() =>
+          User.updateLastActivity(newUser._id)
+        );
+        findOneAndUpdateStub.restore();
       });
     });
   });

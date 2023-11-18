@@ -5,7 +5,7 @@ export const postQuestionSchema = joi.object({
   username: joi.string().required(),
   questNum: joi.number().required(),
   passed: joi.boolean().required(),
-  speed: joi.number(),
+  speed: joi.number().allow(null),
 });
 
 export const getQuestionInfoSchema = joi.object({

@@ -1,4 +1,4 @@
-import { Collection, ObjectId } from 'mongodb';
+import { Collection, ObjectId, Db } from 'mongodb';
 import { getCollection } from '../db/connection.js';
 import {
   NewQuestion,
@@ -6,18 +6,42 @@ import {
   QuestionDocument,
   QuestionByUserIdQueryResult,
   GetGeneralLeaderboardQuery,
-  GetUserPassedCount,
 } from '../types/questionTypes.js';
-import { ExtendedError } from '../errors/helpers.js';
+import { ExtendedError } from '../errors/helpers';
+import { injectDb } from './helpers/injectDb.js';
 import { convertDaysToMillis } from './helpers/questionHelpers.js';
 
+let questionCollection: Collection<Partial<QuestionDocument>>;
+let questionInfoCollection: Collection<QuestionInfoDocument>;
+
+const assignQuestionCollection = async () => {
+  if (!questionCollection && process.env.NODE_ENV !== 'test') {
+    questionCollection = await getCollection<Partial<QuestionDocument>>(
+      'questions'
+    );
+  }
+  if (!questionInfoCollection && process.env.NODE_ENV !== 'test') {
+    questionInfoCollection = await getCollection<QuestionInfoDocument>(
+      'questionData'
+    );
+  }
+};
+
+assignQuestionCollection();
+
 const Question = {
+  injectDb: (db: Db) => {
+    if (process.env.NODE_ENV === 'test') {
+      questionCollection = injectDb<Partial<QuestionDocument>>(db, 'questions');
+      questionInfoCollection = injectDb<QuestionInfoDocument>(
+        db,
+        'questionData'
+      );
+    }
+  },
   addQuestion: async (questionData: NewQuestion): Promise<void> => {
     try {
-      const collection = await getCollection<Partial<QuestionDocument>>(
-        'questions'
-      );
-      const result = await collection.insertOne({ ...questionData });
+      const result = await questionCollection.insertOne({ ...questionData });
       if (!result.acknowledged) {
         throw new Error('Insertion not acknowledged');
       }
@@ -36,8 +60,7 @@ const Question = {
       questId = new ObjectId(questId);
     }
     try {
-      const collection = await getCollection<QuestionDocument>('questions');
-      const result = await collection.findOne<QuestionDocument>({
+      const result = await questionCollection.findOne<QuestionDocument>({
         _id: questId,
       });
       if (!result) {
@@ -58,11 +81,7 @@ const Question = {
 
   getQuestionInfo: async (questId: number): Promise<QuestionInfoDocument> => {
     try {
-      const collection = await getCollection<QuestionInfoDocument>(
-        'questionData'
-      );
-
-      const result = await collection.findOne({ questId });
+      const result = await questionInfoCollection.findOne({ questId });
       if (!result) {
         const error = new ExtendedError(
           `Question does not exist in the database`
@@ -85,24 +104,19 @@ const Question = {
   getQuestionsByUser: async (
     userId: ObjectId,
     question?: number
-  ): Promise<QuestionByUserIdQueryResult[] | []> => {
+  ): Promise<Partial<QuestionByUserIdQueryResult>[] | []> => {
     let result;
-    let collection: Collection<QuestionDocument>;
-    try {
-      collection = await getCollection<QuestionDocument>('questions');
-    } catch (error) {
-      throw error;
-    }
+
     // Query
     try {
       if (!question) {
-        const cursor = collection.find(
+        const cursor = questionCollection.find(
           { userId },
           { projection: { _id: 0, username: 0, userId: 0 } }
         );
         result = await cursor.toArray();
       } else {
-        const cursor = collection.find(
+        const cursor = questionCollection.find(
           { userId, questNum: question },
           { projection: { _id: 0, userId: 0, username: 0, questNum: 0 } }
         );
@@ -126,14 +140,8 @@ const Question = {
     newerThan: number,
     olderThan: number
   ): Promise<number[] | []> => {
-    let collection: Collection<QuestionDocument>;
     let excludeResults: Partial<QuestionDocument>[];
 
-    try {
-      collection = await getCollection<QuestionDocument>('questions');
-    } catch (error) {
-      throw error;
-    }
     const currentTime = new Date().getTime();
     const endOfRangeMillis = currentTime - convertDaysToMillis(olderThan);
     const startOfRangeMillis = currentTime - convertDaysToMillis(newerThan);
@@ -141,7 +149,7 @@ const Question = {
     // Stage 1: Get excluded questNums
     // This will prevent including recently completed question in the "older" time ranges
     try {
-      excludeResults = await collection
+      excludeResults = await questionCollection
         .find({
           userId: new ObjectId(userId),
           created: { $gte: new Date(endOfRangeMillis) },
@@ -155,7 +163,7 @@ const Question = {
     const excludeQuestNums = excludeResults.map((doc) => doc.questNum);
 
     // Stage 2: Actual query
-    const results = await collection
+    const results = await questionCollection
       .aggregate([
         {
           $match: {
@@ -188,63 +196,89 @@ const Question = {
     return results[0]?.reviewQuestions || [];
   },
 
-  getGeneralLeaderBoard: async (): Promise<GetGeneralLeaderboardQuery[]> => {
+  getGeneralLeaderBoard: async (
+    userId: string | ObjectId
+  ): Promise<GetGeneralLeaderboardQuery> => {
+    if (typeof userId === 'string') {
+      userId = new ObjectId(userId);
+    }
     try {
-      const collection = await getCollection<QuestionDocument>('questions');
-
-      const cursor = collection.aggregate([
+      const cursor = questionCollection.aggregate([
         {
-          $match: {
-            passed: true,
+          $facet: {
+            generalLeaderBoard: [
+              // Your first pipeline for general leaderboard
+              { $match: { passed: true } },
+              { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
+              { $match: { passedCount: { $gt: 1 } } },
+              {
+                $lookup: {
+                  from: 'users',
+                  localField: '_id',
+                  foreignField: '_id',
+                  as: 'userInfo',
+                },
+              },
+              { $unwind: '$userInfo' },
+              {
+                $project: {
+                  userId: '$_id',
+                  _id: 0,
+                  name: {
+                    $concat: [
+                      '$userInfo.firstName',
+                      ' ',
+                      { $substrCP: ['$userInfo.lastInit', 0, 1] },
+                      '.',
+                    ],
+                  },
+                  passedCount: 1,
+                  lastActivity: '$userInfo.lastActivity',
+                },
+              },
+              { $sort: { passedCount: -1 } },
+            ],
+            userResult: [
+              // Your second pipeline for user-specific leaderboard
+              { $match: { userId, passed: true } },
+              { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
+              {
+                $lookup: {
+                  from: 'users',
+                  localField: '_id',
+                  foreignField: '_id',
+                  as: 'loggedInUserInfo',
+                },
+              },
+              { $unwind: '$loggedInUserInfo' },
+              {
+                $project: {
+                  userId: '$_id',
+                  name: {
+                    $concat: [
+                      '$loggedInUserInfo.firstName',
+                      ' ',
+                      { $substrCP: ['$loggedInUserInfo.lastInit', 0, 1] },
+                      '.',
+                    ],
+                  },
+                  passedCount: 1,
+                  _id: 0,
+                },
+              },
+            ],
           },
-        },
-        {
-          $group: {
-            _id: '$userId',
-            passedCount: { $sum: 1 },
-          },
-        },
-        {
-          $match: {
-            passedCount: { $gt: 1 },
-          },
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: '_id',
-            foreignField: '_id',
-            as: 'userInfo',
-          },
-        },
-        {
-          $unwind: '$userInfo',
-        },
-        {
-          $project: {
-            userId: '$_id',
-            _id: 0,
-            name: {
-              $concat: [
-                '$userInfo.firstName',
-                ' ',
-                { $substrCP: ['$userInfo.lastInit', 0, 1] },
-                '.',
-              ],
-            },
-            passedCount: 1,
-            lastActivity: '$userInfo.lastActivity',
-          },
-        },
-        {
-          $sort: { passedCount: -1 },
         },
       ]);
 
-      const result = await cursor.toArray();
-      return result as GetGeneralLeaderboardQuery[];
+      const [result] = await cursor.toArray();
+      return {
+        leaderboardResult: result.generalLeaderBoard,
+        userResult: result.userResult[0]
+          ? result.userResult[0]
+          : { _id: userId, passedCount: 0 },
+      };
     } catch (error) {
-      console.log(error);
       throw error;
     }
   },
@@ -259,9 +293,7 @@ const Question = {
         throw ExtendedError;
       }
 
-      const collection = await getCollection<QuestionDocument>('questions');
-
-      const cursor = collection.aggregate([
+      const cursor = questionCollection.aggregate([
         {
           $match: {
             questNum: targetQuestion,
@@ -310,45 +342,6 @@ const Question = {
       ]);
       const result = await cursor.toArray();
       return result;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  getUserLeaderBoardResults: async (
-    userId: string | ObjectId
-  ): Promise<GetUserPassedCount> => {
-    if (typeof userId === 'string') {
-      userId = new ObjectId(userId);
-    }
-    try {
-      const collection = await getCollection<QuestionDocument>('questions');
-      const cursor = collection.aggregate([
-        {
-          $match: {
-            userId,
-            passed: true,
-          },
-        },
-        {
-          $group: {
-            _id: '$userId',
-            passedCount: {
-              $sum: {
-                $cond: [
-                  {
-                    $eq: ['$passed', true],
-                  },
-                  1,
-                  0,
-                ],
-              },
-            },
-          },
-        },
-      ]);
-      const result = await cursor.toArray();
-      return result[0] as GetUserPassedCount;
     } catch (error) {
       throw error;
     }

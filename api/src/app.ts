@@ -1,20 +1,19 @@
 import 'dotenv/config';
 import express from 'express';
 import path from 'path';
-import url from 'url';
 import morgan from 'morgan';
-import connectDb from './db/connection.js';
-import routes from './routes/index.js';
+import connectDb from './db/connection';
+import routes from './routes/index';
 
-import isAuth from './middleware/isAuth.js';
-import updateLastActive from './middleware/updateLastActive.js';
-import errorHandler from './middleware/errorHandler.js';
+import isAuth from './middleware/isAuth';
+import updateLastActive from './middleware/updateLastActive';
+import errorHandler from './middleware/errorHandler';
 
 const app = express();
 const PORT: any = process.env.PORT;
 
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = url.fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 const startServer = async () => {
   try {
     const db = await connectDb();
