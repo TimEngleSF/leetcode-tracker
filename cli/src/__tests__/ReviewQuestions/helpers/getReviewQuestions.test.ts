@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { getReviewQuestions } from '../../../ReviewQuestions/helpers/getReviewQuestions.js';
-import testVars from '../../testVariables.js';
+// import testVars from '../../testVariables.js';
 
 describe('getReviewQuestions', () => {
   let axiosStub: any;
@@ -23,7 +23,7 @@ describe('getReviewQuestions', () => {
     });
 
     authHeadersStub = sinon.stub().resolves({
-      Authorization: `Bearer ${testVars.LC_TOKEN}`,
+      Authorization: `Bearer sometokenofsorts`,
     });
 
     writeErrorStub = sinon.stub();
@@ -47,9 +47,7 @@ describe('getReviewQuestions', () => {
     expect(axiosArgs.method).to.equal('GET');
     expect(axiosArgs.url).to.equal('http://localhost:3000/review');
     expect(axiosArgs.data).to.deep.equal(reviewRangeSelection);
-    expect(axiosArgs.headers.Authorization).to.equal(
-      `Bearer ${testVars.LC_TOKEN}`
-    );
+    expect(axiosArgs.headers.Authorization).to.equal(`Bearer sometokenofsorts`);
     expect(data).to.deep.equal([
       {
         _id: '64ff67ebdf188afbd9d2f86c',
