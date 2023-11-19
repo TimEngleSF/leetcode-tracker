@@ -1,15 +1,15 @@
 import { Collection, ObjectId, Db } from 'mongodb';
-import { getCollection } from '../db/connection.js';
+import { getCollection } from '../db/connection';
 import {
   NewQuestion,
   QuestionInfoDocument,
   QuestionDocument,
   QuestionByUserIdQueryResult,
   GetGeneralLeaderboardQuery,
-} from '../types/questionTypes.js';
+} from '../types/questionTypes';
 import { ExtendedError } from '../errors/helpers';
-import { injectDb } from './helpers/injectDb.js';
-import { convertDaysToMillis } from './helpers/questionHelpers.js';
+import { injectDb } from './helpers/injectDb';
+import { convertDaysToMillis } from './helpers/questionHelpers';
 
 let questionCollection: Collection<Partial<QuestionDocument>>;
 let questionInfoCollection: Collection<QuestionInfoDocument>;
@@ -40,8 +40,24 @@ const Question = {
     }
   },
   addQuestion: async (questionData: NewQuestion): Promise<void> => {
+    let transformedUserId: ObjectId;
+    if (typeof questionData.userId === 'string') {
+      transformedUserId = new ObjectId(questionData.userId);
+    } else {
+      transformedUserId = questionData.userId;
+    }
+
+    const transformedQuestionData: Omit<NewQuestion, 'userId'> & {
+      userId: ObjectId;
+    } = {
+      ...questionData,
+      userId: transformedUserId,
+    };
+
     try {
-      const result = await questionCollection.insertOne({ ...questionData });
+      const result = await questionCollection.insertOne(
+        transformedQuestionData
+      );
       if (!result.acknowledged) {
         throw new Error('Insertion not acknowledged');
       }
@@ -55,7 +71,9 @@ const Question = {
     }
   },
 
-  getQuestion: async (questId: string | ObjectId) => {
+  getQuestion: async (
+    questId: string | ObjectId
+  ): Promise<QuestionDocument> => {
     if (typeof questId === 'string') {
       questId = new ObjectId(questId);
     }
@@ -128,72 +146,61 @@ const Question = {
       );
       extendedError.statusCode = 500;
       extendedError.stack = error.stack;
+      throw extendedError;
     }
-    if (!result) {
-      return [];
-    }
+
     return result;
   },
 
   getReviewQuestions: async (
-    userId: ObjectId,
-    newerThan: number,
-    olderThan: number
-  ): Promise<number[] | []> => {
-    let excludeResults: Partial<QuestionDocument>[];
-
-    const currentTime = new Date().getTime();
-    const endOfRangeMillis = currentTime - convertDaysToMillis(olderThan);
-    const startOfRangeMillis = currentTime - convertDaysToMillis(newerThan);
-
-    // Stage 1: Get excluded questNums
-    // This will prevent including recently completed question in the "older" time ranges
-    try {
-      excludeResults = await questionCollection
-        .find({
-          userId: new ObjectId(userId),
-          created: { $gte: new Date(endOfRangeMillis) },
-        })
-        .project({ questNum: 1, _id: 0 })
-        .toArray();
-    } catch (error) {
-      throw error;
+    userId: ObjectId | string,
+    startRange: number, // How many days ago should the range begin?
+    endRange: number // How many days ago should the range end? aka we dont want dates that a previous to this
+  ): Promise<QuestionInfoDocument[]> => {
+    if (typeof userId === 'string') {
+      userId = new ObjectId(userId);
     }
 
-    const excludeQuestNums = excludeResults.map((doc) => doc.questNum);
+    const currentTime = new Date().getTime();
+    const endOfRange = new Date(currentTime - convertDaysToMillis(endRange));
+    const startOfRange = new Date(
+      currentTime - convertDaysToMillis(startRange)
+    );
 
-    // Stage 2: Actual query
-    const results = await questionCollection
-      .aggregate([
+    try {
+      const pipeline = [
         {
           $match: {
             userId: new ObjectId(userId),
-            questNum: { $nin: excludeQuestNums }, // Dont include these older documents
-            created: {
-              $gte: new Date(startOfRangeMillis),
-              $lte: new Date(endOfRangeMillis),
-            },
+            created: { $gte: endOfRange, $lte: startOfRange },
           },
         },
         {
           $sort: { created: -1 },
         },
         {
-          $group: { _id: '$questNum' },
+          $group: { _id: '$questNum' }, // Group duplicates
         },
         {
-          $group: {
-            _id: null,
-            uniqueQuestNums: { $push: '$_id' },
+          $lookup: {
+            from: 'questionData',
+            localField: '_id',
+            foreignField: 'questId',
+            as: 'questionDetails',
           },
         },
-        {
-          $project: { _id: 0, reviewQuestions: '$uniqueQuestNums' },
-        },
-      ])
-      .toArray();
+        { $unwind: '$questionDetails' },
+        { $replaceRoot: { newRoot: '$questionDetails' } },
+      ];
 
-    return results[0]?.reviewQuestions || [];
+      const results = (await questionCollection
+        .aggregate(pipeline)
+        .toArray()) as QuestionInfoDocument[];
+
+      return results;
+    } catch (error) {
+      throw error;
+    }
   },
 
   getGeneralLeaderBoard: async (
@@ -207,7 +214,7 @@ const Question = {
         {
           $facet: {
             generalLeaderBoard: [
-              // Your first pipeline for general leaderboard
+              // first pipeline for general leaderboard
               { $match: { passed: true } },
               { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
               { $match: { passedCount: { $gt: 1 } } },
@@ -239,7 +246,7 @@ const Question = {
               { $sort: { passedCount: -1 } },
             ],
             userResult: [
-              // Your second pipeline for user-specific leaderboard
+              // second pipeline for user-specific leaderboard
               { $match: { userId, passed: true } },
               { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
               {
