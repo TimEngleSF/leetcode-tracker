@@ -12,6 +12,19 @@ const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const getUserJSON = async (): Promise<UserObject> => {
+  try {
+    await fs.access(path.join(__dirname, 'user.json'));
+  } catch (error) {
+    const payload = JSON.stringify({
+      LC_USERNAME: '',
+      LC_DISPLAYNAME: '',
+      LC_ID: '',
+      LC_TOKEN: '',
+      LC_FIRSTNAME: '',
+      LC_LASTINIT: '',
+    });
+    await fs.writeFile(path.join(__dirname, 'user.json'), payload);
+  }
   const data = (
     await fs.readFile(path.join(__dirname, 'user.json'))
   ).toString();
