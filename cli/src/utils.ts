@@ -5,7 +5,7 @@ import readline from 'readline';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import axios from 'axios';
-import { API_URL } from './apiConfigInit.js';
+import { API_URL } from './config.js';
 import { UserObject } from './Types/user.js';
 
 const __filename = url.fileURLToPath(import.meta.url);

@@ -5,7 +5,7 @@ import { getAuthHeaders, getQuestionData, printHeader } from '../../utils.js';
 import { selectQuestionNum } from '../Prompts/selectQuestionNumPrompt.js';
 import { createQuestLBDisplay } from './helpers/createQuestLBDisplay.js';
 import { sortLeaderboardData } from './helpers/utils.js';
-import { API_URL } from '../../apiConfigInit.js';
+import { API_URL } from '../../config.js';
 import writeErrorToFile from '../../errors/writeError.js';
 
 export const questionLeaderboard: any = async () => {

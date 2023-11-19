@@ -4,8 +4,7 @@ import { getAuthHeaders } from '../../utils.js';
 import { differenceInDays } from 'date-fns';
 import { getDisplayTextForUser, formatRank } from '../utils.js';
 import { initGeneralTable } from './helpers/utils.js';
-import { API_URL } from '../../apiConfigInit.js';
-
+import { API_URL } from '../../config.js';
 export const generalLeaderboard: any = async (
   getAuthHeadersInstance = getAuthHeaders,
   axiosInstance = axios,

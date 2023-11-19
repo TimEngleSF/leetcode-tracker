@@ -2,7 +2,7 @@ import axios from 'axios';
 import chalk from 'chalk';
 
 import registrationPrompt from './Prompts/registrationPrompt.js';
-import { API_URL } from '../apiConfigInit.js';
+import { API_URL } from '../config.js';
 import { RegistrationPrompt } from '../Types/prompts.js';
 
 const registerToAPI = async (answers: RegistrationPrompt) => {
