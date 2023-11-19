@@ -10,3 +10,11 @@ export interface UserLoginResult {
   };
   token: string;
 }
+
+export interface QuestionInfo {
+  _id: string;
+  questId: number;
+  title: string;
+  url: string;
+  diff: string;
+}

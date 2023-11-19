@@ -24,7 +24,7 @@ export interface QuestionInfoDocument extends Document {
 }
 
 export type NewQuestion = {
-  userId: ObjectId;
+  userId: ObjectId | string;
   username: string;
   questNum: number;
   passed: boolean;
@@ -53,7 +53,7 @@ export interface getQuestionsByUserIdResponse {
     username: string;
     userId: string;
   };
-  questions: QuestionByUserIdQueryResult[];
+  questions: Partial<QuestionByUserIdQueryResult>[];
 }
 
 export interface GeneralLeaderboardEntry {

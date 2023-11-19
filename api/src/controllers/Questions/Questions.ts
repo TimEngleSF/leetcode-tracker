@@ -8,7 +8,6 @@ import {
 import Question from '../../models/Question.js';
 import postQuestionService from '../../service/Questions/add-question.js';
 import getQuestionsByUserIdService from '../../service/Questions/get-questions-userId.js';
-import getReviewQuestionService from '../../service/Questions/get-review-questions.js';
 
 const Questions = {
   getQuestionInfo: async (req: Request, res: Response, next: NextFunction) => {
@@ -91,7 +90,7 @@ const Questions = {
     // TODO: update to use params
     const { olderThan, newerThan } = req.body;
     try {
-      const result = await getReviewQuestionService(
+      const result = await Question.getReviewQuestions(
         userId,
         newerThan,
         olderThan
