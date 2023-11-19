@@ -5,7 +5,7 @@ import url from 'url';
 import chalk from 'chalk';
 
 import loginPrompt from './Prompts/loginPrompt.js';
-import { API_URL } from '../apiConfigInit.js';
+import { API_URL } from '../config.js';
 import { UserLoginResult } from '../Types/api.js';
 
 const loginToAPI = async (answers: {

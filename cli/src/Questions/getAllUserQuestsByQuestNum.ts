@@ -5,8 +5,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 
 import { getAuthHeaders, getUserJSON, printHeader } from '../utils.js';
-import { API_URL } from '../apiConfigInit.js';
-
+import { API_URL } from '../config.js';
 interface GeneralInfo {
   questNum: number;
   diff: number;

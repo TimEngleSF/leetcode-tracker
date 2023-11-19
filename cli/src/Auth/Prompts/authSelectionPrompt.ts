@@ -7,7 +7,7 @@ import {
   isLoggedIn,
   logout,
 } from '../../utils.js';
-import { API_URL } from '../../apiConfigInit.js';
+import { API_URL } from '../../config.js';
 
 const userJSON = async () => {
   try {

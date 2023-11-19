@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { getQuestionData } from '../../utils.js';
 import { QuestionAnswer } from '../../Types/prompts.js';
-import { validate } from './validation.js';
+import { validate, filter } from './validation.js';
 
 const addQuestionPrompt = async (
   prompt = inquirer.prompt,
@@ -20,6 +20,7 @@ const addQuestionPrompt = async (
         type: 'number',
         name: 'questNum',
         message: 'Please enter a question number',
+        filter: filter.questNum,
         validate: validate.questNum,
       },
     ]);
@@ -64,6 +65,7 @@ const addQuestionPrompt = async (
         name: 'speed',
         message: 'What was the runtime speed in ms?',
         when: (answers) => answers.isAddTimeValid,
+        filter: filter.speed,
         validate: validate.speed,
       },
     ]);

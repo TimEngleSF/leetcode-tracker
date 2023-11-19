@@ -6,7 +6,7 @@ import chalk from 'chalk';
 
 import addQuestionPrompt from './Prompts/addQuestionPrompt.js';
 import { getAuthHeaders, getUserJSON } from '../utils.js';
-import { API_URL } from '../apiConfigInit.js';
+import { API_URL } from '../config.js';
 
 const addQuestionToDB = async (
   questPrompt = addQuestionPrompt,

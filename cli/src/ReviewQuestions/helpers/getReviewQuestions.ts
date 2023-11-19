@@ -1,7 +1,7 @@
 import axios from 'axios';
 import writeErrorToFile from '../../errors/writeError.js';
 import { getAuthHeaders } from '../../utils.js';
-import { API_URL } from '../../apiConfigInit.js';
+import { API_URL } from '../../config.js';
 import { QuestionInfo } from '../../Types/api.js';
 
 export const getReviewQuestions = async (

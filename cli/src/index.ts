@@ -7,7 +7,7 @@ import authSelectionPrompt from './Auth/Prompts/authSelectionPrompt.js';
 import registerUser from './Auth/registerUser.js';
 import loginUser from './Auth/loginUser.js';
 import { getUserJSON, isLoggedIn, printHeader } from './utils.js';
-import { API_URL } from './apiConfigInit.js';
+import { API_URL } from './config.js';
 
 if (await isLoggedIn()) {
   await handleRun();

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getAuthHeaders, getUserJSON } from '../../utils.js';
 import writeErrorToFile from '../../errors/writeError.js';
-import { API_URL } from '../../apiConfigInit.js';
+import { API_URL } from '../../config.js';
 
 export const addResultsToDB = async (
   questNum: number,
