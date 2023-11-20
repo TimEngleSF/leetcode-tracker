@@ -12,8 +12,11 @@ const Leaderboard = {
     const userId = (req as any).user.userId;
 
     try {
-      const result = await getGeneralLeaderBoardService(userId);
-      return res.status(200).send(result);
+      const result = await Question.getGeneralLeaderBoard(userId);
+      return res.status(200).send({
+        userResult: result.userResult,
+        leaderboardResults: result.leaderboardResult.slice(0, 10),
+      });
     } catch (error) {
       next(error);
     }
