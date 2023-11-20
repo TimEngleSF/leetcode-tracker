@@ -18,8 +18,12 @@ import Question from '../../models/Question';
 import { createMockDb } from '../helpers';
 import User from '../../models/User';
 import {
+  GeneralLeaderboardEntry,
+  GetGeneralLeaderboardQuery,
+  GetQuestionLeaderboardQueryResult,
   QuestionDocument,
   QuestionInfoDocument,
+  QuestionLeaderboardEntry,
 } from '../../types/questionTypes';
 import { convertDaysToMillis } from '../../models/helpers/questionHelpers';
 
@@ -35,13 +39,17 @@ const stub = {
       sinon
         .stub(Collection.prototype, 'find')
         .throws(new Error('Simulated Error')),
-    findOneAndUpdate: () =>
+    findOneAndUpdate: (): SinonStub =>
       sinon
         .stub(Collection.prototype, 'findOneAndUpdate')
         .throws(new Error('Simulated error')),
-    insertOneStub: () =>
+    insertOneStub: (): SinonStub =>
       sinon
         .stub(Collection.prototype, 'findOne')
+        .throws(new Error('Simulated Error')),
+    aggregateStub: (): SinonStub =>
+      sinon
+        .stub(Collection.prototype, 'aggregate')
         .throws(new Error('Simulated Error')),
     withStatusCode: {
       findOneStub: (): SinonStub => {
@@ -129,6 +137,7 @@ describe('Question model', () => {
   let findOneStub: SinonStub;
   let insertOneStub: SinonStub;
   let findStub: SinonStub;
+  let aggregateStub: SinonStub;
 
   // Insert data
   let newUser: UserDocument;
@@ -167,6 +176,9 @@ describe('Question model', () => {
     if (findStub) {
       findStub.restore();
     }
+    if (aggregateStub) {
+      aggregateStub.restore();
+    }
   });
 
   describe('add question', () => {
@@ -179,7 +191,7 @@ describe('Question model', () => {
       date = faker.date.anytime();
 
       await Question.addQuestion({
-        userId: newUser._id,
+        userId: newUser._id.toHexString(),
         username: newUser.username,
         questNum,
         passed: randBoolean,
@@ -346,17 +358,186 @@ describe('Question model', () => {
     describe('getReviewQuestions', () => {
       let result: QuestionInfoDocument[];
       before(async () => {
-        result = await Question.getReviewQuestions(newUser._id, 0, 10);
+        result = await Question.getReviewQuestions(
+          newUser._id.toHexString(),
+          0,
+          10
+        );
       });
       it('should return an array', async () => {
         expect(result).to.be.an('array');
       });
-      it('should contain QuestionInfoDocuments', () => {
+      it('should contain QuestionInfoDocuments', async () => {
         expect(result[0]._id).to.be.an.instanceOf(ObjectId);
         expect(result[0].title).to.be.a('string');
         expect(result[0].questId).to.be.a('number');
         expect(result[0].diff).to.be.a('string');
         expect(result[0].url).to.match(urlRegex);
+      });
+      it('should throw a transformed error if an error is encountered while querying db', async () => {
+        aggregateStub = stub.error.aggregateStub();
+        await testErrorTransformation(
+          () => Question.getReviewQuestions(newUser._id.toHexString(), 0, 10),
+          500
+        );
+      });
+    });
+    describe('getGeneralLeaderboard', () => {
+      let result: GetGeneralLeaderboardQuery;
+      before(async () => {
+        result = await Question.getGeneralLeaderboard(
+          '65532e27b3bfb5f3c36265b1'
+        );
+      });
+      it('should return a UserData object', async () => {
+        expect(result.userResult).to.be.an('object');
+        expect(result.userResult.name).to.equal('Lily E.');
+        expect(result.userResult.passedCount).to.equal(106);
+        expect(result.userResult.rank).to.equal(1);
+        expect(result.userResult.userId).to.be.an.instanceOf(ObjectId);
+      });
+      it('should return a leaderboardResult array of objects with the correct properties', () => {
+        result.leaderboardResult.forEach(
+          (document: GeneralLeaderboardEntry) => {
+            expect(document.name).to.be.a('string');
+            expect(document.passedCount).to.be.greaterThan(0);
+            expect(document.rank).to.be.greaterThan(0);
+            expect(document.userId).to.be.an.instanceOf(ObjectId);
+            expect(document.lastActivity).to.be.an.instanceOf(Date);
+          }
+        );
+      });
+      it('should return a userResult with rank property set to null if user has not submitted any question data', async () => {
+        const result = await Question.getGeneralLeaderboard(
+          '65582bcf802c62a3b071fde9'
+        );
+        expect(result.userResult.rank).to.be.null;
+        expect(result.userResult.passedCount).to.equal(0);
+        expect(result.userResult.rank).to.be.null;
+      });
+
+      it('should throw a transformed error if an error is encountered while querying db', async () => {
+        aggregateStub = stub.error.aggregateStub();
+        await testErrorTransformation(
+          () => Question.getGeneralLeaderboard(newUser._id),
+          500
+        );
+      });
+    });
+    describe('getQuestionLeaderboard', () => {
+      let sortBySpeedResult: GetQuestionLeaderboardQueryResult;
+      let sortByPassedResult: GetQuestionLeaderboardQueryResult;
+      let sortBySpeedNoUserQuestions: GetQuestionLeaderboardQueryResult;
+      before(async () => {
+        sortBySpeedResult = await Question.getQuestionLeaderboard(
+          newUser._id,
+          22,
+          true
+        );
+        sortByPassedResult = await Question.getQuestionLeaderboard(
+          newUser._id,
+          22,
+          false
+        );
+        sortBySpeedNoUserQuestions = await Question.getQuestionLeaderboard(
+          '65582bcf802c62a3b071fde9',
+          22,
+          true
+        );
+      });
+      it('should throw a transformed error with statusCode 500 if an error is encountered while querying db', async () => {
+        aggregateStub = stub.error.aggregateStub();
+        await testErrorTransformation(
+          () => Question.getQuestionLeaderboard(newUser._id, 22, true),
+          500
+        );
+      });
+      it('should throw a transformed error with statusCode 404 if the question being queried for the leaderboard does not have a corresponding questionInfo document', async () => {
+        // findOneStub = stub.null.findOneStub();
+        await testErrorTransformation(
+          () => Question.getQuestionLeaderboard(newUser._id, 8000, true),
+          404
+        );
+      });
+      describe('sort by speed', () => {
+        it('should return a UserData object for the correct user', () => {
+          const result = sortBySpeedResult.userResult;
+          expect(result.userId.toHexString()).to.equal(
+            newUser._id.toHexString()
+          );
+          expect(result.minSpeed).to.be.a('number');
+          expect(result.name).to.be.a('string');
+          expect(result.lastActivity).to.be.an.instanceOf(Date);
+          expect(result.passedCount).to.be.a('number');
+          expect(result.rank).to.be.a('number');
+        });
+        it('should return a leaderboardResult array of objects with the correct properties', () => {
+          const { leaderboardResult } = sortBySpeedResult;
+          leaderboardResult.forEach((document: QuestionLeaderboardEntry) => {
+            expect(document.name).to.be.a('string');
+            expect(document.minSpeed).to.be.greaterThan(0);
+            expect(document.passedCount).to.be.greaterThan(0);
+            expect(document.rank).to.be.greaterThan(0);
+            expect(document.userId).to.be.an.instanceOf(ObjectId);
+            expect(document.lastActivity).to.be.an.instanceOf(Date);
+          });
+        });
+        it('should return a leaderboardResult array where minSpeed is sorted in ascending order', () => {
+          const { leaderboardResult } = sortBySpeedResult;
+          const expectedSortedResult = [...leaderboardResult].sort(
+            (a, b) => a.minSpeed - b.minSpeed
+          );
+          expect(leaderboardResult).to.deep.equal(expectedSortedResult);
+        });
+        it('should return a userResult object where rank and minSpeed are null and passedCount is 0 if the requesting user has not added a result for the question number being queried', () => {
+          const result = sortBySpeedNoUserQuestions.userResult;
+          expect(result.name).to.be.a('string');
+          expect(result.minSpeed).to.be.null;
+          expect(result.passedCount).to.equal(0);
+          expect(result.rank).to.be.null;
+          expect(result.userId).to.be.an.instanceOf(ObjectId);
+          expect(result.lastActivity).to.be.an.instanceOf(Date);
+        });
+      });
+      describe('sort by passedCount', () => {
+        it('should return a UserData object for the correct user', () => {
+          const { userResult } = sortByPassedResult;
+          expect(userResult.userId.toHexString()).to.equal(
+            newUser._id.toHexString()
+          );
+          expect(userResult.minSpeed).to.be.a('number');
+          expect(userResult.name).to.be.a('string');
+          expect(userResult.lastActivity).to.be.an.instanceOf(Date);
+          expect(userResult.passedCount).to.be.a('number');
+          expect(userResult.rank).to.be.a('number');
+        });
+        it('should return a leaderboardResult array of objects with the correct properties', () => {
+          const { leaderboardResult } = sortByPassedResult;
+          leaderboardResult.forEach((document: QuestionLeaderboardEntry) => {
+            expect(document.name).to.be.a('string');
+            expect(document.minSpeed).to.be.greaterThan(0);
+            expect(document.passedCount).to.be.greaterThan(0);
+            expect(document.rank).to.be.greaterThan(0);
+            expect(document.userId).to.be.an.instanceOf(ObjectId);
+            expect(document.lastActivity).to.be.an.instanceOf(Date);
+          });
+        });
+        it('should return a leaderboardResult array where minSpeed is sorted in ascending order', () => {
+          const { leaderboardResult } = sortByPassedResult;
+          const expectedSortedResult = [...leaderboardResult].sort(
+            (a, b) => b.passedCount - a.passedCount
+          );
+          expect(leaderboardResult).to.deep.equal(expectedSortedResult);
+        });
+        it('should return a userResult object where rank and minSpeed are null and passedCount is 0 if the requesting user has not added a result for the question number being queried', () => {
+          const result = sortBySpeedNoUserQuestions.userResult;
+          expect(result.name).to.be.a('string');
+          expect(result.minSpeed).to.be.null;
+          expect(result.passedCount).to.equal(0);
+          expect(result.rank).to.be.null;
+          expect(result.userId).to.be.an.instanceOf(ObjectId);
+          expect(result.lastActivity).to.be.an.instanceOf(Date);
+        });
       });
     });
   });
