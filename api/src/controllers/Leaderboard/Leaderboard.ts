@@ -11,7 +11,7 @@ const Leaderboard = {
     const userId = (req as any).user.userId;
 
     try {
-      const result = await Question.getGeneralLeaderBoard(userId);
+      const result = await Question.getGeneralLeaderboard(userId);
       return res.status(200).send({
         userResult: result.userResult,
         leaderboardResults: result.leaderboardResult.slice(0, 10),
@@ -26,18 +26,30 @@ const Leaderboard = {
     res: Response,
     next: NextFunction
   ) => {
+    const userId = (req as any).user.userId;
+    const { sort } = req.query;
     const { error } = getQuestionLeaderboardSchema.validate({
       questId: req.params.questId,
     });
+
     if (error) {
       return res.status(422).send(error.details[0].message);
     }
 
     const targetQuestion = Number.parseInt(req.params.questId, 10);
-
     try {
-      const result = await Question.getQuestionLeaderboard(targetQuestion);
-      return res.status(200).send(result);
+      const { userResult, leaderboardResult } =
+        await Question.getQuestionLeaderboard(
+          userId,
+          targetQuestion,
+          sort === 'speed'
+        );
+      return res
+        .status(200)
+        .send({
+          userResult,
+          leaderboardResult: leaderboardResult.slice(0, 10),
+        });
     } catch (error) {
       next(error);
     }
