@@ -75,8 +75,10 @@ export interface GetGeneralLeaderboardQuery {
   userResult: GeneralLeaderboardUserData;
 }
 
-export interface QuestionLeaderboardEntry extends GeneralLeaderboardEntry {
+export interface QuestionLeaderboardEntry
+  extends Omit<GeneralLeaderboardEntry, 'lastActivity'> {
   minSpeed: number;
+  mostRecent: Date;
 }
 
 export interface QuestionLeaderboardUserData

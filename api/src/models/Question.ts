@@ -370,7 +370,7 @@ const Question = {
           },
           passedCount: 1,
           minSpeed: 1,
-          lastActivity: '$userInfo.lastActivity',
+          mostRecent: 1,
         },
       },
       { $sort: sortBySpeed ? { minSpeed: 1 } : { passedCount: -1 } },
