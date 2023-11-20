@@ -425,7 +425,6 @@ const Question = {
       // If there is data for this question
       let loggedInUserData;
       if (result.userResult === undefined) {
-        console.log('CHEEEEEEEECKKKKK!');
         const document = (await User.getById(userId)) as UserDocument;
         loggedInUserData = {
           userId: userId,
@@ -433,7 +432,7 @@ const Question = {
           passedCount: 0,
           rank: null,
           minSpeed: null,
-          lastActivity: document.lastActivity,
+          mostRecent: null,
         };
       }
 

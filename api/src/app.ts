@@ -36,7 +36,7 @@ const startServer = async () => {
     app.use(errorHandler);
     app.listen(PORT, () => {
       console.log(
-        `Connected to ${db.databaseName}. Listening on port: ${PORT}`
+        `LC_Tracker version: ${process.env.npm_package_version}\nConnected to ${db.databaseName}. Listening on port: ${PORT}`
       );
     });
   } catch (err) {

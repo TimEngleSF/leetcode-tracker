@@ -73,6 +73,10 @@ const stub = {
         toArray: () => Promise.resolve([]),
       } as unknown as FindCursor<Document>),
   },
+  undefined: {
+    aggregateStub: (): SinonStub =>
+      sinon.stub(Collection.prototype, 'aggregate').resolves(undefined),
+  },
 };
 
 const testErrorTransformation = async (
@@ -429,21 +433,21 @@ describe('Question model', () => {
       let sortByPassedResult: GetQuestionLeaderboardQueryResult;
       let sortBySpeedNoUserQuestions: GetQuestionLeaderboardQueryResult;
       before(async () => {
-        sortBySpeedResult = await Question.getQuestionLeaderboard(
+        sortBySpeedResult = (await Question.getQuestionLeaderboard(
           newUser._id,
           22,
           true
-        );
-        sortByPassedResult = await Question.getQuestionLeaderboard(
+        )) as GetQuestionLeaderboardQueryResult;
+        sortByPassedResult = (await Question.getQuestionLeaderboard(
           newUser._id,
           22,
           false
-        );
-        sortBySpeedNoUserQuestions = await Question.getQuestionLeaderboard(
+        )) as GetQuestionLeaderboardQueryResult;
+        sortBySpeedNoUserQuestions = (await Question.getQuestionLeaderboard(
           '65582bcf802c62a3b071fde9',
           22,
           true
-        );
+        )) as GetQuestionLeaderboardQueryResult;
       });
       it('should throw a transformed error with statusCode 500 if an error is encountered while querying db', async () => {
         aggregateStub = stub.error.aggregateStub();
@@ -459,6 +463,13 @@ describe('Question model', () => {
           404
         );
       });
+      it('should return a string if query results are undefined', async () => {
+        const result = await Question.getQuestionLeaderboard(newUser._id, 2300);
+        expect(result).to.be.a.string;
+        expect(result).to.equal(
+          'No one has added their results for this question. You could be first!'
+        );
+      });
       describe('sort by speed', () => {
         it('should return a UserData object for the correct user', () => {
           const result = sortBySpeedResult.userResult;
@@ -467,7 +478,7 @@ describe('Question model', () => {
           );
           expect(result.minSpeed).to.be.a('number');
           expect(result.name).to.be.a('string');
-          expect(result.lastActivity).to.be.an.instanceOf(Date);
+          expect(result.mostRecent).to.be.an.instanceOf(Date);
           expect(result.passedCount).to.be.a('number');
           expect(result.rank).to.be.a('number');
         });
@@ -479,7 +490,7 @@ describe('Question model', () => {
             expect(document.passedCount).to.be.greaterThan(0);
             expect(document.rank).to.be.greaterThan(0);
             expect(document.userId).to.be.an.instanceOf(ObjectId);
-            expect(document.lastActivity).to.be.an.instanceOf(Date);
+            expect(document.mostRecent).to.be.an.instanceOf(Date);
           });
         });
         it('should return a leaderboardResult array where minSpeed is sorted in ascending order', () => {
@@ -496,7 +507,7 @@ describe('Question model', () => {
           expect(result.passedCount).to.equal(0);
           expect(result.rank).to.be.null;
           expect(result.userId).to.be.an.instanceOf(ObjectId);
-          expect(result.lastActivity).to.be.an.instanceOf(Date);
+          expect(result.mostRecent).to.be.null;
         });
       });
       describe('sort by passedCount', () => {
@@ -507,7 +518,7 @@ describe('Question model', () => {
           );
           expect(userResult.minSpeed).to.be.a('number');
           expect(userResult.name).to.be.a('string');
-          expect(userResult.lastActivity).to.be.an.instanceOf(Date);
+          expect(userResult.mostRecent).to.be.an.instanceOf(Date);
           expect(userResult.passedCount).to.be.a('number');
           expect(userResult.rank).to.be.a('number');
         });
@@ -519,7 +530,7 @@ describe('Question model', () => {
             expect(document.passedCount).to.be.greaterThan(0);
             expect(document.rank).to.be.greaterThan(0);
             expect(document.userId).to.be.an.instanceOf(ObjectId);
-            expect(document.lastActivity).to.be.an.instanceOf(Date);
+            expect(document.mostRecent).to.be.an.instanceOf(Date);
           });
         });
         it('should return a leaderboardResult array where minSpeed is sorted in ascending order', () => {
@@ -536,7 +547,7 @@ describe('Question model', () => {
           expect(result.passedCount).to.equal(0);
           expect(result.rank).to.be.null;
           expect(result.userId).to.be.an.instanceOf(ObjectId);
-          expect(result.lastActivity).to.be.an.instanceOf(Date);
+          expect(result.mostRecent).to.be.null;
         });
       });
     });
