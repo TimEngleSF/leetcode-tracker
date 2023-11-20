@@ -15,3 +15,12 @@ export const validate = {
     }
   },
 };
+
+export const filter = {
+  questNum: (input: string) => {
+    const int = Number.parseInt(input, 10);
+    if (isNaN(int) || int < 1 || int > 2400) {
+      return '';
+    } else return int;
+  },
+};
