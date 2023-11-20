@@ -13,8 +13,8 @@ const Leaderboard = {
     try {
       const result = await Question.getGeneralLeaderboard(userId);
       return res.status(200).send({
-        userResult: result.userResult,
-        leaderboardResults: result.leaderboardResult.slice(0, 10),
+        user: result.userResult,
+        leaderboard: result.leaderboardResult.slice(0, 10),
       });
     } catch (error) {
       next(error);
@@ -44,12 +44,10 @@ const Leaderboard = {
           targetQuestion,
           sort === 'speed'
         );
-      return res
-        .status(200)
-        .send({
-          userResult,
-          leaderboardResult: leaderboardResult.slice(0, 10),
-        });
+      return res.status(200).send({
+        user: userResult,
+        leaderboard: leaderboardResult.slice(0, 10),
+      });
     } catch (error) {
       next(error);
     }
