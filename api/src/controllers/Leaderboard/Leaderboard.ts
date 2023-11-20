@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { getQuestionLeaderboardSchema } from './leaderboardReqSchema.js';
-import getGeneralLeaderBoardService from '../../service/Leaderboard/get-general-leaderboard.js';
 import Question from '../../models/Question.js';
 
 const Leaderboard = {
