@@ -8,19 +8,20 @@ import routes from './routes/index';
 import isAuth from './middleware/isAuth';
 import updateLastActive from './middleware/updateLastActive';
 import errorHandler from './middleware/errorHandler';
+import { setNodemailerTransport } from './service/Auth/nodemailer-transport';
 
 const app = express();
 const PORT: any = process.env.PORT;
 
-// const __filename = url.fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
 const startServer = async () => {
   try {
     const db = await connectDb();
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '/views'));
-
-    app.use(morgan('dev'));
+    setNodemailerTransport();
+    if (process.env.NODE_ENV === 'dev') {
+      app.use(morgan('dev'));
+    }
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
@@ -36,7 +37,7 @@ const startServer = async () => {
     app.use(errorHandler);
     app.listen(PORT, () => {
       console.log(
-        `LC_Tracker version: ${process.env.npm_package_version}\nConnected to ${db.databaseName}. Listening on port: ${PORT}`
+        `LC_Tracker API version: ${process.env.npm_package_version}\nConnected to ${db.databaseName}. Listening on port: ${PORT}`
       );
     });
   } catch (err) {
