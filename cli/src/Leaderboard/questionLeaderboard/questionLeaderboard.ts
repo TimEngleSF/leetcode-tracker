@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import chalk from 'chalk';
 
 import { getAuthHeaders, getQuestionData, printHeader } from '../../utils.js';
@@ -7,27 +7,51 @@ import { createQuestLBDisplay } from './helpers/createQuestLBDisplay.js';
 import { sortLeaderboardData } from './helpers/utils.js';
 import { API_URL } from '../../config.js';
 import writeErrorToFile from '../../errors/writeError.js';
+import { QuestionLeaderboardAPIResponse } from '../../Types/api.js';
+import inquirer from 'inquirer';
 
-export const questionLeaderboard: any = async () => {
+export const questionLeaderboard: any = async (errorMessage?: string) => {
   try {
-    const { questId, sortingSelection } = await selectQuestionNum();
+    const { questId, sortingSelection } = await selectQuestionNum(
+      inquirer.prompt,
+      false,
+      errorMessage
+    );
     const authHeader = await getAuthHeaders();
     const questionData: { questId?: number; title?: string } =
       await getQuestionData(questId);
-    const { data } = await axios({
-      method: 'GET',
-      url: `${API_URL}/leaderboard/${questId}`,
-      headers: { ...authHeader },
-    });
+
+    let data: QuestionLeaderboardAPIResponse;
+    let status: number;
 
     if (sortingSelection === 'back') {
       await questionLeaderboard();
       return;
     }
 
-    const top10Data = data.slice(0, 10);
-    const sortedData = sortLeaderboardData(top10Data, sortingSelection);
-    const { table, userDisplayText } = await createQuestLBDisplay(sortedData);
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: `${API_URL}/leaderboard/${questId}?sort=${sortingSelection}`,
+        headers: { ...authHeader },
+      });
+
+      ({ data, status } = response as {
+        data: QuestionLeaderboardAPIResponse;
+        status: number;
+      });
+    } catch (error: any) {
+      if (error.response.status === 404) {
+        await questionLeaderboard(error.response.data.message);
+        return;
+      }
+      await questionLeaderboard(
+        'There was an error retrieving the leaderboard'
+      );
+      return;
+    }
+
+    const { table, userDisplayText } = await createQuestLBDisplay(data);
 
     // Print To console
     console.clear();

@@ -7,26 +7,33 @@ export const displayColors = {
   bronze: (str: string | number) => chalk.hex('#cd7f32').bold(str),
 };
 
-export const formatRank = (i: number) => {
-  return i === 0
-    ? displayColors.gold(i + 1)
-    : i === 1
-    ? displayColors.silver(i + 1)
-    : i === 2
-    ? displayColors.bronze(i + 1)
-    : i + 1;
+export const changeTextColorByRank = (rank: number, value: string | number) => {
+  return rank === 1
+    ? displayColors.gold(value)
+    : rank === 2
+    ? displayColors.silver(value)
+    : rank === 3
+    ? displayColors.bronze(value)
+    : value;
 };
 
-export const getDisplayTextForUser = (userDisplayData: {
-  rank?: number;
-  name?: string;
+export const getDisplayTextForUser = ({
+  rank,
+  name,
+}: {
+  rank: number | null;
+  name: string;
 }) => {
-  let userDisplayText = `${userDisplayData.name} you rank #${userDisplayData.rank}`;
-  if (userDisplayData.rank === 1) {
-    userDisplayText = displayColors.gold(userDisplayText);
-  } else if (userDisplayData.rank === 2) {
+  if (!rank) {
+    return `${name}, enter your first attempt for a chance to get on the board!`;
+  }
+  let userDisplayText = `${name} you rank #${rank}`;
+
+  if (rank === 1) {
+    userDisplayText = displayColors.gold(` 🏆 ${userDisplayText} 🏆`);
+  } else if (rank === 2) {
     userDisplayText = displayColors.silver(userDisplayText);
-  } else if (userDisplayData.rank === 3) {
+  } else if (rank === 3) {
     userDisplayText = displayColors.bronze(userDisplayText);
   }
   return userDisplayText;

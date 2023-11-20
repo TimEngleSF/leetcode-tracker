@@ -60,20 +60,33 @@ export interface GeneralLeaderboardEntry {
   userId: ObjectId;
   passedCount: number;
   name: string;
+  rank: number;
   lastActivity: Date;
 }
 export interface GeneralLeaderboardUserData {
   userId: ObjectId;
   passedCount: number;
   name: string;
-  rank?: number;
+  rank?: number | null;
+  lastActivity: Date;
 }
 export interface GetGeneralLeaderboardQuery {
   leaderboardResult: GeneralLeaderboardEntry[];
   userResult: GeneralLeaderboardUserData;
 }
 
-export interface GeneralLeaderboardServiceReturn {
-  userData: GeneralLeaderboardUserData | null;
-  leaderboardData: GeneralLeaderboardEntry[];
+export interface QuestionLeaderboardEntry
+  extends Omit<GeneralLeaderboardEntry, 'lastActivity'> {
+  minSpeed: number;
+  mostRecent: Date;
+}
+
+export interface QuestionLeaderboardUserData
+  extends GeneralLeaderboardUserData {
+  minSpeed: number | null;
+}
+
+export interface GetQuestionLeaderboardQueryResult {
+  leaderboardResult: QuestionLeaderboardEntry[];
+  userResult: QuestionLeaderboardUserData;
 }

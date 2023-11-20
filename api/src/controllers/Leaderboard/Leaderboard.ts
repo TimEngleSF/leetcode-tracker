@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { getQuestionLeaderboardSchema } from './leaderboardReqSchema.js';
-import getGeneralLeaderBoardService from '../../service/Leaderboard/get-general-leaderboard.js';
 import Question from '../../models/Question.js';
 
 const Leaderboard = {
@@ -12,8 +11,11 @@ const Leaderboard = {
     const userId = (req as any).user.userId;
 
     try {
-      const result = await getGeneralLeaderBoardService(userId);
-      return res.status(200).send(result);
+      const result = await Question.getGeneralLeaderboard(userId);
+      return res.status(200).send({
+        user: result.userResult,
+        leaderboard: result.leaderboardResult.slice(0, 10),
+      });
     } catch (error) {
       next(error);
     }
@@ -24,18 +26,31 @@ const Leaderboard = {
     res: Response,
     next: NextFunction
   ) => {
+    const userId = (req as any).user.userId;
+    const { sort } = req.query;
     const { error } = getQuestionLeaderboardSchema.validate({
       questId: req.params.questId,
     });
+
     if (error) {
       return res.status(422).send(error.details[0].message);
     }
 
     const targetQuestion = Number.parseInt(req.params.questId, 10);
-
     try {
-      const result = await Question.getQuestionLeaderboard(targetQuestion);
-      return res.status(200).send(result);
+      const result = await Question.getQuestionLeaderboard(
+        userId,
+        targetQuestion,
+        sort === 'speed'
+      );
+
+      if (typeof result === 'string') {
+        return res.status(404).send({ message: result });
+      }
+      return res.status(200).send({
+        user: result.userResult,
+        leaderboard: result.leaderboardResult.slice(0, 10),
+      });
     } catch (error) {
       next(error);
     }

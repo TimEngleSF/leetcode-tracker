@@ -1,40 +1,41 @@
 import { format } from 'date-fns';
-import { getUserJSON } from '../../../utils.js';
-import { formatRank, getDisplayTextForUser } from '../../utils.js';
+
+import { getDisplayTextForUser, changeTextColorByRank } from '../../utils.js';
 import { initQuestTable } from './utils.js';
+import { QuestionLeaderboardAPIResponse } from '../../../Types/api.js';
 
-export const createQuestLBDisplay = async (data: any) => {
-  const { LC_ID } = await getUserJSON();
+export const createQuestLBDisplay = async ({
+  user,
+  leaderboard,
+}: QuestionLeaderboardAPIResponse) => {
   const table = initQuestTable();
-  const userDisplayData: { rank?: number; name?: string } = {};
 
-  // Format and push rowData to table
+  leaderboard.forEach(({ rank, mostRecent, minSpeed, name, passedCount }) => {
+    const displayRank = changeTextColorByRank(rank, rank);
+    const displayName = changeTextColorByRank(rank, name);
+    const displayPassedCount = changeTextColorByRank(rank, passedCount);
+    const displayMinSpeed = changeTextColorByRank(
+      rank,
+      minSpeed ? `${minSpeed}ms` : 'N/A'
+    );
+    const displayMostRecent = changeTextColorByRank(
+      rank,
+      format(new Date(mostRecent), 'MM-dd-yyyy')
+    );
 
-  interface DataRow {
-    userId: string;
-    firstName: string;
-    lastInit: string;
-    passedCount: number;
-    minSpeed?: number;
-    mostRecent: Date;
-  }
-
-  const typedData: DataRow[] = data;
-  typedData.forEach((row, i) => {
-    console.log(row);
-    if (row.userId === LC_ID) {
-      userDisplayData.rank = i + 1;
-      userDisplayData.name = `${row.firstName} ${row.lastInit}.`;
-    }
-    const rank = formatRank(i);
-    const name = `${row.firstName} ${row.lastInit}.`;
-    const passedCount = row.passedCount;
-    const minSpeed = row.minSpeed ? `${row.minSpeed}ms` : 'N/A';
-    const mostRecent = format(new Date(row.mostRecent), 'MM-dd-yyyy');
-    table.push([rank, name, passedCount, minSpeed, mostRecent]);
+    table.push([
+      rank === 1 ? displayRank + ' ' + '🏆' : displayRank,
+      displayName,
+      displayPassedCount,
+      displayMinSpeed,
+      displayMostRecent,
+    ]);
   });
 
-  const userDisplayText = getDisplayTextForUser(userDisplayData);
+  const userDisplayText = getDisplayTextForUser({
+    rank: user.rank,
+    name: user.name,
+  });
 
   return { table, userDisplayText };
 };

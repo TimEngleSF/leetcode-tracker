@@ -6,10 +6,14 @@ import {
   QuestionDocument,
   QuestionByUserIdQueryResult,
   GetGeneralLeaderboardQuery,
+  GetQuestionLeaderboardQueryResult,
+  QuestionLeaderboardUserData,
 } from '../types/questionTypes';
 import { ExtendedError } from '../errors/helpers';
 import { injectDb } from './helpers/injectDb';
 import { convertDaysToMillis } from './helpers/questionHelpers';
+import User from './User';
+import { UserDocument } from '../types';
 
 let questionCollection: Collection<Partial<QuestionDocument>>;
 let questionInfoCollection: Collection<QuestionInfoDocument>;
@@ -198,12 +202,17 @@ const Question = {
         .toArray()) as QuestionInfoDocument[];
 
       return results;
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      const extendedError = new ExtendedError(
+        `There was an error fetching review questions: ${error.message}`
+      );
+      extendedError.statusCode = 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
     }
   },
 
-  getGeneralLeaderBoard: async (
+  getGeneralLeaderboard: async (
     userId: string | ObjectId
   ): Promise<GetGeneralLeaderboardQuery> => {
     if (typeof userId === 'string') {
@@ -211,146 +220,236 @@ const Question = {
     }
     try {
       const cursor = questionCollection.aggregate([
-        {
-          $facet: {
-            generalLeaderBoard: [
-              // first pipeline for general leaderboard
-              { $match: { passed: true } },
-              { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
-              { $match: { passedCount: { $gt: 1 } } },
-              {
-                $lookup: {
-                  from: 'users',
-                  localField: '_id',
-                  foreignField: '_id',
-                  as: 'userInfo',
-                },
-              },
-              { $unwind: '$userInfo' },
-              {
-                $project: {
-                  userId: '$_id',
-                  _id: 0,
-                  name: {
-                    $concat: [
-                      '$userInfo.firstName',
-                      ' ',
-                      { $substrCP: ['$userInfo.lastInit', 0, 1] },
-                      '.',
-                    ],
-                  },
-                  passedCount: 1,
-                  lastActivity: '$userInfo.lastActivity',
-                },
-              },
-              { $sort: { passedCount: -1 } },
-            ],
-            userResult: [
-              // second pipeline for user-specific leaderboard
-              { $match: { userId, passed: true } },
-              { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
-              {
-                $lookup: {
-                  from: 'users',
-                  localField: '_id',
-                  foreignField: '_id',
-                  as: 'loggedInUserInfo',
-                },
-              },
-              { $unwind: '$loggedInUserInfo' },
-              {
-                $project: {
-                  userId: '$_id',
-                  name: {
-                    $concat: [
-                      '$loggedInUserInfo.firstName',
-                      ' ',
-                      { $substrCP: ['$loggedInUserInfo.lastInit', 0, 1] },
-                      '.',
-                    ],
-                  },
-                  passedCount: 1,
-                  _id: 0,
-                },
-              },
-            ],
-          },
-        },
-      ]);
-
-      const [result] = await cursor.toArray();
-      return {
-        leaderboardResult: result.generalLeaderBoard,
-        userResult: result.userResult[0]
-          ? result.userResult[0]
-          : { _id: userId, passedCount: 0 },
-      };
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  getQuestionLeaderboard: async (targetQuestion: number) => {
-    try {
-      if (!(await Question.getQuestionInfo(targetQuestion))) {
-        const extendedError = new ExtendedError(
-          `There is no question with an ID of ${targetQuestion}`
-        );
-        extendedError.statusCode = 404;
-        throw ExtendedError;
-      }
-
-      const cursor = questionCollection.aggregate([
-        {
-          $match: {
-            questNum: targetQuestion,
-            passed: true,
-          },
-        },
-        {
-          $group: {
-            _id: '$userId',
-            passedCount: { $sum: 1 },
-            minSpeed: { $min: '$speed' },
-            mostRecent: { $max: '$created' },
-          },
-        },
-        {
-          $match: {
-            passedCount: { $gt: 0 },
-          },
-        },
-        {
-          $sort: { passedCount: -1 },
-        },
+        // First, get the general leaderboard with ranks
+        { $match: { passed: true } },
+        { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
+        { $match: { passedCount: { $gt: 1 } } },
         {
           $lookup: {
             from: 'users',
             localField: '_id',
             foreignField: '_id',
-            as: 'userData',
+            as: 'userInfo',
+          },
+        },
+        { $unwind: '$userInfo' },
+        {
+          $project: {
+            userId: '$_id',
+            _id: 0,
+            name: {
+              $concat: [
+                '$userInfo.firstName',
+                ' ',
+                { $substrCP: ['$userInfo.lastInit', 0, 1] },
+                '.',
+              ],
+            },
+            passedCount: 1,
+            lastActivity: '$userInfo.lastActivity',
+          },
+        },
+        { $sort: { passedCount: -1 } },
+        // Store the complete leaderboard and add ranks
+        {
+          $group: {
+            _id: null,
+            leaderboard: { $push: '$$ROOT' },
           },
         },
         {
-          $unwind: '$userData',
+          $addFields: {
+            leaderboardWithRank: {
+              $map: {
+                // map over leaderboard with rank
+                input: { $range: [0, { $size: '$leaderboard' }] }, // input range is 0 to length of $leaderboard
+                as: 'index', // current value will be called index
+                in: {
+                  $mergeObjects: [
+                    { rank: { $add: ['$$index', 1] } }, // get the users rank by adding current index by 1
+                    { $arrayElemAt: ['$leaderboard', '$$index'] }, //merge new rank field with the object at the current index
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            userResult: {
+              $first: {
+                $filter: {
+                  input: '$leaderboardWithRank',
+                  as: 'item',
+                  cond: { $eq: ['$$item.userId', userId] },
+                },
+              },
+            },
+          },
         },
         {
           $project: {
-            _id: 0,
-            userId: '$_id',
-            questNum: 1,
-            passedCount: 1,
-            minSpeed: 1,
-            mostRecent: 1,
-            firstName: '$userData.firstName',
-            lastInit: '$userData.lastInit',
+            leaderboardResult: '$leaderboardWithRank',
+            userResult: 1,
           },
         },
       ]);
-      const result = await cursor.toArray();
-      return result;
+      const [result] = await cursor.toArray();
+
+      // Create placeholder userResults if user has not yet added any questions to the db
+      let loggedInUserData;
+      if (!result.userResult) {
+        const document = (await User.getById(userId)) as UserDocument;
+        loggedInUserData = {
+          userId: userId,
+          name: `${document.firstName} ${document.lastInit}`,
+          passedCount: 0,
+          rank: null,
+          lastActivity: document.lastActivity,
+        };
+      }
+      return {
+        leaderboardResult: result.leaderboardResult,
+        userResult: result.userResult ? result.userResult : loggedInUserData,
+      };
+    } catch (error: any) {
+      const extendedError = new ExtendedError(
+        `There was an error getting the Leaderboard: ${error.message}`
+      );
+      extendedError.statusCode = 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
+    }
+  },
+
+  getQuestionLeaderboard: async (
+    userId: string | ObjectId,
+    targetQuestion: number,
+    sortBySpeed: boolean = true
+  ): Promise<GetQuestionLeaderboardQueryResult | string> => {
+    if (typeof userId === 'string') {
+      userId = new ObjectId(userId);
+    }
+
+    try {
+      await Question.getQuestionInfo(targetQuestion);
     } catch (error) {
       throw error;
+    }
+
+    const pipeline = [
+      { $match: { questNum: targetQuestion, passed: true } },
+      {
+        $group: {
+          _id: '$userId',
+          passedCount: { $sum: 1 },
+          minSpeed: { $min: '$speed' },
+          mostRecent: { $max: '$created' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'userInfo',
+        },
+      },
+      { $unwind: '$userInfo' },
+      {
+        $project: {
+          userId: '$_id',
+          _id: 0,
+          name: {
+            $concat: [
+              '$userInfo.firstName',
+              ' ',
+              { $substrCP: ['$userInfo.lastInit', 0, 1] },
+              '.',
+            ],
+          },
+          passedCount: 1,
+          minSpeed: 1,
+          mostRecent: 1,
+        },
+      },
+      { $sort: sortBySpeed ? { minSpeed: 1 } : { passedCount: -1 } },
+      { $group: { _id: null, leaderboard: { $push: '$$ROOT' } } },
+      {
+        $addFields: {
+          leaderboardWithRank: {
+            $map: {
+              input: { $range: [0, { $size: '$leaderboard' }] },
+              as: 'index',
+              in: {
+                $mergeObjects: [
+                  { rank: { $add: ['$$index', 1] } },
+                  { $arrayElemAt: ['$leaderboard', '$$index'] },
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          userResult: {
+            $first: {
+              $filter: {
+                input: '$leaderboardWithRank',
+                as: 'item',
+                cond: { $eq: ['$$item.userId', userId] },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          leaderboardResult: '$leaderboardWithRank',
+          userResult: '$userResult',
+          _id: 0,
+        },
+      },
+    ];
+
+    try {
+      const [result] = (await questionCollection
+        .aggregate(pipeline)
+        .toArray()) as GetQuestionLeaderboardQueryResult[];
+      // If there are no submissions for this question return this string to display
+      if (!result) {
+        return 'No one has added their results for this question. You could be first!';
+      }
+
+      // If there is data for this question
+      let loggedInUserData;
+      if (result.userResult === undefined) {
+        console.log('CHEEEEEEEECKKKKK!');
+        const document = (await User.getById(userId)) as UserDocument;
+        loggedInUserData = {
+          userId: userId,
+          name: `${document.firstName} ${document.lastInit}`,
+          passedCount: 0,
+          rank: null,
+          minSpeed: null,
+          lastActivity: document.lastActivity,
+        };
+      }
+
+      return {
+        leaderboardResult: result.leaderboardResult,
+        userResult: result.userResult
+          ? result.userResult
+          : (loggedInUserData as QuestionLeaderboardUserData),
+      };
+    } catch (error: any) {
+      const extendedError = new ExtendedError(
+        `There was an error getting the Leaderboard: ${error.message}`
+      );
+      extendedError.statusCode = 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
     }
   },
 };
