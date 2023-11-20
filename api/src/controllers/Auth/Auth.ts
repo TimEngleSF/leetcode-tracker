@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import loginService from '../../service/Auth/login-user.js';
+import Filter from 'bad-words';
+
 import { loginReqSchema, registerReqSchema } from './authReqSchemas.js';
 import User from '../../models/User.js';
 import registerUserService from '../../service/Auth/register-user.js';
@@ -9,6 +11,8 @@ import setPasswordTokenService from '../../service/Auth/set-password-token.js';
 import Blacklist from '../../models/Blacklist.js';
 import setNewPasswordService from '../../service/Auth/set-new-password.js';
 import { UserToken } from '../../types/userTypes.js';
+
+const filter = new Filter();
 
 const Auth = {
   getStatus: async (req: Request, res: Response, next: NextFunction) => {
@@ -57,6 +61,15 @@ const Auth = {
         .send({ message: 'Validation Error', error: error.details[0].message });
     }
     const { username, email, password, firstName, lastInit } = req.body;
+    if (
+      filter.isProfane(username) ||
+      filter.isProfane(firstName) ||
+      filter.isProfane(lastInit)
+    ) {
+      return res
+        .status(422)
+        .send({ message: 'Use of foul language is not allowed' });
+    }
 
     try {
       const result = await registerUserService({
