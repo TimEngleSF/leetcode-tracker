@@ -5,7 +5,7 @@ import readline from 'readline';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import axios from 'axios';
-import { API_URL } from './config.js';
+import { API_URL, LATEST_VERSION } from './config.js';
 import { UserObject } from './Types/user.js';
 
 const __filename = url.fileURLToPath(import.meta.url);
@@ -34,13 +34,37 @@ export const getUserJSON = async (): Promise<UserObject> => {
   return userObject;
 };
 
+export const getPackageVersion = async () => {
+  try {
+    const url = `https://registry.npmjs.org/lc-tracker`;
+    const response = await axios.get(url);
+    const version = response.data['dist-tags'].latest;
+    // console.log(`Latest version of ${packageName} is: ${version}`);
+    return version;
+  } catch (error) {
+    console.error('Error fetching package version:', error);
+  }
+};
+
 export const getAuthHeaders = async () => {
   const { LC_TOKEN } = await getUserJSON();
   return { Authorization: `Bearer ${LC_TOKEN}` };
 };
 
 export const printHeader = () => {
+  const currVersion = process.env.npm_package_version;
+  let versionPrintInfo: string;
+  if (currVersion === LATEST_VERSION) {
+    versionPrintInfo = `v${LATEST_VERSION}`;
+  } else {
+    versionPrintInfo = `You are running ${chalk.red(
+      'v' + currVersion
+    )}, please update to current version ${chalk.green(
+      'v' + LATEST_VERSION
+    )}\nRun: 'npm i -g lc-tracker' to update`;
+  }
   console.log(chalk.cyan(figlet.textSync('LeetCode Tracker')));
+  console.log(versionPrintInfo);
 };
 
 export const clearPrevLine = () => {
