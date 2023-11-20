@@ -1,30 +1,11 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 import User from '../../models/User.js';
 import { CreateUserInService, UserDocument } from '../../types/userTypes.js';
 import { ExtendedError } from '../../errors/helpers.js';
 import Blacklist from '../../models/Blacklist.js';
-
-// const transporter = nodemailer.createTransport({
-// service: 'gmail', // or 'SendGrid', 'Outlook', etc.
-// auth: {
-//   user: process.env.EMAIL_USERNAME,
-//   pass: process.env.EMAIL_PASSWORD,
-// },
-
-// });
-
+import { transporter } from './nodemailer-transport.js';
 const { BASE_URL } = process.env;
-
-var transport = nodemailer.createTransport({
-  host: 'sandbox.smtp.mailtrap.io',
-  port: 2525,
-  auth: {
-    user: process.env.MAILTRAP_USER,
-    pass: process.env.MAILTRAP_PASS,
-  },
-});
 
 const registerUserService = async (
   userObj: CreateUserInService
@@ -129,18 +110,42 @@ const registerUserService = async (
     from: 'verify@lctracker.com',
     to: createUserResult.email,
     subject: 'Verify Your Email',
+    // html: `
+    //   <body style=" display: flex; margin-top: 2rem; background-color: #282828; color: #66ff66; font-family: 'Courier New', Courier, monospace;">
+    //     <div style="display: flex; flex-direction: column; align-items: start; margin: 0 auto; max-width: 500px;">
+    //       <p style="font-size: 32px; margin: 0px 0px;">Hello ${createUserResult.firstName},</p>
+    //       <p style="font-size: 20px; margin: 12px 0px;">Please click the link below to verify your email address:</p>
+    //       <a style="display: inline-block; background-color: #66ff66; margin: 12px 0 ; padding: 20px 10px; text-decoration:none; color: black; font-weight: 600; border-radius: 11px;" href="${verificationUrl}">Verify Email</a>
+    //       <p>This link will expire in 1 hour.</p>
+    //     </div>
+    //   </body>`,
     html: `
-      <body style=" display: flex; margin-top: 2rem; background-color: #282828; color: #66ff66; font-family: 'Courier New', Courier, monospace;">
-        <div style="display: flex; flex-direction: column; align-items: start; margin: 0 auto; max-width: 500px;">
-          <p style="font-size: 32px; margin: 0px 0px;">Hello ${createUserResult.firstName},</p>
-          <p style="font-size: 20px; margin: 12px 0px;">Please click the link below to verify your email address:</p>
-          <a style="display: inline-block; background-color: #66ff66; margin: 12px 0 ; padding: 20px 10px; text-decoration:none; color: black; font-weight: 600; border-radius: 11px;" href="${verificationUrl}">Verify Email</a>
-          <p>This link will expire in 1 hour.</p>
-        </div>
-      </body>`,
+      <table width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center" style="padding-top: 2rem; background-color: #282828; color: #66ff66; font-family: 'Courier New', Courier, monospace;">
+            <table width="500px">
+              <tr>
+                <td style="font-size: 32px;">Hello ${createUserResult.firstName},</td>
+              </tr>
+              <tr>
+                <td style="font-size: 20px;">Please click the link below to verify your email address:</td>
+              </tr>
+              <tr>
+                <td align="center">
+                  <a href="${verificationUrl}" style="display: inline-block; background-color: #66ff66; color: black; padding: 15px 30px; text-decoration: none; font-weight: bold; font-size: 18px; border-radius: 5px; margin-top: 10px;">Verify Email</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-top: 10px;">This link will expire in 1 hour.</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    `,
   };
 
-  transport.sendMail(mailOptions);
+  transporter.sendMail(mailOptions);
 
   return {
     status: 'pending',

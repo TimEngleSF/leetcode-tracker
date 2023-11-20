@@ -1,21 +1,12 @@
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 import User from '../../models/User.js';
 import { UserDocument } from '../../types/userTypes.js';
 import { ExtendedError } from '../../errors/helpers.js';
+import { transporter, senderEmail } from './nodemailer-transport.js';
 
 const { PASSWORD_VERIFICATION_SECRET } = process.env;
 
 const { BASE_URL } = process.env;
-
-var transport = nodemailer.createTransport({
-  host: 'sandbox.smtp.mailtrap.io',
-  port: 2525,
-  auth: {
-    user: process.env.MAILTRAP_USER,
-    pass: process.env.MAILTRAP_PASS,
-  },
-});
 
 const setPasswordTokenService = async (email: string) => {
   let userDocument: UserDocument | null;
@@ -62,7 +53,7 @@ const setPasswordTokenService = async (email: string) => {
   }
 
   const mailOptions = {
-    from: 'verify@lctracker.com',
+    from: senderEmail,
     to: userDocument.email,
     subject: 'LC Tracker Password Reset',
     html: `
@@ -76,6 +67,6 @@ const setPasswordTokenService = async (email: string) => {
       </body>`,
   };
 
-  transport.sendMail(mailOptions);
+  transporter.sendMail(mailOptions);
 };
 export default setPasswordTokenService;

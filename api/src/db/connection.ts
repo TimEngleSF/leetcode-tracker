@@ -3,20 +3,19 @@ import { MongoClient, Db, Collection, Document, ClientSession } from 'mongodb';
 import { UserDocument } from '../types/userTypes.js';
 import { BlacklistDocument } from '../types/blacklistTypes.js';
 import { QuestionDocument } from '../types/questionTypes.js';
+import { ExtendedError } from '../errors/helpers.js';
 
 let client: MongoClient | undefined;
 let db: Db;
 
-// const USERNAME = encodeURIComponent(process.env.DB_USER);
-// const PASSWORD = encodeURIComponent(process.env.DB_PASS);
-const HOST = process.env.DB_HOST || 'localhost';
-const PORT = process.env.DB_PORT || '27017';
-const DB_NAME = process.env.DB_NAME || 'lc-tracker';
-// const DB_AUTHCOLL = process.env.DB_AUTHCOLL || 'admin';
-// const URI = `mongodb://${USERNAME}:${PASSWORD}@${HOST}:${PORT}/?authMechanism=DEFAULT&authSource=${DB_AUTHCOLL}`;
-const URI = process.env.URI || 'mongodb://localhost:27017';
+const DB_NAME =
+  process.env.NODE_ENV === 'dev' ? 'test' : process.env.DB_NAME || 'lc-tracker';
+const URI = process.env.URI;
 
 const connectDb = async () => {
+  if (URI === undefined) {
+    throw new ExtendedError('env file missing mongoDb URI');
+  }
   if (db) {
     return db;
   }
