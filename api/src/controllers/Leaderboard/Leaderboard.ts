@@ -38,15 +38,18 @@ const Leaderboard = {
 
     const targetQuestion = Number.parseInt(req.params.questId, 10);
     try {
-      const { userResult, leaderboardResult } =
-        await Question.getQuestionLeaderboard(
-          userId,
-          targetQuestion,
-          sort === 'speed'
-        );
+      const result = await Question.getQuestionLeaderboard(
+        userId,
+        targetQuestion,
+        sort === 'speed'
+      );
+
+      if (typeof result === 'string') {
+        return res.status(404).send({ message: result });
+      }
       return res.status(200).send({
-        user: userResult,
-        leaderboard: leaderboardResult.slice(0, 10),
+        user: result.userResult,
+        leaderboard: result.leaderboardResult.slice(0, 10),
       });
     } catch (error) {
       next(error);

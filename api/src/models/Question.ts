@@ -326,7 +326,7 @@ const Question = {
     userId: string | ObjectId,
     targetQuestion: number,
     sortBySpeed: boolean = true
-  ): Promise<GetQuestionLeaderboardQueryResult> => {
+  ): Promise<GetQuestionLeaderboardQueryResult | string> => {
     if (typeof userId === 'string') {
       userId = new ObjectId(userId);
     }
@@ -417,9 +417,15 @@ const Question = {
       const [result] = (await questionCollection
         .aggregate(pipeline)
         .toArray()) as GetQuestionLeaderboardQueryResult[];
+      // If there are no submissions for this question return this string to display
+      if (!result) {
+        return 'No one has added their results for this question. You could be first!';
+      }
 
+      // If there is data for this question
       let loggedInUserData;
-      if (!result.userResult) {
+      if (result.userResult === undefined) {
+        console.log('CHEEEEEEEECKKKKK!');
         const document = (await User.getById(userId)) as UserDocument;
         loggedInUserData = {
           userId: userId,
