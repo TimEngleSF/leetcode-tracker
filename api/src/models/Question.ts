@@ -10,6 +10,8 @@ import {
 import { ExtendedError } from '../errors/helpers';
 import { injectDb } from './helpers/injectDb';
 import { convertDaysToMillis } from './helpers/questionHelpers';
+import User from './User';
+import { UserDocument } from '../types';
 
 let questionCollection: Collection<Partial<QuestionDocument>>;
 let questionInfoCollection: Collection<QuestionInfoDocument>;
@@ -198,8 +200,13 @@ const Question = {
         .toArray()) as QuestionInfoDocument[];
 
       return results;
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      const extendedError = new ExtendedError(
+        `There was an error fetching review questions: ${error.message}`
+      );
+      extendedError.statusCode = 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
     }
   },
 
@@ -211,82 +218,104 @@ const Question = {
     }
     try {
       const cursor = questionCollection.aggregate([
+        // First, get the general leaderboard with ranks
+        { $match: { passed: true } },
+        { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
+        { $match: { passedCount: { $gt: 1 } } },
         {
-          $facet: {
-            generalLeaderBoard: [
-              // first pipeline for general leaderboard
-              { $match: { passed: true } },
-              { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
-              { $match: { passedCount: { $gt: 1 } } },
-              {
-                $lookup: {
-                  from: 'users',
-                  localField: '_id',
-                  foreignField: '_id',
-                  as: 'userInfo',
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'userInfo',
+          },
+        },
+        { $unwind: '$userInfo' },
+        {
+          $project: {
+            userId: '$_id',
+            _id: 0,
+            name: {
+              $concat: [
+                '$userInfo.firstName',
+                ' ',
+                { $substrCP: ['$userInfo.lastInit', 0, 1] },
+                '.',
+              ],
+            },
+            passedCount: 1,
+            lastActivity: '$userInfo.lastActivity',
+          },
+        },
+        { $sort: { passedCount: -1 } },
+        // Store the complete leaderboard and add ranks
+        {
+          $group: {
+            _id: null,
+            leaderboard: { $push: '$$ROOT' },
+          },
+        },
+        {
+          $addFields: {
+            leaderboardWithRank: {
+              $map: {
+                input: { $range: [0, { $size: '$leaderboard' }] },
+                as: 'index',
+                in: {
+                  $mergeObjects: [
+                    { rank: { $add: ['$$index', 1] } },
+                    { $arrayElemAt: ['$leaderboard', '$$index'] },
+                  ],
                 },
               },
-              { $unwind: '$userInfo' },
-              {
-                $project: {
-                  userId: '$_id',
-                  _id: 0,
-                  name: {
-                    $concat: [
-                      '$userInfo.firstName',
-                      ' ',
-                      { $substrCP: ['$userInfo.lastInit', 0, 1] },
-                      '.',
-                    ],
-                  },
-                  passedCount: 1,
-                  lastActivity: '$userInfo.lastActivity',
+            },
+          },
+        },
+        {
+          $addFields: {
+            userResult: {
+              $first: {
+                $filter: {
+                  input: '$leaderboardWithRank',
+                  as: 'item',
+                  cond: { $eq: ['$$item.userId', userId] },
                 },
               },
-              { $sort: { passedCount: -1 } },
-            ],
-            userResult: [
-              // second pipeline for user-specific leaderboard
-              { $match: { userId, passed: true } },
-              { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
-              {
-                $lookup: {
-                  from: 'users',
-                  localField: '_id',
-                  foreignField: '_id',
-                  as: 'loggedInUserInfo',
-                },
-              },
-              { $unwind: '$loggedInUserInfo' },
-              {
-                $project: {
-                  userId: '$_id',
-                  name: {
-                    $concat: [
-                      '$loggedInUserInfo.firstName',
-                      ' ',
-                      { $substrCP: ['$loggedInUserInfo.lastInit', 0, 1] },
-                      '.',
-                    ],
-                  },
-                  passedCount: 1,
-                  _id: 0,
-                },
-              },
-            ],
+            },
+          },
+        },
+        {
+          $project: {
+            leaderboardResult: '$leaderboardWithRank',
+            userResult: 1,
           },
         },
       ]);
-
       const [result] = await cursor.toArray();
+
+      // Create placeholder userResults if user has not yet added any questions to the db
+      let loggedInUserData;
+      if (!result.userResult) {
+        const document = (await User.getById(userId)) as UserDocument;
+        loggedInUserData = {
+          userId: userId,
+          name: `${document.firstName} ${document.lastInit}`,
+          passedCount: 0,
+          rank: null,
+          lastActivity: document.lastActivity,
+        };
+      }
       return {
-        leaderboardResult: result.generalLeaderBoard,
-        userResult: result.userResult[0]
-          ? result.userResult[0]
-          : { _id: userId, passedCount: 0 },
+        leaderboardResult: result.leaderboardResult,
+        userResult: result.userResult ? result.userResult : loggedInUserData,
       };
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      const extendedError = new ExtendedError(
+        `There was an error getting the Leaderboard: ${error.message}`
+      );
+      extendedError.statusCode = 500;
+      extendedError.stack = error.stack;
+      throw extendedError;
     }
   },
 
