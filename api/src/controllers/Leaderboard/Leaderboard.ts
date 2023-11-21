@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { getQuestionLeaderboardSchema } from './leaderboardReqSchema.js';
-import Question from '../../models/Question.js';
+import { getQuestionLeaderboardSchema } from './leaderboardReqSchema';
+import Question from '../../models/Question';
 
 const Leaderboard = {
   getGeneralLeaderboard: async (

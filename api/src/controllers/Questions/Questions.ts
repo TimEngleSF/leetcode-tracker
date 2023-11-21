@@ -4,10 +4,10 @@ import {
   getQuestionInfoSchema,
   getQuestionsByUserIdSchema,
   getQuestionByIdSchema,
-} from './questionReqSchema.js';
-import Question from '../../models/Question.js';
-import postQuestionService from '../../service/Questions/add-question.js';
-import getQuestionsByUserIdService from '../../service/Questions/get-questions-userId.js';
+} from './questionReqSchema';
+import Question from '../../models/Question';
+import postQuestionService from '../../service/Questions/add-question';
+import getQuestionsByUserIdService from '../../service/Questions/get-questions-userId';
 
 const Questions = {
   getQuestionInfo: async (req: Request, res: Response, next: NextFunction) => {

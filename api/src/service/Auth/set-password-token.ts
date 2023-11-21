@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
-import User from '../../models/User.js';
-import { UserDocument } from '../../types/userTypes.js';
-import { ExtendedError } from '../../errors/helpers.js';
-import { transporter, senderEmail } from './nodemailer-transport.js';
+import User from '../../models/User';
+import { UserDocument } from '../../types/userTypes';
+import { ExtendedError } from '../../errors/helpers';
+import { transporter, senderEmail } from './nodemailer-transport';
 
 const { PASSWORD_VERIFICATION_SECRET } = process.env;
 
@@ -57,14 +57,28 @@ const setPasswordTokenService = async (email: string) => {
     to: userDocument.email,
     subject: 'LC Tracker Password Reset',
     html: `
-      <body style=" display: flex; margin-top: 2rem; background-color: #282828; color: #66ff66; font-family: 'Courier New', Courier, monospace;">
-        <div style="display: flex; flex-direction: column; align-items: start; margin: 0 auto; max-width: 500px;">
-          <p style="font-size: 32px; margin: 0px 0px;">Hello ${userDocument.firstName},</p>
-          <p style="font-size: 20px; margin: 12px 0px;">Please click the link below to reset your password:</p>
-          <a style="display: inline-block; background-color: #66ff66; margin: 12px 0 ; padding: 20px 10px; text-decoration:none; color: black; font-weight: 600; border-radius: 11px;" href="${passwordResetUrl}">Reset Password</a>
-          <p>This link will expire in 1 hour.</p>
-        </div>
-      </body>`,
+      <table width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center" style="padding-top: 2rem; background-color: #282828; color: #66ff66; font-family: 'Courier New', Courier, monospace;">
+            <table width="500px">
+              <tr>
+                <td style="font-size: 32px;">Hello ${userDocument.firstName},</td>
+              </tr>
+              <tr>
+                <td style="font-size: 20px;">Please click the link below to reset your password:</td>
+              </tr>
+              <tr>
+                <td align="center">
+                  <a href="${passwordResetUrl}" style="display: inline-block; background-color: #66ff66; color: black; padding: 15px 30px; text-decoration: none; font-weight: bold; font-size: 18px; border-radius: 5px; margin-top: 10px;">Reset Password</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-top: 10px;">This link will expire in 1 hour.</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>`,
   };
 
   transporter.sendMail(mailOptions);

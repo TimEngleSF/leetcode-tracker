@@ -1,5 +1,5 @@
 import { Collection } from 'mongodb';
-import connectDb from './connection.js';
+import connectDb from './connection';
 
 let usersData: Collection;
 let questData: Collection;

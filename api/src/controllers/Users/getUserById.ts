@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { Request, Response } from 'express-serve-static-core';
 import { Collection, ObjectId } from 'mongodb';
-import connectDb from '../../db/connection.js';
+import connectDb from '../../db/connection';
 // import writeErrorToFile from '../../errors/writeError.js';
 
 let usersCollection: Collection;

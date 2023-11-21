@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Collection, ObjectId } from 'mongodb';
 import { Request, Response, NextFunction } from 'express';
-import connectDb from '../db/connection.js';
+import connectDb from '../db/connection';
 
 interface RequestWithUser extends Request {
   user?: jwt.JwtPayload;

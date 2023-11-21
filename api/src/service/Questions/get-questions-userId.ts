@@ -1,12 +1,9 @@
 import { WithId } from 'mongodb';
-import Question from '../../models/Question.js';
-import User from '../../models/User.js';
-import {
-  QuestionDocument,
-  getQuestionsByUserIdResponse,
-} from '../../types/questionTypes.js';
-import { ExtendedError } from '../../errors/helpers.js';
-import { UserDocument } from '../../types/userTypes.js';
+import Question from '../../models/Question';
+import User from '../../models/User';
+import { getQuestionsByUserIdResponse } from '../../types/questionTypes';
+import { ExtendedError } from '../../errors/helpers';
+import { UserDocument } from '../../types/userTypes';
 
 const getQuestionsByUserIdService = async (
   userId: string,

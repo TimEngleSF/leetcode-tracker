@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
-import Question from '../../models/Question.js';
-import { AddQuestionRequest } from '../../types/questionTypes.js';
+import Question from '../../models/Question';
+import { AddQuestionRequest } from '../../types/questionTypes';
 
 const postQuestionService = async (body: AddQuestionRequest) => {
   try {

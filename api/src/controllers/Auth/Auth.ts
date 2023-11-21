@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import loginService from '../../service/Auth/login-user.js';
-import { loginReqSchema, registerReqSchema } from './authReqSchemas.js';
-import User from '../../models/User.js';
-import registerUserService from '../../service/Auth/register-user.js';
-import validateUserService from '../../service/Auth/validate-user.js';
-import setPasswordTokenService from '../../service/Auth/set-password-token.js';
-import Blacklist from '../../models/Blacklist.js';
-import setNewPasswordService from '../../service/Auth/set-new-password.js';
-import { UserToken } from '../../types/userTypes.js';
+import loginService from '../../service/Auth/login-user';
+import { loginReqSchema, registerReqSchema } from './authReqSchemas';
+import User from '../../models/User';
+import registerUserService from '../../service/Auth/register-user';
+import validateUserService from '../../service/Auth/validate-user';
+import setPasswordTokenService from '../../service/Auth/set-password-token';
+import Blacklist from '../../models/Blacklist';
+import setNewPasswordService from '../../service/Auth/set-new-password';
+import { UserToken } from '../../types/userTypes';
 
 const Auth = {
   getStatus: async (req: Request, res: Response, next: NextFunction) => {

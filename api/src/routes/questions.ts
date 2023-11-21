@@ -1,5 +1,5 @@
 import express from 'express';
-import Controllers from '../controllers/index.js';
+import Controllers from '../controllers/index';
 const questionsRouter = express.Router();
 
 questionsRouter.get('/', Controllers.Questions.getQuestionsByUserId);

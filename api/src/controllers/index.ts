@@ -1,8 +1,8 @@
-import Auth from './Auth/Auth.js';
-import Leaderboard from './Leaderboard/Leaderboard.js';
-// import { Questions } from './Questions/index.js';
-import { Users } from './Users/index.js';
-import Questions from './Questions/Questions.js';
+import Auth from './Auth/Auth';
+import Leaderboard from './Leaderboard/Leaderboard';
+// import { Questions } from './Questions/index';
+import { Users } from './Users/index';
+import Questions from './Questions/Questions';
 
 const Controllers = { Auth, Questions, Leaderboard, Users };
 

@@ -1,9 +1,6 @@
 import 'dotenv/config.js';
 import { MongoClient, Db, Collection, Document, ClientSession } from 'mongodb';
-import { UserDocument } from '../types/userTypes.js';
-import { BlacklistDocument } from '../types/blacklistTypes.js';
-import { QuestionDocument } from '../types/questionTypes.js';
-import { ExtendedError } from '../errors/helpers.js';
+import { ExtendedError } from '../errors/helpers';
 
 let client: MongoClient | undefined;
 let db: Db;
