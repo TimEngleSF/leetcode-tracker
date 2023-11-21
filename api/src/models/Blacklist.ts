@@ -1,16 +1,32 @@
 import jwt, { Jwt, JwtPayload } from 'jsonwebtoken';
-import { Collection, ObjectId } from 'mongodb';
-import { getCollection } from '../db/connection.js';
+import { Collection, ObjectId, Db } from 'mongodb';
+import { getCollection } from '../db/connection';
 import {
   BlacklistDocument,
   DecodedTokenExpiration,
-} from '../types/blacklistTypes.js';
-import { ExtendedError } from '../errors/helpers.js';
+} from '../types/blacklistTypes';
+import { injectDb } from './helpers/injectDb';
+import { ExtendedError } from '../errors/helpers';
 
 const { EMAIL_VERIFICATION_SECRET, JWT_SECRET, PASSWORD_VERIFICATION_SECRET } =
   process.env;
 
+let blacklistCollection: Collection<BlacklistDocument>;
+
+export const assignBlacklistCollection = async () => {
+  if (!blacklistCollection && process.env.NODE_ENV !== 'test') {
+    blacklistCollection = await getCollection<BlacklistDocument>(
+      'blacklistTokens'
+    );
+  }
+};
+
 const Blacklist = {
+  injectDb: (db: Db) => {
+    if (process.env.NODE_ENV === 'test') {
+      blacklistCollection = injectDb<BlacklistDocument>(db, 'blacklistTokens');
+    }
+  },
   findOne: async ({
     key,
     value,
@@ -19,10 +35,7 @@ const Blacklist = {
     value: string | ObjectId;
   }) => {
     try {
-      const collection = await getCollection<BlacklistDocument>(
-        'blacklistTokens'
-      );
-      const result = collection.findOne<BlacklistDocument>({ [key]: value });
+      const result = await blacklistCollection.findOne({ [key]: value });
 
       return result;
     } catch (error: any) {
@@ -94,10 +107,7 @@ const Blacklist = {
     if (decodedToken.exp) {
       payload = { token, exp: decodedToken.exp * 1000 };
       try {
-        const collection = await getCollection<BlacklistDocument>(
-          'blacklistTokens'
-        );
-        const insertedResult = await collection.insertOne(payload);
+        const insertedResult = await blacklistCollection.insertOne(payload);
         if (!insertedResult.acknowledged) {
           const error = new ExtendedError(
             'There was an error inserting token into blacklist'
