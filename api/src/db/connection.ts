@@ -6,7 +6,9 @@ let client: MongoClient | undefined;
 let db: Db;
 
 const DB_NAME =
-  process.env.NODE_ENV === 'dev' ? 'test' : process.env.DB_NAME || 'lc-tracker';
+  process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test'
+    ? 'test'
+    : process.env.DB_NAME || 'lc-tracker';
 const URI = process.env.URI;
 
 const connectDb = async () => {
