@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import User from '../../models/User.js';
-import Blacklist from '../../models/Blacklist.js';
-import { UserDocument } from '../../types/userTypes.js';
+import User from '../../models/User';
+import Blacklist from '../../models/Blacklist';
+import { UserDocument } from '../../types/userTypes';
 
 const { PASSWORD_VERIFICATION_SECRET } = process.env;
 

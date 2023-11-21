@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
-import User from '../../models/User.js';
-import { ExtendedError } from '../../errors/helpers.js';
-import { UserDocument } from '../../types/userTypes.js';
-import Blacklist from '../../models/Blacklist.js';
+import User from '../../models/User';
+import { ExtendedError } from '../../errors/helpers';
+import { UserDocument } from '../../types/userTypes';
+import Blacklist from '../../models/Blacklist';
 
 const { EMAIL_VERIFICATION_SECRET } = process.env;
 export const validateUserService = async (

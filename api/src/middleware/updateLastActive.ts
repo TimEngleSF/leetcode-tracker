@@ -1,22 +1,10 @@
 import jwt from 'jsonwebtoken';
-import { Collection, ObjectId } from 'mongodb';
 import { Request, Response, NextFunction } from 'express';
-import connectDb from '../db/connection.js';
+import User from '../models/User';
 
 interface RequestWithUser extends Request {
   user?: jwt.JwtPayload;
 }
-
-let usersCollection: Collection;
-
-const getCollection = async () => {
-  if (usersCollection) {
-    return usersCollection;
-  }
-  const db = await connectDb();
-  usersCollection = db.collection('users');
-};
-getCollection();
 
 const updateLastActive = async (
   req: RequestWithUser,
@@ -28,10 +16,7 @@ const updateLastActive = async (
   if (!userId) {
     res.status(401).json({ msg: 'Unauthorized' });
   } else {
-    await usersCollection.updateOne(
-      { _id: new ObjectId(userId) },
-      { $set: { lastActivity: new Date() } }
-    );
+    await User.updateLastActivity(userId);
     next();
   }
 };

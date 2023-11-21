@@ -4,11 +4,14 @@ import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import chai from 'chai';
 import sinon, { SinonStub } from 'sinon';
-import User, { assignUserCollection, userCollection } from '../../models/User';
-import { closeDb } from '../../db/connection';
-import { UserDocument } from '../../types/userTypes';
-import { ExtendedError } from '../../errors/helpers';
-import { createMockDb } from '../helpers';
+import User, {
+  assignUserCollection,
+  userCollection,
+} from '../../../models/User';
+import { closeDb } from '../../../db/connection';
+import { UserDocument } from '../../../types/userTypes';
+import { ExtendedError } from '../../../errors/helpers';
+import { createMockDb } from '../../helpers';
 // import Question from '../../models/Question.js';
 
 const { expect } = chai;
@@ -173,7 +176,6 @@ describe('User model', () => {
         findOneStub.restore();
       });
     });
-
 
     describe('getByEmail', () => {
       it('should return an object with correct properties and values', async () => {

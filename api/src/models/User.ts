@@ -12,8 +12,6 @@ export const assignUserCollection = async () => {
   }
 };
 
-assignUserCollection();
-
 const User = {
   injectDb: (db: Db) => {
     if (process.env.NODE_ENV === 'test') {

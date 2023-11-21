@@ -1,9 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import User from '../../models/User.js';
-import { ExtendedError } from '../../errors/helpers.js';
-import { UserDocument, UserLoginPayload } from '../../types/userTypes.js';
-import { date } from 'joi';
+import User from '../../models/User';
+import { ExtendedError } from '../../errors/helpers';
+import { UserDocument, UserLoginPayload } from '../../types/userTypes';
 
 const { JWT_SECRET } = process.env;
 

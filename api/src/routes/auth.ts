@@ -1,6 +1,6 @@
 import express from 'express';
-import Controllers from '../controllers/index.js';
-import authRateLimiter from '../middleware/authRateLimit.js';
+import Controllers from '../controllers/index';
+import authRateLimiter from '../middleware/authRateLimit';
 const authRouter = express.Router();
 
 authRouter.get('/status', Controllers.Auth.getStatus);

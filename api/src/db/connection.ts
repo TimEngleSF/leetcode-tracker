@@ -1,15 +1,14 @@
 import 'dotenv/config.js';
 import { MongoClient, Db, Collection, Document, ClientSession } from 'mongodb';
-import { UserDocument } from '../types/userTypes.js';
-import { BlacklistDocument } from '../types/blacklistTypes.js';
-import { QuestionDocument } from '../types/questionTypes.js';
-import { ExtendedError } from '../errors/helpers.js';
+import { ExtendedError } from '../errors/helpers';
 
 let client: MongoClient | undefined;
 let db: Db;
 
 const DB_NAME =
-  process.env.NODE_ENV === 'dev' ? 'test' : process.env.DB_NAME || 'lc-tracker';
+  process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test'
+    ? 'test'
+    : process.env.DB_NAME || 'lc-tracker';
 const URI = process.env.URI;
 
 const connectDb = async () => {

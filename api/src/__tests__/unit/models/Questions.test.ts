@@ -1,22 +1,15 @@
-import {
-  Db,
-  MongoClient,
-  Collection,
-  ObjectId,
-  InsertOneResult,
-  FindCursor,
-} from 'mongodb';
+import { Db, MongoClient, Collection, ObjectId, FindCursor } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { faker } from '@faker-js/faker';
 import chai from 'chai';
 import sinon, { SinonStub } from 'sinon';
 
-import { closeDb } from '../../db/connection';
-import { UserDocument } from '../../types/userTypes';
-import { ExtendedError } from '../../errors/helpers';
-import Question from '../../models/Question';
-import { createMockDb } from '../helpers';
-import User from '../../models/User';
+import { closeDb } from '../../../db/connection';
+import { UserDocument } from '../../../types/userTypes';
+import { ExtendedError } from '../../../errors/helpers';
+import Question from '../../../models/Question';
+import { createMockDb } from '../../helpers';
+import User from '../../../models/User';
 import {
   GeneralLeaderboardEntry,
   GetGeneralLeaderboardQuery,
@@ -24,8 +17,7 @@ import {
   QuestionDocument,
   QuestionInfoDocument,
   QuestionLeaderboardEntry,
-} from '../../types/questionTypes';
-import { convertDaysToMillis } from '../../models/helpers/questionHelpers';
+} from '../../../types/questionTypes';
 
 const { expect } = chai;
 

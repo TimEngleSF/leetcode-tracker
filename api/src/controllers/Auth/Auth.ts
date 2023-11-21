@@ -1,16 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import loginService from '../../service/Auth/login-user.js';
+import loginService from '../../service/Auth/login-user';
 import Filter from 'bad-words';
-
-import { loginReqSchema, registerReqSchema } from './authReqSchemas.js';
-import User from '../../models/User.js';
-import registerUserService from '../../service/Auth/register-user.js';
-import validateUserService from '../../service/Auth/validate-user.js';
-import setPasswordTokenService from '../../service/Auth/set-password-token.js';
-import Blacklist from '../../models/Blacklist.js';
-import setNewPasswordService from '../../service/Auth/set-new-password.js';
-import { UserToken } from '../../types/userTypes.js';
+import { loginReqSchema, registerReqSchema } from './authReqSchemas';
+import User from '../../models/User';
+import registerUserService from '../../service/Auth/register-user';
+import validateUserService from '../../service/Auth/validate-user';
+import setPasswordTokenService from '../../service/Auth/set-password-token';
+import Blacklist from '../../models/Blacklist';
+import setNewPasswordService from '../../service/Auth/set-new-password';
+import { UserToken } from '../../types/userTypes';
 
 const filter = new Filter();
 
@@ -23,16 +22,16 @@ const Auth = {
     const token = authHeader?.split(' ')[1];
     const { JWT_SECRET } = process.env;
     if (!JWT_SECRET) {
-      return res.status(422).send({ status: 'invalid' });
+      return res.status(500).send({ message: 'Internal Service Error' });
     }
     try {
       const decodedToken = jwt.verify(token, JWT_SECRET) as UserToken;
       const user = await User.getById(decodedToken.userId);
-      if (!user) {
-        throw new Error();
+      if (!user || user.status === 'pending') {
+        return res.status(401).send({ status: 'invalid' });
       }
     } catch (error) {
-      return res.status(401).send({ status: 'invalid' });
+      next(error);
     }
     return res.status(200).send({ status: 'valid' });
   },

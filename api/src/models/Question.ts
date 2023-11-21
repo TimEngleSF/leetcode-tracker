@@ -18,7 +18,7 @@ import { UserDocument } from '../types';
 let questionCollection: Collection<Partial<QuestionDocument>>;
 let questionInfoCollection: Collection<QuestionInfoDocument>;
 
-const assignQuestionCollection = async () => {
+export const assignQuestionCollections = async () => {
   if (!questionCollection && process.env.NODE_ENV !== 'test') {
     questionCollection = await getCollection<Partial<QuestionDocument>>(
       'questions'
@@ -30,8 +30,6 @@ const assignQuestionCollection = async () => {
     );
   }
 };
-
-assignQuestionCollection();
 
 const Question = {
   injectDb: (db: Db) => {
