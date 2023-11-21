@@ -19,16 +19,16 @@ const Auth = {
     const token = authHeader?.split(' ')[1];
     const { JWT_SECRET } = process.env;
     if (!JWT_SECRET) {
-      return res.status(422).send({ status: 'invalid' });
+      return res.status(500).send({ message: 'Internal Service Error' });
     }
     try {
       const decodedToken = jwt.verify(token, JWT_SECRET) as UserToken;
       const user = await User.getById(decodedToken.userId);
-      if (!user) {
-        throw new Error();
+      if (!user || user.status === 'pending') {
+        return res.status(401).send({ status: 'invalid' });
       }
     } catch (error) {
-      return res.status(401).send({ status: 'invalid' });
+      next(error);
     }
     return res.status(200).send({ status: 'valid' });
   },
