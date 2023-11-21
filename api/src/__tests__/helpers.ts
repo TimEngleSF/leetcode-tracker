@@ -1,12 +1,11 @@
-import fs from 'fs/promises';
+// import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 import { Db, MongoClient, ObjectId, Document } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import User from '../models/User';
 import Question from '../models/Question';
-import { UserDocument } from '../types';
-import { QuestionDocument, QuestionInfoDocument } from '../types/questionTypes';
-import { json } from 'stream/consumers';
+import Blacklist from '../models/Blacklist';
 
 interface MockDb {
   db: Db;
@@ -53,21 +52,34 @@ export const createMockDb = async (): Promise<MockDb> => {
     const db = client.db('lc-test-db');
     User.injectDb(db);
     Question.injectDb(db);
+    Blacklist.injectDb(db);
 
     // Insert User documents into MongoMemoryServer
     const usersJsonPath = path.join(__dirname, 'users.json');
-    let users = JSON.parse(await fs.readFile(usersJsonPath, 'utf-8'));
+    let users;
+    try {
+      const usersFileContents = fs.readFileSync(usersJsonPath, 'utf-8');
+      users = JSON.parse(usersFileContents);
+    } catch (error) {
+      console.error('Error reading file:', error);
+    }
 
     users = convertFields(users);
 
     if ((await db.collection('users').countDocuments()) === 0) {
       await db.collection('users').insertMany(users);
     }
+
     // Insert Question documents into MongoMemoryServer
     const questionsPath = path.join(__dirname, 'questions.json');
-    let questionsDocuments = JSON.parse(
-      await fs.readFile(questionsPath, 'utf-8')
-    );
+    let questionsDocuments;
+    try {
+      const questionFileContents = fs.readFileSync(questionsPath, 'utf-8');
+      questionsDocuments = JSON.parse(questionFileContents);
+    } catch (error) {
+      console.error('Error reading file:', error);
+    }
+
     questionsDocuments = convertFields(questionsDocuments);
 
     if ((await db.collection('questions').countDocuments()) === 0) {
@@ -76,9 +88,16 @@ export const createMockDb = async (): Promise<MockDb> => {
 
     // Insert QuestionInfo documents into MongoMemoryServer
     const questionDataJsonPath = path.join(__dirname, 'questionInfo.json');
-    let questionInfoDocuments = JSON.parse(
-      await fs.readFile(questionDataJsonPath, 'utf-8')
-    );
+    let questionInfoDocuments;
+    try {
+      const questionDataFileContents = fs.readFileSync(
+        questionDataJsonPath,
+        'utf-8'
+      );
+      questionInfoDocuments = JSON.parse(questionDataFileContents);
+    } catch (error) {
+      console.error('Error reading file:', error);
+    }
 
     questionInfoDocuments = convertFields(questionInfoDocuments);
 
