@@ -8,109 +8,115 @@ import { transporter } from './nodemailer-transport';
 const { BASE_URL } = process.env;
 
 const registerUserService = async (
-  userObj: CreateUserInService
+    userObj: CreateUserInService
 ): Promise<{ status: 'pending' }> => {
-  const { displayUsername, email, password, firstName, lastInit } = userObj;
-  let usernameResult: UserDocument | null;
-  let emailResult: UserDocument | null;
-  let createUserResult: UserDocument;
-  let verificationToken: string;
-  try {
-    [usernameResult, emailResult] = await Promise.all([
-      User.getByUsername(displayUsername),
-      User.getByEmail(email.toLowerCase()),
-    ]);
-  } catch (error) {
-    throw error;
-  }
-
-  if (
-    (usernameResult && usernameResult.status === 'verified') ||
-    (emailResult && emailResult.status === 'verified')
-  ) {
-    const error = new ExtendedError('Username or Email already in use.');
-    error.statusCode = 400;
-    throw error;
-  } else if (usernameResult && usernameResult.status === 'pending') {
+    const { displayUsername, email, password, firstName, lastInit } = userObj;
+    let usernameResult: UserDocument | null;
+    let emailResult: UserDocument | null;
+    let createUserResult: UserDocument;
+    let verificationToken: string;
     try {
-      if (usernameResult._id) {
-        await Promise.all([
-          User.deleteById(usernameResult?._id),
-          Blacklist.addBlacklistToken(
-            usernameResult.verificationToken,
-            'EMAIL_VERIFICATION_SECRET'
-          ),
+        [usernameResult, emailResult] = await Promise.all([
+            User.getByUsername(displayUsername),
+            User.getByEmail(email.toLowerCase())
         ]);
-      }
-    } catch (error: any) {
-      throw error;
-    }
-  } else if (emailResult && emailResult.status === 'pending') {
-    try {
-      if (emailResult._id) {
-        await Promise.all([
-          User.deleteById(emailResult?._id),
-          Blacklist.addBlacklistToken(
-            emailResult.verificationToken,
-            'EMAIL_VERIFICATION_SECRET'
-          ),
-        ]);
-      }
     } catch (error) {
-      throw error;
+        throw error;
     }
-  }
 
-  if (!process.env.EMAIL_VERIFICATION_SECRET) {
-    const error = new ExtendedError(
-      'Internal Service Error: Missing EMAIL_VERIFICATION_SECRET'
-    );
-    error.statusCode = 500;
-    throw error;
-  }
+    if (
+        (usernameResult && usernameResult.status === 'verified') ||
+        (emailResult && emailResult.status === 'verified')
+    ) {
+        const error = new ExtendedError('Username or Email already in use.');
+        error.statusCode = 400;
+        throw error;
+    } else if (usernameResult && usernameResult.status === 'pending') {
+        try {
+            if (usernameResult._id) {
+                await Promise.all([
+                    User.deleteById(usernameResult?._id),
+                    Blacklist.addBlacklistToken(
+                        usernameResult.verificationToken,
+                        'EMAIL_VERIFICATION_SECRET'
+                    )
+                ]);
+            }
+        } catch (error: any) {
+            throw error;
+        }
+    } else if (emailResult && emailResult.status === 'pending') {
+        try {
+            if (emailResult._id) {
+                await Promise.all([
+                    User.deleteById(emailResult?._id),
+                    Blacklist.addBlacklistToken(
+                        emailResult.verificationToken,
+                        'EMAIL_VERIFICATION_SECRET'
+                    )
+                ]);
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
 
-  try {
-    verificationToken = jwt.sign(
-      { username: displayUsername.toLowerCase(), email: email.toLowerCase() },
-      process.env.EMAIL_VERIFICATION_SECRET,
-      { expiresIn: '1h' }
-    );
-  } catch (error: any) {
-    const updatedError = new ExtendedError(
-      `Internal Service Error: ${error.message}`
-    );
-    updatedError.statusCode = 500;
-    throw error;
-  }
+    if (!process.env.EMAIL_VERIFICATION_SECRET) {
+        const error = new ExtendedError(
+            'Internal Service Error: Missing EMAIL_VERIFICATION_SECRET'
+        );
+        error.statusCode = 500;
+        throw error;
+    }
 
-  const hashedPass = await bcrypt.hash(password, 12);
+    try {
+        verificationToken = jwt.sign(
+            {
+                username: displayUsername.toLowerCase(),
+                email: email.toLowerCase()
+            },
+            process.env.EMAIL_VERIFICATION_SECRET,
+            { expiresIn: '1h' }
+        );
+    } catch (error: any) {
+        const updatedError = new ExtendedError(
+            `Internal Service Error: ${error.message}`
+        );
+        updatedError.statusCode = 500;
+        throw error;
+    }
 
-  try {
-    createUserResult = await User.create({
-      displayUsername,
-      email,
-      hashedPass,
-      firstName,
-      lastInit,
-      verificationToken,
-    });
-  } catch (error) {
-    throw error;
-  }
+    const hashedPass = await bcrypt.hash(password, 12);
 
-  const verificationUrl = `${BASE_URL}/verify/${verificationToken}`;
+    try {
+        createUserResult = await User.create({
+            displayUsername,
+            email,
+            hashedPass,
+            firstName,
+            lastInit,
+            verificationToken
+        });
+    } catch (error) {
+        throw error;
+    }
 
-  try {
-    await User.updateVerificationToken(createUserResult._id, verificationToken);
-  } catch (error) {
-    throw error;
-  }
+    const verificationUrl = `${BASE_URL}/verify/${verificationToken}`;
 
-  const mailOptions = {
-    from: 'verify@lctracker.com',
-    to: createUserResult.email,
-    subject: 'Verify Your Email',
-    html: `
+    try {
+        await User.updateVerificationToken(
+            createUserResult._id,
+            verificationToken
+        );
+    } catch (error) {
+        throw error;
+    }
+
+    const mailOptions = {
+        from: 'verify@lctracker.com',
+        to: createUserResult.email,
+        subject: 'Verify Your Email',
+        html: `
       <table width="100%" cellspacing="0" cellpadding="0">
         <tr>
           <td align="center" style="padding-top: 2rem; background-color: #282828; color: #66ff66; font-family: 'Courier New', Courier, monospace;">
@@ -133,14 +139,15 @@ const registerUserService = async (
           </td>
         </tr>
       </table>
-    `,
-  };
+    `
+    };
+    if (process.env.NODE_ENV !== 'test') {
+        transporter.sendMail(mailOptions);
+    }
 
-  transporter.sendMail(mailOptions);
-
-  return {
-    status: 'pending',
-  };
+    return {
+        status: 'pending'
+    };
 };
 
 export default registerUserService;
