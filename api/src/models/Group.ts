@@ -37,17 +37,27 @@ const Group = {
             throw error;
         }
         let insertResult: InsertOneResult;
+        console.log(name, adminId, passCode);
+        console.log(groupCollection.insertOne);
         try {
             insertResult = await groupCollection.insertOne({
                 name: name.toLowerCase(),
                 displayName: name,
                 admins: [adminId],
-                members: [],
+                members: [adminId],
                 questionOfDay: undefined,
                 questionOfWeek: undefined,
                 passCode
             });
         } catch (error: any) {
+            if (error.code === 11000) {
+                const extendedError = new ExtendedError(
+                    'Group name already in use'
+                );
+                extendedError.statusCode = 409;
+                extendedError.stack = error.stack;
+                throw extendedError;
+            }
             throw new Error(
                 `There was an error creating the group: ${error.message}`
             );
