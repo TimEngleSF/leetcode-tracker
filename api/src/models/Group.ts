@@ -1,4 +1,4 @@
-import { Collection, Db, ObjectId, InsertOneResult } from 'mongodb';
+import MongoDb, { Collection, Db, ObjectId, InsertOneResult } from 'mongodb';
 import { getCollection } from '../db/connection';
 import {
     GroupAssignInput,
@@ -12,6 +12,7 @@ import { ExtendedError, createExtendedError } from '../errors/helpers';
 import Question from './Question';
 import { UserDocument } from '../types';
 import { sanitizeId } from './helpers/utility';
+import { KeyObject } from 'crypto';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
 export const assignGroupCollection = async () => {
@@ -23,10 +24,12 @@ export const assignGroupCollection = async () => {
 class Group {
     private groupInfo: GroupDocument | null;
     private adminIdStrings: string[];
+    private memberIdStrings: string[];
 
     constructor() {
         this.groupInfo = null;
         this.adminIdStrings = [];
+        this.memberIdStrings = [];
     }
 
     static injectDb(db: Db) {
@@ -74,8 +77,6 @@ class Group {
         adminId = sanitizeId(adminId);
 
         let insertResult: InsertOneResult;
-        console.log(name, adminId, passCode);
-        console.log(groupCollection.insertOne);
         try {
             insertResult = await groupCollection.insertOne({
                 name: name.toLowerCase(),
@@ -119,31 +120,31 @@ class Group {
         this.adminIdStrings = result.admins.map((adminId) =>
             adminId.toHexString()
         );
+        this.memberIdStrings = result.members.map((memberId) =>
+            memberId.toHexString()
+        );
         this.groupInfo = result;
 
         return result;
     }
 
     async setGroup({
-        adminId,
         key,
         value
     }: {
-        adminId: string | ObjectId;
         key: '_id' | 'name';
         value: string | ObjectId;
-    }): Promise<GroupAssignInput> {
-        adminId = this.isAdmin(adminId);
+    }): Promise<GroupDocument> {
         let result: GroupDocument | null = null;
         try {
             if (key === '_id') {
                 value = sanitizeId(value);
                 result = await groupCollection.findOne<GroupDocument>({
-                    ['key']: value
+                    [key]: value
                 });
             } else if (key === 'name' && typeof value === 'string') {
                 result = await groupCollection.findOne<GroupDocument>({
-                    ['key']: value.toLowerCase()
+                    [key]: value.toLowerCase()
                 });
             }
 
@@ -153,6 +154,9 @@ class Group {
 
             this.adminIdStrings = result.admins.map((adminId) =>
                 adminId.toHexString()
+            );
+            this.memberIdStrings = result.members.map((memberId) =>
+                memberId.toHexString()
             );
             this.groupInfo = result;
 
@@ -173,6 +177,39 @@ class Group {
             }
         }
         return this.groupInfo as GroupDocument;
+    }
+
+    getMembersStrings(): string[] {
+        return this.memberIdStrings;
+    }
+
+    async addMember(userId: string | ObjectId): Promise<GroupDocument> {
+        if (this.memberIdStrings.includes(userId.toString())) {
+            return this.groupInfo as GroupDocument;
+        }
+
+        userId = sanitizeId(userId);
+        if (!this.groupInfo) {
+            throw new Error('Group has not been assigned');
+        }
+        const documentId = sanitizeId(this.groupInfo._id);
+        const result = await groupCollection.findOneAndUpdate(
+            { _id: documentId },
+            { $push: { members: userId as any } },
+            { returnDocument: 'after' }
+        );
+        if (!result) {
+            const error = createExtendedError({
+                message: 'Group not found',
+                statusCode: 404
+            });
+            throw error;
+        }
+        this.groupInfo = result as GroupDocument;
+        this.memberIdStrings = result.members!.map((memberId) =>
+            memberId.toHexString()
+        );
+        return result as GroupDocument;
     }
 
     static async findGroup({

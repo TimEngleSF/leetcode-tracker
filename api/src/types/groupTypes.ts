@@ -9,7 +9,7 @@ export interface GroupDocument extends Document {
     questionOfDay?: ObjectId | null;
     questionOfWeek?: ObjectId | null;
     passCode: string | null;
-    private: boolean;
+    open: boolean;
 }
 
 export interface GroupCreateInput {
