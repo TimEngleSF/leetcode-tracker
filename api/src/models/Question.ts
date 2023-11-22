@@ -14,6 +14,7 @@ import { injectDb } from './helpers/injectDb';
 import { convertDaysToMillis } from './helpers/questionHelpers';
 import User from './User';
 import { UserDocument } from '../types';
+import Group from './Group';
 
 export let questionCollection: Collection<Partial<QuestionDocument>>;
 export let questionInfoCollection: Collection<QuestionInfoDocument>;
@@ -223,15 +224,36 @@ const Question = {
     },
 
     getGeneralLeaderboard: async (
-        userId: string | ObjectId
+        userId: string | ObjectId,
+        groupId?: string | ObjectId
     ): Promise<GetGeneralLeaderboardQuery> => {
         if (typeof userId === 'string') {
             userId = new ObjectId(userId);
         }
+
+        let members;
+        if (groupId) {
+            // Fetch the group and its members
+            if (typeof groupId === 'string') {
+                groupId = new ObjectId(groupId);
+            }
+            const group = await Group.getGroupById(groupId);
+            if (!group) {
+                throw new Error('Group not found');
+            }
+            members = group.members;
+        }
+
         try {
             const cursor = questionCollection.aggregate([
                 // First, get the general leaderboard with ranks
-                { $match: { passed: true } },
+                // { $match: { passed: true } },
+                {
+                    $match: {
+                        passed: true,
+                        ...(groupId && { userId: { $in: members } })
+                    }
+                },
                 { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
                 { $match: { passedCount: { $gt: 1 } } },
                 {
@@ -344,10 +366,24 @@ const Question = {
     getQuestionLeaderboard: async (
         userId: string | ObjectId,
         targetQuestion: number,
-        sortBySpeed: boolean = true
+        sortBySpeed: boolean = true,
+        groupId?: string | ObjectId
     ): Promise<GetQuestionLeaderboardQueryResult | string> => {
         if (typeof userId === 'string') {
             userId = new ObjectId(userId);
+        }
+
+        let members;
+        if (groupId) {
+            // Fetch the group and its members
+            if (typeof groupId === 'string') {
+                groupId = new ObjectId(groupId);
+            }
+            const group = await Group.getGroupById(groupId);
+            if (!group) {
+                throw new Error('Group not found');
+            }
+            members = group.members;
         }
 
         try {
@@ -357,7 +393,14 @@ const Question = {
         }
 
         const pipeline = [
-            { $match: { questNum: targetQuestion, passed: true } },
+            // { $match: { questNum: targetQuestion, passed: true } },
+            {
+                $match: {
+                    questNum: targetQuestion,
+                    passed: true,
+                    ...(groupId && { userId: { $in: members } })
+                }
+            },
             {
                 $group: {
                     _id: '$userId',
