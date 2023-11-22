@@ -56,3 +56,15 @@ export interface QuestionLeaderboardAPIResponse {
     user: QuestionLeaderboardUserResult;
     leaderboard: QuestionLeaderboardEntry[];
 }
+
+export interface Group {
+    _id: string;
+    name: string;
+    displayName: string;
+    members: string[];
+    admins: string[];
+    questionOfDay?: number | null;
+    questionOfWeek?: number | null;
+    passCode: string | null;
+    open: boolean;
+}
