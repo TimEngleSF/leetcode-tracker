@@ -2,16 +2,17 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 
 import { getUserJSON, logout, printHeader } from './utils.js';
-import addQuestionToDB from './Questions/addQuestionToDB.js';
+// import addQuestionToDB from './Questions/addQuestionToDB.js';
 import viewPrevQuestPrompt from './Questions/Prompts/viewPrevQuestPrompt.js';
 import getAllUserQuestsByQuestNum from './Questions/getAllUserQuestsByQuestNum.js';
 import ReviewQuestions from './ReviewQuestions/ReviewQuestions.js';
 import Leaderboard from './Leaderboard/Leaderboard.js';
 import Group from './Group/Group.js';
+import addQuestion from './Questions/add-question-flow.js';
 
 const mainLoop = async () => {
     let isRunning = true;
-    let questNum: any;
+    let questNum: number | undefined;
     let viewPrevQuest = false;
 
     loop: while (isRunning) {
@@ -58,8 +59,13 @@ const mainLoop = async () => {
         switch (action.nextAction) {
             case 'addQuestion':
                 console.log(chalk.green('Adding question...'));
-                questNum = await addQuestionToDB();
-                viewPrevQuest = await viewPrevQuestPrompt();
+                // questNum = await addQuestionToDB();
+                const result = await addQuestion({});
+                questNum = result.questNum;
+                if (result.continue) {
+                    console.log(chalk.green('Question added!'));
+                    viewPrevQuest = await viewPrevQuestPrompt();
+                }
                 console.clear();
                 printHeader();
                 break;
