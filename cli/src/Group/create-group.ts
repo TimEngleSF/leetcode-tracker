@@ -1,11 +1,9 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import axios from 'axios';
-import { API_URL } from '../../../config.js';
-import { Group } from '../../../Types/api.js';
-import { getAuthHeaders, printHeader } from '../../../utils.js';
-
-let groups: Omit<Group, 'passCode'>[];
+import { API_URL } from '../config.js';
+import { Group } from '../Types/api.js';
+import { getAuthHeaders, printHeader } from '../utils.js';
 
 interface CreateGroupOptions {
     prompt?: typeof inquirer.prompt;
@@ -37,13 +35,13 @@ const createGroup = async ({
     ]);
 
     // Make a request to get all groups
+    let groups: Omit<Group, 'passCode'>[];
+
     try {
-        if (!groups) {
-            const { data } = await axios.get(`${API_URL}/group/`, {
-                headers: await getAuthHeaders()
-            });
-            groups = data as Omit<Group, 'passCode'>[];
-        }
+        const { data } = await axios.get(`${API_URL}/group/`, {
+            headers: await getAuthHeaders()
+        });
+        groups = data as Omit<Group, 'passCode'>[];
     } catch (error: any) {
         await createGroup({
             errorMessage: `There was an error getting groups: ${error.message}`
