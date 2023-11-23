@@ -1,0 +1,63 @@
+import inquirer from 'inquirer';
+import {
+    addGroupToJSON,
+    fetchGroups,
+    joinGroup,
+    printHeader
+} from '../../../utils.js';
+import { Group } from '../../../Types/api.js';
+import chalk from 'chalk';
+import { filter, validate } from './validation.js';
+import listOptionPrompt from './list-option.js';
+
+interface PromptOptions {
+    prompt?: typeof inquirer.prompt;
+    testing?: boolean;
+    errorMessage?: string;
+}
+
+export const selectJoinOption = async ({
+    prompt = inquirer.prompt,
+    testing = false,
+    errorMessage
+}: PromptOptions) => {
+    if (!testing) {
+        console.clear();
+        printHeader();
+    }
+
+    // Display an error message if one exists
+    if (errorMessage) {
+        console.log(chalk.red(errorMessage));
+    }
+    // Prompt the user if they would like to find a group via a list or search
+    const findOption = await prompt({
+        type: 'list',
+        name: 'answer',
+        message: 'How would you like to find a group?',
+        choices: [
+            { name: 'List', value: 'list' },
+            { name: 'Search By Name', value: 'search' }
+        ]
+    });
+    // THe flow if a user selects list
+    if (findOption.answer === 'list') {
+        try {
+            await listOptionPrompt({});
+        } catch (error: any) {
+            await selectJoinOption({ errorMessage: error.message });
+        }
+    }
+    if (findOption.answer === 'search') {
+        console.log(chalk.red('Coming soon...'));
+
+        await prompt({
+            type: 'input',
+            name: 'continue',
+            message: 'Press Enter to continue'
+        });
+        await selectJoinOption({});
+    }
+};
+
+export default selectJoinOption;

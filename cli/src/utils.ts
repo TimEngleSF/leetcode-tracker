@@ -7,9 +7,12 @@ import figlet from 'figlet';
 import axios from 'axios';
 import { API_URL, LATEST_VERSION } from './config.js';
 import { UserObject } from './Types/user.js';
+import { Group } from './Types/api.js';
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const jsonPath = path.join(__dirname, 'user.json');
 
 export const getUserJSON = async (): Promise<UserObject> => {
     try {
@@ -22,7 +25,7 @@ export const getUserJSON = async (): Promise<UserObject> => {
             LC_TOKEN: '',
             LC_FIRSTNAME: '',
             LC_LASTINIT: '',
-            LC_GROUPS: ''
+            LC_GROUPS: []
         });
         await fs.writeFile(path.join(__dirname, 'user.json'), payload);
     }
@@ -33,6 +36,26 @@ export const getUserJSON = async (): Promise<UserObject> => {
     const userObject = JSON.parse(data);
 
     return userObject;
+};
+
+export const addGroupToJSON = async (groupId: string) => {
+    try {
+        const jsonPath = path.join(__dirname, 'user.json');
+        const userData = JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
+        if (userData.LC_GROUPS.includes(groupId)) {
+            return;
+        }
+        userData.LC_GROUPS.push(groupId);
+
+        await fs.writeFile(jsonPath, JSON.stringify(userData));
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const localGroupsArray = async (): Promise<string[]> => {
+    const userData = await JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
+    return userData.LC_GROUPS as string[];
 };
 
 export const getPackageVersion = async () => {
@@ -83,7 +106,7 @@ export const logout = async () => {
         LC_TOKEN: null,
         LC_FIRSTNAME: null,
         LC_LASTINIT: null,
-        LC_GROUPS: null
+        LC_GROUPS: []
     };
 
     const payloadString = JSON.stringify(payload, null, 2);
@@ -127,6 +150,18 @@ export const isLoggedIn = async () => {
             url: `${API_URL}/status`,
             headers: { Authorization: `Bearer ${userObject.LC_TOKEN}` }
         });
+        const { data } = await axios.get(
+            `${API_URL}/users/${userObject.LC_ID}`,
+            {
+                headers: await getAuthHeaders()
+            }
+        );
+        const jsonPath = path.join(__dirname, 'user.json');
+        const localUserData = JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
+        await fs.writeFile(
+            jsonPath,
+            JSON.stringify({ ...localUserData, LC_GROUPS: data.groups })
+        );
         if (status !== 200) {
             return false;
         }
@@ -135,4 +170,28 @@ export const isLoggedIn = async () => {
     }
 
     return true;
+};
+
+export const fetchGroups = async (): Promise<Omit<Group, 'passCode'>[]> => {
+    try {
+        const { data } = await axios.get(`${API_URL}/group`, {
+            headers: await getAuthHeaders()
+        });
+        return data as Omit<Group, 'passCode'>[];
+    } catch (error: any) {
+        throw new Error(`Error fetching groups: ${error.message}`);
+    }
+};
+
+export const joinGroup = async (groupId: string, passCode?: string) => {
+    try {
+        await axios({
+            method: 'POST',
+            url: `${API_URL}/group/add-member`,
+            headers: await getAuthHeaders(),
+            data: { groupId, passCode: passCode?.toLowerCase() }
+        });
+    } catch (error: any) {
+        throw new Error(`Error joining group: ${error.message}`);
+    }
 };
