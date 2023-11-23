@@ -125,7 +125,7 @@ export const getUserData = async (userID: string) => {
     return data;
 };
 
-export const getQuestionData = async (
+export const fetchQuestionInfo = async (
     questNum: number,
     axiosInstance: any = axios,
     getAuthHeadersFunc: any = getAuthHeaders
@@ -184,14 +184,10 @@ export const fetchGroups = async (): Promise<Omit<Group, 'passCode'>[]> => {
 };
 
 export const joinGroup = async (groupId: string, passCode?: string) => {
-    try {
-        await axios({
-            method: 'POST',
-            url: `${API_URL}/group/add-member`,
-            headers: await getAuthHeaders(),
-            data: { groupId, passCode: passCode?.toLowerCase() }
-        });
-    } catch (error: any) {
-        throw new Error(`Error joining group: ${error.message}`);
-    }
+    await axios({
+        method: 'POST',
+        url: `${API_URL}/group/add-member`,
+        headers: await getAuthHeaders(),
+        data: { groupId, passCode: passCode?.toLowerCase() }
+    });
 };
