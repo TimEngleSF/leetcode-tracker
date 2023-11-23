@@ -52,3 +52,8 @@ export interface UserToken extends JwtPayload {
     email: string;
     username: string;
 }
+
+export interface addGroupInput {
+    userId: string | ObjectId;
+    groupId: string | ObjectId;
+}
