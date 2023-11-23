@@ -53,7 +53,6 @@ const GroupController = {
         if (error) {
             return res.status(422).send(error.details[0].message);
         }
-
         try {
             const group = new Group();
             const groupDoc = await group.setGroup({
@@ -71,9 +70,9 @@ const GroupController = {
                     });
                 }
             }
-            await group.addMember(userId);
+            await group.addMember(userId, body.passCode);
             const members = group.getMembersStrings();
-            if (group.getMembersStrings().includes(userId)) {
+            if (members.includes(userId)) {
                 return res.status(201).send({ status: 'success' });
             } else {
                 return res.status(500).send({
@@ -88,9 +87,7 @@ const GroupController = {
 
     getGroups: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            console.log('check');
             const result = await Group.findGroups();
-            console.log(result);
             return res.status(200).send(result);
         } catch (error) {
             next(error);

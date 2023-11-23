@@ -6,6 +6,7 @@ import { injectDb } from './helpers/injectDb';
 import { ExtendedError, createExtendedError } from '../errors/helpers';
 import Question from './Question';
 import { sanitizeId } from './helpers/utility';
+import User from './User';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
 export const assignGroupCollection = async () => {
@@ -176,7 +177,10 @@ class Group {
         return this.memberIdStrings;
     }
 
-    async addMember(userId: string | ObjectId): Promise<GroupDocument> {
+    async addMember(
+        userId: string | ObjectId,
+        passCode?: string
+    ): Promise<GroupDocument> {
         if (this.memberIdStrings.includes(userId.toString())) {
             return this.groupInfo as GroupDocument;
         }
@@ -184,6 +188,14 @@ class Group {
         userId = sanitizeId(userId);
         if (!this.groupInfo) {
             throw new Error('Group has not been assigned');
+        }
+
+        if (this.groupInfo.passCode !== passCode) {
+            const error = createExtendedError({
+                message: 'Incorrect passcode',
+                statusCode: 401
+            });
+            throw error;
         }
         const documentId = sanitizeId(this.groupInfo._id);
         const result = await groupCollection.findOneAndUpdate(
@@ -198,6 +210,7 @@ class Group {
             });
             throw error;
         }
+        await User.addGroup({ userId, groupId: this.groupInfo._id });
         this.groupInfo = result as GroupDocument;
         this.memberIdStrings = result.members!.map((memberId) =>
             memberId.toHexString()
