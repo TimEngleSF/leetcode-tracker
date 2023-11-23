@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { RequestWithUser } from '../../types/controllerTypes';
+import Filter from 'bad-words';
 import { faker } from '@faker-js/faker';
 import { createReqSchema, postMemberSchema } from './groupReqSchema';
 import Group from '../../models/Group';
+
+const filter = new Filter();
 
 const GroupController = {
     postCreate: async (req: Request, res: Response, next: NextFunction) => {
@@ -14,7 +17,12 @@ const GroupController = {
             return res.status(422).send(error.details[0].message);
         }
 
-        console.log(body);
+        if (filter.isProfane(body.name)) {
+            return res.status(422).send({
+                message: 'Validation Error',
+                error: 'Use of foul language is prohibited'
+            });
+        }
 
         const passCode = body.open
             ? null
