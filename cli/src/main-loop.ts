@@ -2,13 +2,12 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 
 import { getUserJSON, logout, printHeader } from './utils.js';
-// import addQuestionToDB from './Questions/addQuestionToDB.js';
 import viewPrevQuestPrompt from './Questions/Prompts/viewPrevQuestPrompt.js';
 import getAllUserQuestsByQuestNum from './Questions/previous-attempts.js';
 import ReviewQuestions from './ReviewQuestions/ReviewQuestions.js';
-import Leaderboard from './Leaderboard/Leaderboard.js';
 import Group from './Group/Group.js';
 import addQuestion from './Questions/add-question-flow.js';
+import LeaderboardFlow from './Leaderboard/leaderboard-flow.js';
 
 const mainLoop = async () => {
     let isRunning = true;
@@ -19,20 +18,6 @@ const mainLoop = async () => {
         // Section for Breaking loop
         if (viewPrevQuest) {
             await getAllUserQuestsByQuestNum(questNum);
-            // const action = await inquirer.prompt({
-            //     type: 'confirm',
-            //     name: 'continue',
-            //     message: 'Do you want to continue?',
-            //     default: true
-            // });
-            // if (action.continue) {
-            //     console.clear();
-            //     printHeader();
-            //     viewPrevQuest = false;
-            // } else {
-            //     isRunning = false;
-            //     break loop;
-            // }
             console.clear();
             printHeader();
             viewPrevQuest = false;
@@ -62,7 +47,6 @@ const mainLoop = async () => {
         switch (action.nextAction) {
             case 'addQuestion':
                 console.log(chalk.green('Adding question...'));
-                // questNum = await addQuestionToDB();
                 const result = await addQuestion({});
                 questNum = result.questNum;
                 if (result.continue) {
@@ -73,7 +57,9 @@ const mainLoop = async () => {
                 printHeader();
                 break;
             case 'leaderboard':
-                await Leaderboard();
+                await LeaderboardFlow({});
+                console.clear();
+                printHeader();
                 break;
             case 'review':
                 console.clear();
