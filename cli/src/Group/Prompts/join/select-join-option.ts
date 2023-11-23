@@ -37,7 +37,8 @@ export const selectJoinOption = async ({
         message: 'How would you like to find a group?',
         choices: [
             { name: 'List', value: 'list' },
-            { name: 'Search By Name', value: 'search' }
+            { name: 'Search By Name', value: 'search' },
+            { name: 'Go back', value: 'back' }
         ]
     });
     // THe flow if a user selects list
@@ -57,6 +58,10 @@ export const selectJoinOption = async ({
             message: 'Press Enter to continue'
         });
         await selectJoinOption({});
+    }
+
+    if (findOption.answer === 'back') {
+        return;
     }
 };
 

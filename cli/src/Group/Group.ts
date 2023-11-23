@@ -6,8 +6,10 @@ const Group = async () => {
     const answer = await selectGroupOption();
     if (answer === 'join') {
         await selectJoinOption({});
-    } else {
+    } else if (answer === 'create') {
         await createGroup({});
+    } else {
+        return;
     }
 };
 

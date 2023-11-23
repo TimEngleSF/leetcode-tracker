@@ -16,7 +16,8 @@ export const selectGroupOption = async (
             message: 'Would you like to join or create a group?',
             choices: [
                 { name: 'Join Group', value: 'join' },
-                { name: 'Create Group', value: 'create' }
+                { name: 'Create Group', value: 'create' },
+                { name: 'Go back', value: 'back' }
             ]
         }
     ]);
