@@ -125,7 +125,7 @@ export const getUserData = async (userID: string) => {
     return data;
 };
 
-export const getQuestionData = async (
+export const fetchQuestionInfo = async (
     questNum: number,
     axiosInstance: any = axios,
     getAuthHeadersFunc: any = getAuthHeaders
