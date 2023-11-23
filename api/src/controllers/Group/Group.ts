@@ -1,28 +1,31 @@
 import { Request, Response, NextFunction } from 'express';
+import { RequestWithUser } from '../../types/controllerTypes';
 import { faker } from '@faker-js/faker';
 import { createReqSchema, postMemberSchema } from './groupReqSchema';
 import Group from '../../models/Group';
 
 const GroupController = {
     postCreate: async (req: Request, res: Response, next: NextFunction) => {
-        const userId = (req as any).user.userId;
+        const customReq = req as RequestWithUser;
+        const userId = customReq.user.userId;
         const { body } = req;
         const { error } = createReqSchema.validate(req.body);
         if (error) {
             return res.status(422).send(error.details[0].message);
         }
 
-        const passCode =
-            body.open === 'true'
-                ? null
-                : faker.string.alphanumeric(6).toLowerCase();
+        console.log(body);
+
+        const passCode = body.open
+            ? null
+            : faker.string.alphanumeric(6).toLowerCase();
 
         try {
             const group = new Group();
             const result = await group.create({
                 adminId: userId,
-                name: body.name,
-                open: body.open === 'true',
+                name: body.name.trim(),
+                open: body.open,
                 passCode
             });
             res.status(201).send({
@@ -35,7 +38,8 @@ const GroupController = {
     },
 
     postMember: async (req: Request, res: Response, next: NextFunction) => {
-        const userId = (req as any).user.userId;
+        const customReq = req as RequestWithUser;
+        const userId = customReq.user.userId;
         const { body } = req;
         const { error } = postMemberSchema.validate(body);
         if (error) {
@@ -69,6 +73,17 @@ const GroupController = {
                     message: 'There was an error adding member'
                 });
             }
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    getGroups: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            console.log('check');
+            const result = await Group.findGroups();
+            console.log(result);
+            return res.status(200).send(result);
         } catch (error) {
             next(error);
         }

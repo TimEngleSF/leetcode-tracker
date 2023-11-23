@@ -1,18 +1,11 @@
 import MongoDb, { Collection, Db, ObjectId, InsertOneResult } from 'mongodb';
 import { getCollection } from '../db/connection';
-import {
-    GroupAssignInput,
-    GroupCreateInput,
-    GroupDocument,
-    GroupKeys
-} from '../types/groupTypes';
+import { GroupCreateInput, GroupDocument } from '../types/groupTypes';
 
 import { injectDb } from './helpers/injectDb';
 import { ExtendedError, createExtendedError } from '../errors/helpers';
 import Question from './Question';
-import { UserDocument } from '../types';
 import { sanitizeId } from './helpers/utility';
-import { KeyObject } from 'crypto';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
 export const assignGroupCollection = async () => {
@@ -244,7 +237,7 @@ class Group {
         return result;
     }
 
-    static async findGroups(_id: string | ObjectId): Promise<GroupDocument[]> {
+    static async findGroups(): Promise<GroupDocument[]> {
         const result = await groupCollection
             .find<GroupDocument>({}, { projection: { passCode: 0 } })
             .toArray();
