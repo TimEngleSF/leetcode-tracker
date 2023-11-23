@@ -25,6 +25,7 @@ interface ApiResponse {
     questions: Question[];
 }
 
+// Display for user's previous attempts
 const displayPage = (
     data: any,
     start: number,
@@ -32,6 +33,7 @@ const displayPage = (
     currentPage = 1,
     totalPages: number
 ) => {
+    // Create a new table to display
     const table = new Table({
         head: [
             chalk.white('Date'),
@@ -40,7 +42,8 @@ const displayPage = (
         ],
         colWidths: [20, 15, 10]
     });
-    console.log(start, end);
+
+    // Format each question entry and add to table
     const slice = data.slice(start, end);
     slice.forEach((quest: any) => {
         const date = format(new Date(quest.created), 'MM-dd-yyyy hh:mma');
@@ -50,6 +53,7 @@ const displayPage = (
         const speed = quest.speed ? quest.speed : 'N/A';
         table.push([date, passed, speed]);
     });
+    // Print the table
     console.clear();
     printHeader();
     console.log(`${chalk.magenta('Page: ')} ${currentPage}/${totalPages}`);
@@ -60,12 +64,13 @@ const paginate = async (sortedQuestByDate: any) => {
     const perPage = 5;
     let currentPage = 1;
     let totalPages = Math.ceil(sortedQuestByDate.length / perPage);
-
+    //  Start a loop to keep pages open
     while (true) {
         const start = (currentPage - 1) * perPage;
         const end = currentPage * perPage;
+        // Execute display page to display current page
         displayPage(sortedQuestByDate, start, end, currentPage, totalPages);
-
+        // Generate prompt to move through pages
         let choices = [];
         if (currentPage < totalPages) {
             choices.push({ name: 'Next', value: 'next' });
@@ -73,8 +78,8 @@ const paginate = async (sortedQuestByDate: any) => {
         if (currentPage > 1) {
             choices.push({ name: 'Previous', value: 'prev' });
         }
-        choices.push({ name: 'Exit', value: 'exit' });
-
+        choices.push({ name: 'Home', value: 'exit' });
+        // Prompt user to move through pages
         const { action } = await inquirer.prompt([
             {
                 type: 'list',
@@ -83,7 +88,7 @@ const paginate = async (sortedQuestByDate: any) => {
                 choices: choices
             }
         ]);
-
+        // Execute user's prompt decision
         if (action === 'next' && currentPage < totalPages) {
             currentPage++;
         } else if (action === 'prev' && currentPage > 1) {
@@ -96,14 +101,16 @@ const paginate = async (sortedQuestByDate: any) => {
 
 const getAllUserQuestsByQuestNum = async (questNum?: number) => {
     try {
+        // Get user info
         const user = await getUserJSON();
         const authHeaders = await getAuthHeaders();
-
+        // fetch user's previous attempts at question
         const response = await axios({
             method: 'GET',
             url: `${API_URL}/questions/?userId=${user.LC_ID}&question=${questNum}`,
             headers: { ...authHeaders }
         });
+        // Sort entries
         const data: ApiResponse = response.data;
         const sortedQuestByDate = data.questions.sort(
             (a: Question, b: Question) => {
@@ -112,7 +119,7 @@ const getAllUserQuestsByQuestNum = async (questNum?: number) => {
                 return dateB.getTime() - dateA.getTime();
             }
         );
-
+        // Display pages
         console.log(
             chalk.greenBright(`Previous attempts for question ${questNum}`)
         );

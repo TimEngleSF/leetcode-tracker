@@ -1,12 +1,12 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import { getQuestionData } from '../../utils.js';
+import { fetchQuestionInfo } from '../../utils.js';
 import { QuestionAnswer } from '../../Types/prompts.js';
 import { validate, filter } from './validation.js';
-
+// Depricated Prompt... now using add-question-flow
 const addQuestionPrompt = async (
     prompt = inquirer.prompt,
-    getQuestData = getQuestionData,
+    getQuestData = fetchQuestionInfo,
     testing = false
 ): Promise<QuestionAnswer | null> => {
     try {
