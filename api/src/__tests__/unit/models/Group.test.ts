@@ -74,17 +74,17 @@ const restoreStub = (stub: SinonStub) => {
     }
 };
 
-const createGroup = async (
-    name: string,
-    userId: ObjectId | string,
-    passCode: string
-) => {
-    return await Group.create({
-        name,
-        adminId: typeof userId === 'string' ? new ObjectId(userId) : userId,
-        passCode
-    });
-};
+// const createGroup = async (
+//     name: string,
+//     userId: ObjectId | string,
+//     passCode: string
+// ) => {
+//     return await Group.create({
+//         name,
+//         adminId: typeof userId === 'string' ? new ObjectId(userId) : userId,
+//         passCode
+//     });
+// };
 
 const testErrorTransformation = async (
     action: Function,
@@ -106,8 +106,9 @@ describe('Group Model', () => {
     let db: Db;
     let uri: string;
 
-    const passCode = faker.string.alpha(6).toLowerCase();
+    const passCode = faker.string.alpha(4).toLowerCase();
     let newUser: UserDocument;
+    let group;
     let newGroup: GroupDocument;
 
     let findOneStub: SinonStub;
@@ -124,12 +125,13 @@ describe('Group Model', () => {
             lastInit: faker.string.alpha(1),
             verificationToken: 'someToken'
         });
-
-        newGroup = await createGroup(
-            'New Group',
-            newUser._id.toHexString(),
-            passCode
-        );
+        group = new Group();
+        newGroup = await group.create({
+            adminId: newUser._id,
+            name: 'New Group',
+            open: false,
+            passCode: passCode
+        });
     });
 
     after(async () => {
@@ -161,15 +163,17 @@ describe('Group Model', () => {
             );
             expect(newGroup.admins).to.have.length(1);
             expect(newGroup.members).to.be.an('array');
-            expect(newGroup.members).to.have.length(0);
+            expect(newGroup.members).to.have.length(1);
             expect(newGroup.questionOfDay).to.be.null;
             expect(newGroup.questionOfWeek).to.be.null;
         });
         it('should throw an error if userId is not a valid ObjectId or ObjectId format', async () => {
             try {
-                await Group.create({
+                const group = new Group();
+                await group.create({
                     name: 'Some Group',
                     adminId: 'afafga',
+                    open: false,
                     passCode
                 });
             } catch (error: any) {
@@ -180,7 +184,13 @@ describe('Group Model', () => {
         it('should throw an error if an error is encountered while inserting new group', async () => {
             insertOneStub = stub.error.insertOneStub();
             try {
-                await createGroup('Error1', newUser._id, passCode);
+                const group = new Group();
+                await group.create({
+                    name: 'Error1',
+                    adminId: newUser._id,
+                    open: false,
+                    passCode
+                });
             } catch (error: any) {
                 expect(error.message).to.include('There was an error');
                 expect(error).to.not.be.null;
@@ -189,7 +199,13 @@ describe('Group Model', () => {
         it('should throw an error if the created group cannot be found by _id', async () => {
             findOneStub = stub.null.findOneStub();
             try {
-                await createGroup('Error2', newUser._id, passCode);
+                const group = new Group();
+                await group.create({
+                    name: 'Error2',
+                    adminId: newUser._id,
+                    open: false,
+                    passCode
+                });
             } catch (error: any) {
                 expect(error.message).to.include('There was an error');
                 expect(error).to.not.be.null;
@@ -197,16 +213,24 @@ describe('Group Model', () => {
         });
         it('should throw an error if the created group name already exists', async () => {
             try {
-                await createGroup('New Group', newUser._id, passCode);
+                const group = new Group();
+                await group.create({
+                    name: 'New Group',
+                    adminId: newUser._id,
+                    open: false,
+                    passCode
+                });
             } catch (error: any) {
-                expect(error.message).to.include('There was an error');
+                expect(error.message).to.include('Group name already in use');
                 expect(error).to.not.be.null;
             }
         });
     });
     describe('getGroupById', () => {
         it('should get a group by _id', async () => {
-            const result = await Group.getGroupById(newGroup._id.toHexString());
+            const result = await Group.findGroupById(
+                newGroup._id.toHexString()
+            );
             expect(result).to.be.an('object');
             expect(newGroup).to.have.property('name', 'new group'),
                 expect(newGroup).to.have.property('displayName', 'New Group'),
@@ -216,14 +240,14 @@ describe('Group Model', () => {
             );
             expect(newGroup.admins).to.have.length(1);
             expect(newGroup.members).to.be.an('array');
-            expect(newGroup.members).to.have.length(0);
+            expect(newGroup.members).to.have.length(1);
             expect(newGroup.questionOfDay).to.be.null;
             expect(newGroup.questionOfWeek).to.be.null;
         });
     });
     describe('getGroupByName', () => {
         it('should get a group by name', async () => {
-            const result = await Group.getGroupByName(newGroup.displayName);
+            const result = await Group.findGroupByName(newGroup.displayName);
             expect(result).to.be.an('object');
             expect(newGroup).to.have.property('name', 'new group'),
                 expect(newGroup).to.have.property('displayName', 'New Group'),
@@ -233,7 +257,7 @@ describe('Group Model', () => {
             );
             expect(newGroup.admins).to.have.length(1);
             expect(newGroup.members).to.be.an('array');
-            expect(newGroup.members).to.have.length(0);
+            expect(newGroup.members).to.have.length(1);
             expect(newGroup.questionOfDay).to.be.null;
             expect(newGroup.questionOfWeek).to.be.null;
         });

@@ -8,5 +8,19 @@ export interface GroupDocument extends Document {
     admins: ObjectId[];
     questionOfDay?: ObjectId | null;
     questionOfWeek?: ObjectId | null;
-    passCode: string;
+    passCode: string | null;
+    open: boolean;
 }
+
+export interface GroupCreateInput {
+    adminId: ObjectId | string;
+    name: string;
+    open: boolean;
+    passCode: string | null;
+}
+
+export interface GroupAssignInput {
+    _id: ObjectId | string;
+}
+
+export type GroupKeys = '_id' | 'name' | 'questionOfDay' | 'questionOfWeek';

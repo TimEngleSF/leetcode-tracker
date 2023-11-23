@@ -57,6 +57,7 @@ export const startServer = async (): Promise<Server> => {
         app.use(updateLastActive);
         app.use('/questions', routes.questionsRouter);
         app.use('/leaderboard', routes.leaderboardRouter);
+        app.use('/group', routes.groupRoutes);
         app.use(errorHandler);
         server = app.listen(PORT, () => {
             console.log(

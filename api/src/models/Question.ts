@@ -9,7 +9,7 @@ import {
     GetQuestionLeaderboardQueryResult,
     QuestionLeaderboardUserData
 } from '../types/questionTypes';
-import { ExtendedError } from '../errors/helpers';
+import { ExtendedError, createExtendedError } from '../errors/helpers';
 import { injectDb } from './helpers/injectDb';
 import { convertDaysToMillis } from './helpers/questionHelpers';
 import User from './User';
@@ -223,6 +223,7 @@ const Question = {
         }
     },
 
+    // Can get The leaderboard for all users or just users within a group
     getGeneralLeaderboard: async (
         userId: string | ObjectId,
         groupId?: string | ObjectId
@@ -233,13 +234,17 @@ const Question = {
 
         let members;
         if (groupId) {
-            // Fetch the group and its members
+            // Fetch the group and its members to use to filter in the first $match stage
             if (typeof groupId === 'string') {
                 groupId = new ObjectId(groupId);
             }
-            const group = await Group.getGroupById(groupId);
+            const group = await Group.findGroupById(groupId);
             if (!group) {
-                throw new Error('Group not found');
+                const error = createExtendedError({
+                    message: 'Group not found',
+                    statusCode: 404
+                });
+                throw error;
             }
             members = group.members;
         }
@@ -247,10 +252,11 @@ const Question = {
         try {
             const cursor = questionCollection.aggregate([
                 // First, get the general leaderboard with ranks
-                // { $match: { passed: true } },
+                // match all passed
                 {
                     $match: {
                         passed: true,
+                        // if groupId exists then only get Questsions where the userId is in the array members.
                         ...(groupId && { userId: { $in: members } })
                     }
                 },
@@ -273,7 +279,7 @@ const Question = {
                             $concat: [
                                 '$userInfo.firstName',
                                 ' ',
-                                { $substrCP: ['$userInfo.lastInit', 0, 1] },
+                                '$userInfo.lastInit',
                                 '.'
                             ]
                         },
@@ -379,7 +385,7 @@ const Question = {
             if (typeof groupId === 'string') {
                 groupId = new ObjectId(groupId);
             }
-            const group = await Group.getGroupById(groupId);
+            const group = await Group.findGroupById(groupId);
             if (!group) {
                 throw new Error('Group not found');
             }
@@ -426,7 +432,7 @@ const Question = {
                         $concat: [
                             '$userInfo.firstName',
                             ' ',
-                            { $substrCP: ['$userInfo.lastInit', 0, 1] },
+                            '$userInfo.lastInit',
                             '.'
                         ]
                     },

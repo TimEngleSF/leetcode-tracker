@@ -1,10 +1,11 @@
-import { Collection, Db, ObjectId, InsertOneResult } from 'mongodb';
+import MongoDb, { Collection, Db, ObjectId, InsertOneResult } from 'mongodb';
 import { getCollection } from '../db/connection';
-import { GroupDocument } from '../types/groupTypes';
+import { GroupCreateInput, GroupDocument } from '../types/groupTypes';
 
 import { injectDb } from './helpers/injectDb';
-import { ExtendedError } from '../errors/helpers';
+import { ExtendedError, createExtendedError } from '../errors/helpers';
 import Question from './Question';
+import { sanitizeId } from './helpers/utility';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
 export const assignGroupCollection = async () => {
@@ -13,41 +14,82 @@ export const assignGroupCollection = async () => {
     }
 };
 
-const Group = {
-    injectDb: (db: Db) => {
+class Group {
+    private groupInfo: GroupDocument | null;
+    private adminIdStrings: string[];
+    private memberIdStrings: string[];
+
+    constructor() {
+        this.groupInfo = null;
+        this.adminIdStrings = [];
+        this.memberIdStrings = [];
+    }
+
+    static injectDb(db: Db) {
         if (process.env.NODE_ENV === 'test') {
             groupCollection = injectDb(db, 'groups');
         }
-    },
+    }
 
-    create: async ({
-        name,
-        adminId,
-        passCode
-    }: {
-        name: string;
-        adminId: ObjectId | string;
-        passCode: string;
-    }) => {
-        try {
-            if (typeof adminId === 'string') {
-                adminId = new ObjectId(adminId);
-            }
-        } catch (error) {
+    // Run isAdmin before executing anything that will update the GroupDocument in the db
+    isAdmin(adminId: ObjectId | string): ObjectId {
+        if (!adminId) {
+            const error = createExtendedError({
+                message: 'adminId required to update group',
+                statusCode: 422
+            });
             throw error;
         }
+
+        adminId = sanitizeId(adminId);
+        if (!this.adminIdStrings.includes(adminId.toHexString())) {
+            {
+                const error = createExtendedError({
+                    message: 'Unauthorized',
+                    statusCode: 401
+                });
+                throw error;
+            }
+        }
+        return adminId;
+    }
+
+    async updateName(userId: ObjectId | string) {
+        try {
+            userId = sanitizeId(userId);
+            this.isAdmin(userId);
+        } catch (error) {}
+    }
+
+    async create({
+        name,
+        adminId,
+        open,
+        passCode
+    }: GroupCreateInput): Promise<GroupDocument> {
+        adminId = sanitizeId(adminId);
+
         let insertResult: InsertOneResult;
         try {
             insertResult = await groupCollection.insertOne({
                 name: name.toLowerCase(),
                 displayName: name,
                 admins: [adminId],
-                members: [],
+                members: [adminId],
                 questionOfDay: undefined,
                 questionOfWeek: undefined,
-                passCode
+                passCode,
+                open
             });
         } catch (error: any) {
+            if (error.code === 11000) {
+                const extendedError = createExtendedError({
+                    message: 'Group name already in use',
+                    statusCode: 409,
+                    stack: error.stack
+                });
+                throw extendedError;
+            }
             throw new Error(
                 `There was an error creating the group: ${error.message}`
             );
@@ -68,16 +110,108 @@ const Group = {
             throw new Error('There was an error creating the group');
         }
 
-        return result;
-    },
+        this.adminIdStrings = result.admins.map((adminId) =>
+            adminId.toHexString()
+        );
+        this.memberIdStrings = result.members.map((memberId) =>
+            memberId.toHexString()
+        );
+        this.groupInfo = result;
 
-    getGroup: async ({
+        return result;
+    }
+
+    async setGroup({
         key,
         value
     }: {
         key: '_id' | 'name';
         value: string | ObjectId;
-    }) => {
+    }): Promise<GroupDocument> {
+        let result: GroupDocument | null = null;
+        try {
+            if (key === '_id') {
+                value = sanitizeId(value);
+                result = await groupCollection.findOne<GroupDocument>({
+                    [key]: value
+                });
+            } else if (key === 'name' && typeof value === 'string') {
+                result = await groupCollection.findOne<GroupDocument>({
+                    [key]: value.toLowerCase()
+                });
+            }
+
+            if (!result) {
+                throw new Error('Could not find group');
+            }
+
+            this.adminIdStrings = result.admins.map((adminId) =>
+                adminId.toHexString()
+            );
+            this.memberIdStrings = result.members.map((memberId) =>
+                memberId.toHexString()
+            );
+            this.groupInfo = result;
+
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    getGroup(): GroupDocument {
+        if (!this.groupInfo) {
+            if (document === null) {
+                const extendedError = new ExtendedError(
+                    'Could not find requested group'
+                );
+                extendedError.statusCode = 404;
+                throw extendedError;
+            }
+        }
+        return this.groupInfo as GroupDocument;
+    }
+
+    getMembersStrings(): string[] {
+        return this.memberIdStrings;
+    }
+
+    async addMember(userId: string | ObjectId): Promise<GroupDocument> {
+        if (this.memberIdStrings.includes(userId.toString())) {
+            return this.groupInfo as GroupDocument;
+        }
+
+        userId = sanitizeId(userId);
+        if (!this.groupInfo) {
+            throw new Error('Group has not been assigned');
+        }
+        const documentId = sanitizeId(this.groupInfo._id);
+        const result = await groupCollection.findOneAndUpdate(
+            { _id: documentId },
+            { $push: { members: userId as any } },
+            { returnDocument: 'after' }
+        );
+        if (!result) {
+            const error = createExtendedError({
+                message: 'Group not found',
+                statusCode: 404
+            });
+            throw error;
+        }
+        this.groupInfo = result as GroupDocument;
+        this.memberIdStrings = result.members!.map((memberId) =>
+            memberId.toHexString()
+        );
+        return result as GroupDocument;
+    }
+
+    static async findGroup({
+        key,
+        value
+    }: {
+        key: '_id' | 'name';
+        value: string | ObjectId;
+    }): Promise<GroupDocument | null> {
         try {
             if (key === '_id' && typeof value === 'string') {
                 value = new ObjectId(value);
@@ -101,20 +235,33 @@ const Group = {
         }
 
         return result;
-    },
+    }
 
-    getGroupById: async (_id: string | ObjectId) => {
-        return await Group.getGroup({ key: '_id', value: _id });
-    },
+    static async findGroups(): Promise<GroupDocument[]> {
+        const result = await groupCollection
+            .find<GroupDocument>({}, { projection: { passCode: 0 } })
+            .toArray();
 
-    getGroupByName: async (name: string) => {
-        return await Group.getGroup({ key: 'name', value: name.toLowerCase() });
-    },
+        return result;
+    }
 
-    getGroupGeneralLeaderboard: async (
+    static async findGroupById(
+        _id: string | ObjectId
+    ): Promise<GroupDocument | null> {
+        return await Group.findGroup({ key: '_id', value: _id });
+    }
+
+    static async findGroupByName(name: string) {
+        return await Group.findGroup({
+            key: 'name',
+            value: name.toLowerCase()
+        });
+    }
+
+    static async findGroupGeneralLeaderboard(
         userId: string | ObjectId,
         groupId: string | ObjectId
-    ) => {
+    ) {
         try {
             const result = await Question.getGeneralLeaderboard(
                 userId,
@@ -124,6 +271,6 @@ const Group = {
             throw error;
         }
     }
-};
+}
 
 export default Group;
