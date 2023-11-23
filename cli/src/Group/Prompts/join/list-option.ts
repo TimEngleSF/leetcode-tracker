@@ -8,7 +8,6 @@ import {
 import { Group } from '../../../Types/api.js';
 import chalk from 'chalk';
 import { filter, validate } from './validation.js';
-import selectJoinOption from './select-join-option.js';
 
 interface PromptOptions {
     prompt?: typeof inquirer.prompt;
@@ -97,7 +96,9 @@ const listOptionPrompt = async ({
     if (openOption.answer === true) {
         try {
             // Make a post request to add user to the members array of the Group
+
             await joinGroup(groupChoicePrompt.answer);
+
             // Display a message letting user know they have joined the group.
             console.log(
                 chalk.green(`You have successfully joined ${group.displayName}`)
@@ -145,8 +146,11 @@ const listOptionPrompt = async ({
                     message: 'Press Enter to continue...'
                 }
             ]);
-        } catch (error) {
+        } catch (error: any) {
             // If there is an error start from the beginning and display an error message
+            if (error.response.status === 401) {
+                throw new Error('Incorrect passcode');
+            }
             throw new Error('There was an error trying to join');
         }
     }

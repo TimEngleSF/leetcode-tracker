@@ -1,20 +1,8 @@
 import inquirer from 'inquirer';
-import {
-    addGroupToJSON,
-    fetchGroups,
-    joinGroup,
-    printHeader
-} from '../../../utils.js';
-import { Group } from '../../../Types/api.js';
+import { printHeader } from '../../../utils.js';
 import chalk from 'chalk';
-import { filter, validate } from './validation.js';
 import listOptionPrompt from './list-option.js';
-
-interface PromptOptions {
-    prompt?: typeof inquirer.prompt;
-    testing?: boolean;
-    errorMessage?: string;
-}
+import { PromptOptions } from '../../../Types/prompts.js';
 
 export const selectJoinOption = async ({
     prompt = inquirer.prompt,
