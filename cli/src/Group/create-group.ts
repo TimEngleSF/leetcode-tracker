@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import axios from 'axios';
 import { API_URL } from '../config.js';
 import { Group } from '../Types/api.js';
-import { getAuthHeaders, printHeader } from '../utils.js';
+import { addGroupToJSON, getAuthHeaders, printHeader } from '../utils.js';
 
 interface CreateGroupOptions {
     prompt?: typeof inquirer.prompt;
@@ -83,6 +83,7 @@ const createGroup = async ({
             }
         });
         createdGroup = data as Group;
+        await addGroupToJSON(data._id);
     } catch (error) {
         await createGroup({
             errorMessage: `There was an error creating your group`
