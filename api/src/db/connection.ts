@@ -3,7 +3,7 @@ import { MongoClient, Db, Collection, Document, ClientSession } from 'mongodb';
 import { ExtendedError } from '../errors/helpers';
 
 let client: MongoClient | undefined;
-let db: Db;
+export let db: Db;
 
 const DB_NAME =
     process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test'
@@ -32,6 +32,7 @@ export const getCollection = async <T extends Document>(
         | 'questions'
         | 'questionData'
         | 'groups'
+        | 'appInfo'
 ): Promise<Collection<T>> => {
     try {
         const db = await connectDb();

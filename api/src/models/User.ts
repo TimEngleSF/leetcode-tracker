@@ -4,7 +4,8 @@ import { ExtendedError } from '../errors/helpers';
 import {
     UserDocument,
     CreateUserInDb,
-    addGroupInput
+    addGroupInput,
+    addAdminInput
 } from '../types/userTypes';
 import { injectDb } from './helpers/injectDb';
 import { sanitizeId } from './helpers/utility';
@@ -130,6 +131,8 @@ const User = {
                 firstName: firstName[0].toUpperCase() + firstName.substring(1),
                 lastInit: lastInit.toUpperCase(),
                 status: 'pending',
+                groups: [],
+                admins: [],
                 questions: [],
                 verificationToken,
                 passwordToken: null,
@@ -301,6 +304,20 @@ const User = {
             const result = await userCollection.updateOne(
                 { _id: userId },
                 { $push: { groups: groupId as any } }
+            );
+            return result.acknowledged;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    addAdmin: async ({ adminId, groupId }: addAdminInput) => {
+        adminId = sanitizeId(adminId);
+        groupId = sanitizeId(groupId);
+        try {
+            const result = await userCollection.updateOne(
+                { _id: adminId },
+                { $push: { admins: groupId as any } }
             );
             return result.acknowledged;
         } catch (error) {

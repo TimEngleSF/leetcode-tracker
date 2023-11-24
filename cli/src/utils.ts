@@ -7,12 +7,13 @@ import figlet from 'figlet';
 import axios from 'axios';
 import { API_URL, LATEST_VERSION } from './config.js';
 import { UserObject } from './Types/user.js';
-import { Group } from './Types/api.js';
+import { AppInfo, Group } from './Types/api.js';
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const jsonPath = path.join(__dirname, 'user.json');
+let updateMessage: string | null;
 
 export const getUserJSON = async (): Promise<UserObject> => {
     try {
@@ -25,7 +26,8 @@ export const getUserJSON = async (): Promise<UserObject> => {
             LC_TOKEN: '',
             LC_FIRSTNAME: '',
             LC_LASTINIT: '',
-            LC_GROUPS: []
+            LC_GROUPS: [],
+            LC_ADMINS: []
         });
         await fs.writeFile(path.join(__dirname, 'user.json'), payload);
     }
@@ -53,9 +55,29 @@ export const addGroupToJSON = async (groupId: string) => {
     }
 };
 
+export const addAdminToJSON = async (groupId: string) => {
+    try {
+        const jsonPath = path.join(__dirname, 'user.json');
+        const userData = JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
+        if (userData.LC_ADMINS.includes(groupId)) {
+            return;
+        }
+        userData.LC_ADMINS.push(groupId);
+
+        await fs.writeFile(jsonPath, JSON.stringify(userData));
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 export const localGroupsArray = async (): Promise<string[]> => {
     const userData = await JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
     return userData.LC_GROUPS as string[];
+};
+
+export const localAdminsArray = async (): Promise<string[]> => {
+    const userData = await JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
+    return userData.LC_ADMINS as string[];
 };
 
 export const getPackageVersion = async () => {
@@ -70,7 +92,9 @@ export const getPackageVersion = async () => {
     }
 };
 
-export const getAuthHeaders = async () => {
+export const getAuthHeaders = async (): Promise<{
+    Authorization: string;
+}> => {
     const { LC_TOKEN } = await getUserJSON();
     return { Authorization: `Bearer ${LC_TOKEN}` };
 };
@@ -89,6 +113,8 @@ export const printHeader = () => {
     }
     console.log(chalk.cyan(figlet.textSync('LeetCode Tracker')));
     console.log(versionPrintInfo);
+    updateMessage && console.log(chalk.bgRed(updateMessage));
+    console.log('\n');
 };
 
 export const clearPrevLine = () => {
@@ -106,7 +132,8 @@ export const logout = async () => {
         LC_TOKEN: null,
         LC_FIRSTNAME: null,
         LC_LASTINIT: null,
-        LC_GROUPS: []
+        LC_GROUPS: [],
+        LC_ADMINS: []
     };
 
     const payloadString = JSON.stringify(payload, null, 2);
@@ -139,28 +166,56 @@ export const fetchQuestionInfo = async (
     return data;
 };
 
+export const fetchUserStatus = async (
+    userObject: UserObject
+): Promise<{ status: number; appInfo: AppInfo }> => {
+    try {
+        const { status, data } = await axios({
+            method: 'GET',
+            url: `${API_URL}/status`,
+            headers: { Authorization: `Bearer ${userObject.LC_TOKEN}` }
+        });
+        return { status, appInfo: data.appInfo };
+    } catch (error: any) {
+        if (error.response.status === 422) {
+            throw new Error('Please verify your account.');
+        }
+        throw new Error(
+            `There was an error fetching user account: ${error.response.data}`
+        );
+    }
+};
+
 export const isLoggedIn = async () => {
     const userObject = await getUserJSON();
     if (!userObject.LC_TOKEN) {
         return false;
     }
     try {
-        const { status } = await axios({
-            method: 'GET',
-            url: `${API_URL}/status`,
-            headers: { Authorization: `Bearer ${userObject.LC_TOKEN}` }
-        });
-        const { data } = await axios.get(
+        // const { status, data } = await axios({
+        //     method: 'GET',
+        //     url: `${API_URL}/status`,
+        //     headers: { Authorization: `Bearer ${userObject.LC_TOKEN}` }
+        // });
+        const { status, appInfo } = await fetchUserStatus(userObject);
+
+        const userData = await axios.get(
             `${API_URL}/users/${userObject.LC_ID}`,
             {
                 headers: await getAuthHeaders()
             }
         );
+
+        updateMessage = appInfo.messages.updateMessages.cli;
+
         const jsonPath = path.join(__dirname, 'user.json');
         const localUserData = JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
         await fs.writeFile(
             jsonPath,
-            JSON.stringify({ ...localUserData, LC_GROUPS: data.groups })
+            JSON.stringify({
+                ...localUserData,
+                LC_GROUPS: userData.data.groups
+            })
         );
         if (status !== 200) {
             return false;

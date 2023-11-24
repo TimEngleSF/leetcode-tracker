@@ -8,6 +8,7 @@ export interface UserLoginResult {
         lastActivity: Date;
         status: 'pending' | 'verified';
         groups: string[];
+        admins: string[];
     };
     token: string;
 }
@@ -67,4 +68,12 @@ export interface Group {
     questionOfWeek?: number | null;
     passCode: string | null;
     open: boolean;
+}
+
+export interface AppInfo {
+    _id: string;
+    messages: { updateMessages: { cli: string } };
+    cliInfo: { version: string; lastUpdated: string };
+    apiInfo: { version: string; lastUpdated: string };
+    created: Date;
 }

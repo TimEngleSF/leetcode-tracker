@@ -13,6 +13,7 @@ export interface UserDocument extends Document {
     verificationToken: string;
     passwordToken: string | null;
     groups: ObjectId[];
+    admins: ObjectId[];
     questions: number[];
     lastActivity: Date;
 }
@@ -55,5 +56,10 @@ export interface UserToken extends JwtPayload {
 
 export interface addGroupInput {
     userId: string | ObjectId;
+    groupId: string | ObjectId;
+}
+
+export interface addAdminInput {
+    adminId: string | ObjectId;
     groupId: string | ObjectId;
 }

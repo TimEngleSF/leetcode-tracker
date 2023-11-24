@@ -76,7 +76,8 @@ const loginService = async (
             lastInit: user.lastInit,
             status: user.status,
             lastActivity: user.lastActivity,
-            groups: user.groups
+            groups: user.groups,
+            admins: user.admins
         },
         token
     };

@@ -6,4 +6,5 @@ export interface UserObject {
     LC_FIRSTNAME: string | null;
     LC_LASTINIT: string | null;
     LC_GROUPS: string[];
+    LC_ADMINS: string[];
 }

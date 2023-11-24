@@ -111,6 +111,7 @@ class Group {
             throw new Error('There was an error creating the group');
         }
 
+        await User.addAdmin({ adminId, groupId: result._id });
         await User.addGroup({ userId: adminId, groupId: result._id });
         this.adminIdStrings = result.admins.map((adminId) =>
             adminId.toHexString()
@@ -172,6 +173,19 @@ class Group {
             }
         }
         return this.groupInfo as GroupDocument;
+    }
+
+    getAdminsAsStrings(): string[] {
+        if (!this.groupInfo) {
+            if (document === null) {
+                const extendedError = new ExtendedError(
+                    'Could not find requested group'
+                );
+                extendedError.statusCode = 404;
+                throw extendedError;
+            }
+        }
+        return this.adminIdStrings as string[];
     }
 
     getMembersStrings(): string[] {
