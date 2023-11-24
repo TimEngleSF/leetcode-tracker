@@ -341,6 +341,16 @@ const Question = {
             ]);
             const [result] = await cursor.toArray();
 
+            if (!result) {
+                const error = createExtendedError({
+                    message: `No users ${
+                        groupId ? 'in this group' : ''
+                    } have added questions`,
+                    statusCode: 404
+                });
+                throw error;
+            }
+
             // Create placeholder userResults if user has not yet added any questions to the db
             let loggedInUserData;
             if (!result.userResult) {
@@ -360,12 +370,15 @@ const Question = {
                     : loggedInUserData
             };
         } catch (error: any) {
-            const extendedError = new ExtendedError(
-                `There was an error getting the Leaderboard: ${error.message}`
-            );
-            extendedError.statusCode = 500;
-            extendedError.stack = error.stack;
-            throw extendedError;
+            if (!error.statusCode) {
+                const extendedError = new ExtendedError(
+                    `There was an error getting the Leaderboard: ${error.message}`
+                );
+                extendedError.statusCode = 500;
+                extendedError.stack = error.stack;
+                throw extendedError;
+            }
+            throw error;
         }
     },
 

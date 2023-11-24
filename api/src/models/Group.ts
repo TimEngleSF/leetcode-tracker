@@ -111,6 +111,7 @@ class Group {
             throw new Error('There was an error creating the group');
         }
 
+        await User.addGroup({ userId: adminId, groupId: result._id });
         this.adminIdStrings = result.admins.map((adminId) =>
             adminId.toHexString()
         );
@@ -189,13 +190,14 @@ class Group {
         if (!this.groupInfo) {
             throw new Error('Group has not been assigned');
         }
-
-        if (this.groupInfo.passCode !== passCode) {
-            const error = createExtendedError({
-                message: 'Incorrect passcode',
-                statusCode: 401
-            });
-            throw error;
+        if (this.groupInfo.passCode) {
+            if (this.groupInfo.passCode !== passCode) {
+                const error = createExtendedError({
+                    message: 'Incorrect passcode',
+                    statusCode: 401
+                });
+                throw error;
+            }
         }
         const documentId = sanitizeId(this.groupInfo._id);
         const result = await groupCollection.findOneAndUpdate(
