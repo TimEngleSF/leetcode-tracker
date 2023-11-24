@@ -41,7 +41,7 @@ const GroupController = {
                 passCode: result.passCode?.toUpperCase() || null
             });
         } catch (error: any) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -81,7 +81,7 @@ const GroupController = {
                 });
             }
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -90,7 +90,7 @@ const GroupController = {
             const result = await Group.findGroups();
             return res.status(200).send(result);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     }
 };

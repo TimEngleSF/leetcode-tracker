@@ -32,7 +32,7 @@ const Auth = {
                 return res.status(401).send({ status: 'invalid' });
             }
         } catch (error) {
-            next(error);
+            return next(error);
         }
 
         const app = new App();

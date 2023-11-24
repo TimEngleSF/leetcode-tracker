@@ -20,7 +20,7 @@ const Leaderboard = {
                 leaderboard: result.leaderboardResult.slice(0, 10)
             });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -56,7 +56,7 @@ const Leaderboard = {
                 leaderboard: result.leaderboardResult.slice(0, 10)
             });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     }
 };
