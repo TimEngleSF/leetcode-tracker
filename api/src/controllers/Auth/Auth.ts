@@ -10,6 +10,7 @@ import setPasswordTokenService from '../../service/Auth/set-password-token';
 import Blacklist from '../../models/Blacklist';
 import setNewPasswordService from '../../service/Auth/set-new-password';
 import { UserToken } from '../../types/userTypes';
+import App from '../../models/App';
 
 const filter = new Filter();
 
@@ -33,7 +34,10 @@ const Auth = {
         } catch (error) {
             next(error);
         }
-        return res.status(200).send({ status: 'valid' });
+
+        const app = new App();
+        const appDocument = await app.setAppInfo();
+        return res.status(200).send({ status: 'valid', appInfo: appDocument });
     },
 
     postLogin: async (req: Request, res: Response, next: NextFunction) => {
