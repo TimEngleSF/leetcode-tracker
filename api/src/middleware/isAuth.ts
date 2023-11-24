@@ -42,7 +42,7 @@ const isAuth = async (
     } else {
         console.log('Successfully decoded token...');
         req.user = decodedToken;
-        next();
+        return next();
     }
 };
 
