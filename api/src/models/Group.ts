@@ -111,6 +111,7 @@ class Group {
             throw new Error('There was an error creating the group');
         }
 
+        await User.addAdmin({ adminId, groupId: result._id });
         await User.addGroup({ userId: adminId, groupId: result._id });
         this.adminIdStrings = result.admins.map((adminId) =>
             adminId.toHexString()
