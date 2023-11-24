@@ -68,3 +68,11 @@ export interface Group {
     passCode: string | null;
     open: boolean;
 }
+
+export interface AppInfo {
+    _id: string;
+    messages: { updateMessages: { cli: string } };
+    cliInfo: { version: string; lastUpdated: string };
+    apiInfo: { version: string; lastUpdated: string };
+    created: Date;
+}
