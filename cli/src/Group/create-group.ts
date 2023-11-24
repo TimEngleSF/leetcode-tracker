@@ -3,7 +3,12 @@ import chalk from 'chalk';
 import axios from 'axios';
 import { API_URL } from '../config.js';
 import { Group } from '../Types/api.js';
-import { addGroupToJSON, getAuthHeaders, printHeader } from '../utils.js';
+import {
+    addAdminToJSON,
+    addGroupToJSON,
+    getAuthHeaders,
+    printHeader
+} from '../utils.js';
 
 interface CreateGroupOptions {
     prompt?: typeof inquirer.prompt;
@@ -84,6 +89,7 @@ const createGroup = async ({
         });
         createdGroup = data as Group;
         await addGroupToJSON(data._id);
+        await addAdminToJSON(data._id);
     } catch (error) {
         await createGroup({
             errorMessage: `There was an error creating your group`
@@ -99,9 +105,9 @@ const createGroup = async ({
     );
     if (!createdGroup.open && createdGroup.passCode) {
         console.log(
-            chalk.green(
-                `The passcode for your group is: ${createdGroup.passCode}`
-            )
+            `${chalk.green(
+                'The passcode for your group is:'
+            )}  ${chalk.bgGreen.bold.red(' ' + createdGroup.passCode + ' ')}`
         );
     }
 
