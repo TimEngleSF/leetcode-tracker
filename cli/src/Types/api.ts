@@ -8,6 +8,7 @@ export interface UserLoginResult {
         lastActivity: Date;
         status: 'pending' | 'verified';
         groups: string[];
+        admins: string[];
     };
     token: string;
 }

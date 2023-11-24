@@ -26,7 +26,8 @@ export const getUserJSON = async (): Promise<UserObject> => {
             LC_TOKEN: '',
             LC_FIRSTNAME: '',
             LC_LASTINIT: '',
-            LC_GROUPS: []
+            LC_GROUPS: [],
+            LC_ADMINS: []
         });
         await fs.writeFile(path.join(__dirname, 'user.json'), payload);
     }
@@ -54,9 +55,29 @@ export const addGroupToJSON = async (groupId: string) => {
     }
 };
 
+export const addAdminToJSON = async (groupId: string) => {
+    try {
+        const jsonPath = path.join(__dirname, 'user.json');
+        const userData = JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
+        if (userData.LC_ADMINS.includes(groupId)) {
+            return;
+        }
+        userData.LC_ADMINS.push(groupId);
+
+        await fs.writeFile(jsonPath, JSON.stringify(userData));
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 export const localGroupsArray = async (): Promise<string[]> => {
     const userData = await JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
     return userData.LC_GROUPS as string[];
+};
+
+export const localAdminsArray = async (): Promise<string[]> => {
+    const userData = await JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
+    return userData.LC_ADMINS as string[];
 };
 
 export const getPackageVersion = async () => {
@@ -71,7 +92,9 @@ export const getPackageVersion = async () => {
     }
 };
 
-export const getAuthHeaders = async () => {
+export const getAuthHeaders = async (): Promise<{
+    Authorization: string;
+}> => {
     const { LC_TOKEN } = await getUserJSON();
     return { Authorization: `Bearer ${LC_TOKEN}` };
 };
@@ -109,7 +132,8 @@ export const logout = async () => {
         LC_TOKEN: null,
         LC_FIRSTNAME: null,
         LC_LASTINIT: null,
-        LC_GROUPS: []
+        LC_GROUPS: [],
+        LC_ADMINS: []
     };
 
     const payloadString = JSON.stringify(payload, null, 2);

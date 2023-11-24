@@ -48,7 +48,8 @@ export const loginUser = async (email?: string, password?: string) => {
             LC_TOKEN: data.token,
             LC_FIRSTNAME: data.user.firstName,
             LC_LASTINIT: data.user.lastInit,
-            LC_GROUPS: data.user.groups
+            LC_GROUPS: data.user.groups,
+            LC_ADMINS: data.user.admins
         };
 
         const payload = JSON.stringify(userObject);
