@@ -261,7 +261,7 @@ const Question = {
                     }
                 },
                 { $group: { _id: '$userId', passedCount: { $sum: 1 } } },
-                { $match: { passedCount: { $gt: 1 } } },
+                { $match: { passedCount: { $gt: 0 } } },
                 {
                     $lookup: {
                         from: 'users',
