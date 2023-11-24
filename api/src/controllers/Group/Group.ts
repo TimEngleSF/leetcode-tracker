@@ -86,6 +86,22 @@ const GroupController = {
     },
 
     getGroups: async (req: Request, res: Response, next: NextFunction) => {
+        const { query } = req;
+        if (query.groupId) {
+            const customReq = req as RequestWithUser;
+            const userId = customReq.user.userId;
+            const group = new Group();
+            const groupInfo = await group.setGroup({
+                key: '_id',
+                value: query.groupId.toString()
+            });
+            const admins = group.getAdminsAsStrings();
+            if (admins.includes(userId)) {
+                return res.status(200).send(groupInfo);
+            } else {
+                return res.status(200).send({ ...groupInfo, passCode: null });
+            }
+        }
         try {
             const result = await Group.findGroups();
             return res.status(200).send(result);

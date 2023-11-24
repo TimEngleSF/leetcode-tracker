@@ -175,6 +175,19 @@ class Group {
         return this.groupInfo as GroupDocument;
     }
 
+    getAdminsAsStrings(): string[] {
+        if (!this.groupInfo) {
+            if (document === null) {
+                const extendedError = new ExtendedError(
+                    'Could not find requested group'
+                );
+                extendedError.statusCode = 404;
+                throw extendedError;
+            }
+        }
+        return this.adminIdStrings as string[];
+    }
+
     getMembersStrings(): string[] {
         return this.memberIdStrings;
     }
