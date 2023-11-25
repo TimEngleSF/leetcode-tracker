@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import loginService from '../../service/Auth/login-user';
 import Filter from 'bad-words';
-import { loginReqSchema, registerReqSchema } from './authReqSchemas';
+import {
+    loginReqSchema,
+    registerReqSchema,
+    verifiedStatusSchema
+} from './authReqSchemas';
 import User from '../../models/User';
 import registerUserService from '../../service/Auth/register-user';
 import validateUserService from '../../service/Auth/validate-user';
@@ -40,10 +44,40 @@ const Auth = {
         return res.status(200).send({ status: 'valid', appInfo: appDocument });
     },
 
+    getVerifiedStatus: async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        console.log('Check');
+        const { email } = req.params;
+        const { error } = verifiedStatusSchema.validate({ email });
+
+        if (error) {
+            return res.status(422).send({
+                message: 'Validation Error',
+                error: error.details[0].message
+            });
+        }
+
+        try {
+            const user = await User.getByEmail(email);
+            if (!user) {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'User not found'
+                });
+            }
+            return res.status(200).send({ status: user.status });
+        } catch (error) {
+            return next(error);
+        }
+    },
+
     postLogin: async (req: Request, res: Response, next: NextFunction) => {
         let { error } = loginReqSchema.validate(req.body);
         if (error) {
-            res.status(422).send({
+            return res.status(422).send({
                 message: 'Validation Error',
                 error: error.details[0].message
             });
@@ -60,7 +94,7 @@ const Auth = {
     postRegister: async (req: Request, res: Response, next: NextFunction) => {
         let { error } = registerReqSchema.validate(req.body);
         if (error) {
-            res.status(422).send({
+            return res.status(422).send({
                 message: 'Validation Error',
                 error: error.details[0].message
             });
