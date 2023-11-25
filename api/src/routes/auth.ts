@@ -3,6 +3,8 @@ import Controllers from '../controllers/index';
 import authRateLimiter from '../middleware/authRateLimit';
 const authRouter = express.Router();
 
+authRouter.get('/verified/:email', Controllers.Auth.getVerifiedStatus);
+
 authRouter.get('/status', Controllers.Auth.getStatus);
 
 authRouter.post('/login', authRateLimiter, Controllers.Auth.postLogin);

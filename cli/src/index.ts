@@ -3,9 +3,9 @@
 import chalk from 'chalk';
 import open from 'open';
 import mainLoop from './main-loop.js';
-import authSelectionPrompt from './Auth/Prompts/authSelectionPrompt.js';
-import registerUser from './Auth/registerUser.js';
-import loginUser from './Auth/loginUser.js';
+import authSelectionPrompt from './Auth/Prompts/auth-selection-prompt.js';
+import registerUser from './Auth/register-user-flow.js';
+import loginUser from './Auth/login-user-flow.js';
 import { getUserJSON, isLoggedIn, printHeader } from './utils.js';
 import { API_URL, setLatestVersion } from './config.js';
 
@@ -63,7 +63,11 @@ async function handleRegistrationFlow() {
 
 async function handleLoginFlow() {
     console.log(chalk.green('Logging in...'));
-    await loginUser();
+    const success = await loginUser();
+    if (success === false) {
+        // start over if user was not successful logging in and does not want to attempt to login again
+        return await handleNonLoggedInUsers();
+    }
     console.clear();
     printHeader();
     await handleRun();
