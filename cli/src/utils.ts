@@ -7,7 +7,8 @@ import figlet from 'figlet';
 import axios from 'axios';
 import { API_URL, LATEST_VERSION } from './config.js';
 import { UserObject } from './Types/user.js';
-import { AppInfo, Group } from './Types/api.js';
+import { AppInfo, Group, UserLoginResult } from './Types/api.js';
+import inquirer from 'inquirer';
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -142,7 +143,7 @@ export const logout = async () => {
     return payload;
 };
 
-export const getUserData = async (userID: string) => {
+export const fetchUserData = async (userID: string) => {
     const authHeaders = await getAuthHeaders();
     const { data } = await axios({
         method: 'GET',
@@ -244,5 +245,38 @@ export const joinGroup = async (groupId: string, passCode?: string) => {
         url: `${API_URL}/group/add-member`,
         headers: await getAuthHeaders(),
         data: { groupId, passCode: passCode?.toLowerCase() }
+    });
+};
+
+export const postLoginUser = async ({
+    email,
+    password
+}: {
+    email: string;
+    password: string;
+}): Promise<UserLoginResult> => {
+    const { data } = await axios({
+        method: 'POST',
+        url: `${API_URL}/login`,
+        headers: { 'Content-Type': 'application/json' },
+        data: { email, password }
+    });
+    return data;
+};
+
+export const tryAgainPrompt = async (): Promise<boolean> => {
+    const { tryAgain } = await inquirer.prompt({
+        type: 'confirm',
+        name: 'tryAgain',
+        message: 'Would you like to try again?'
+    });
+    return tryAgain;
+};
+
+export const continuePrompt = async () => {
+    await inquirer.prompt({
+        type: 'input',
+        name: 'continue',
+        message: 'Press Enter to continue...'
     });
 };
