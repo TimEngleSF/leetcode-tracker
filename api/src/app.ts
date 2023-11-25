@@ -32,6 +32,9 @@ export const startServer = async (): Promise<Server> => {
         if (process.env.NODE_ENV === 'dev') {
             app.use(morgan('dev'));
         }
+        if (process.env.NODE_ENV === 'production') {
+            app.use(morgan('tiny'));
+        }
 
         if (process.env.NODE_ENV !== 'test') {
             try {
