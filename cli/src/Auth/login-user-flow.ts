@@ -4,9 +4,10 @@ import path from 'path';
 import url from 'url';
 import chalk from 'chalk';
 
-import loginPrompt from './Prompts/loginPrompt.js';
+import loginPrompt from './Prompts/login-prompt.js';
 import { API_URL } from '../config.js';
 import { UserLoginResult } from '../Types/api.js';
+import { postLoginUser, tryAgainPrompt } from '../utils.js';
 
 const loginToAPI = async (answers: {
     email: string;
@@ -17,14 +18,8 @@ const loginToAPI = async (answers: {
         email: email.toLowerCase().trim(),
         password
     };
-    const { data } = await axios({
-        method: 'POST',
-        url: `${API_URL}/login`,
-        headers: { 'Content-Type': 'application/json' },
-        data: payload
-    });
 
-    return data;
+    return await postLoginUser({ email, password });
 };
 
 export const loginUser = async (email?: string, password?: string) => {
@@ -69,7 +64,12 @@ export const loginUser = async (email?: string, password?: string) => {
         } else {
             console.log(error);
         }
-        await loginUser();
+        const tryAgain = await tryAgainPrompt();
+        if (tryAgain) {
+            await loginUser();
+        } else {
+            return false;
+        }
     }
 };
 
