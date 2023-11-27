@@ -83,7 +83,9 @@ const pollVerificationStatus = async (email: string): Promise<boolean> => {
 
     const checkVerified = async (): Promise<boolean> => {
         try {
-            const { data } = await axios.get(`${API_URL}/verified/${email}`);
+            const { data } = await axios.get(
+                `${API_URL}/is-verified/?email=${email}`
+            );
             return data.status === 'verified';
         } catch (error: any) {
             console.log(chalk.red('Error checking verification status'));
