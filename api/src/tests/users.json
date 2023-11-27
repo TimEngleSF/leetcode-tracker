@@ -1,0 +1,182 @@
+[
+    {
+        "_id": "65532c3749e74c6155215c5a",
+        "username": "tester",
+        "displayUsername": "Tester",
+        "email": "test@email.com",
+        "password": "password",
+        "firstName": "Test",
+        "lastInit": "T",
+        "status": "verified",
+        "questions": [],
+        "verificationToken": "",
+        "passwordToken": null,
+        "lastActivity": {
+            "$date": "2023-11-25T18:33:21.877Z"
+        },
+        "groups": ["65623ceb90e702b2ec2fb2e9"],
+        "admins": []
+    },
+    {
+        "_id": "65532ce949e74c6155215cf1",
+        "username": "beautifulgirl",
+        "displayUsername": "BeautifulGirl",
+        "email": "kara@email.com",
+        "password": "password",
+        "firstName": "Kara",
+        "lastInit": "M",
+        "status": "verified",
+        "questions": [],
+        "verificationToken": "",
+        "passwordToken": null,
+        "lastActivity": {
+            "$date": "2023-11-25T18:32:14.598Z"
+        },
+        "groups": ["655a821aefbac1bdace44e68", "65623ceb90e702b2ec2fb2e9"],
+        "admins": []
+    },
+    {
+        "_id": "65532dc5b3bfb5f3c362651a",
+        "username": "sm0keman",
+        "displayUsername": "Sm0keMan",
+        "email": "glen@email.com",
+        "password": "password",
+        "firstName": "Glen",
+        "lastInit": "E",
+        "status": "verified",
+        "questions": [],
+        "verificationToken": "",
+        "passwordToken": null,
+        "lastActivity": {
+            "$date": "2023-11-25T18:51:03.581Z"
+        },
+        "groups": ["65623ceb90e702b2ec2fb2e9", "6562413690e702b2ec2fb2ed"],
+        "admins": ["65623ceb90e702b2ec2fb2e9"]
+    },
+    {
+        "_id": "65532e27b3bfb5f3c36265b1",
+        "username": "puppygirl",
+        "displayUsername": "PuppyGirl",
+        "email": "lily@email.com",
+        "password": "password",
+        "firstName": "Lily",
+        "lastInit": "E",
+        "status": "verified",
+        "questions": [],
+        "verificationToken": "",
+        "passwordToken": null,
+        "lastActivity": {
+            "$date": "2023-11-25T21:48:37.180Z"
+        },
+        "groups": ["65623ceb90e702b2ec2fb2e9"],
+        "admins": []
+    },
+    {
+        "_id": "6554332c78a8ef45d2935f42",
+        "username": "bret",
+        "displayUsername": "Bret",
+        "email": "bret@email.com",
+        "password": "password",
+        "firstName": "Bret",
+        "lastInit": "A",
+        "status": "verified",
+        "questions": [],
+        "verificationToken": "token",
+        "passwordToken": "someToken",
+        "lastActivity": {
+            "$date": "2023-11-15T02:55:40.197Z"
+        },
+        "groups": [],
+        "admins": []
+    },
+    {
+        "_id": "6556b498919bb165ee50154c",
+        "username": "ahu22",
+        "displayUsername": "Ahu22",
+        "email": "ahu@email.com",
+        "password": "password",
+        "firstName": "Ahu",
+        "lastInit": "W",
+        "status": "verified",
+        "questions": [],
+        "verificationToken": "",
+        "passwordToken": "passwordToken",
+        "lastActivity": {
+            "$date": "2023-11-19T07:46:22.323Z"
+        },
+        "groups": [],
+        "admins": []
+    },
+    {
+        "_id": "65582bcf802c62a3b071fde9",
+        "username": "noquestionsuser",
+        "displayUsername": "NoQuestionsUser",
+        "email": "noquestions@email.com",
+        "password": "password",
+        "firstName": "Questions",
+        "lastInit": "N",
+        "status": "verified",
+        "questions": [],
+        "verificationToken": "",
+        "passwordToken": null,
+        "lastActivity": {
+            "$date": "2023-11-24T04:23:44.443Z"
+        },
+        "groups": [],
+        "admins": []
+    },
+    {
+        "_id": "655d8af496b7fb90e5f11895",
+        "username": "builder",
+        "displayUsername": "builder",
+        "email": "timmy@email.com",
+        "password": "password",
+        "firstName": "Tim",
+        "lastInit": "E",
+        "status": "pending",
+        "questions": [],
+        "verificationToken": "verificationToken5",
+        "passwordToken": "",
+        "lastActivity": {
+            "$date": "2023-11-22T05:00:36.243Z"
+        },
+        "admins": [],
+        "groups": []
+    },
+    {
+        "_id": "65601acd16b884a133a856f1",
+        "username": "dad",
+        "displayUsername": "dad",
+        "email": "dennis@email.com",
+        "password": "password",
+        "firstName": "Dennis",
+        "lastInit": "E",
+        "status": "verified",
+        "groups": ["6560360d8dd40b9bd7503dd8"],
+        "admins": ["6560360d8dd40b9bd7503dd8"],
+        "questions": [],
+        "verificationToken": "verificationToken4",
+        "passwordToken": "token2",
+        "lastActivity": {
+            "$date": "2023-11-24T07:39:26.055Z"
+        }
+    },
+    {
+        "_id": "6562405a90e702b2ec2fb2ea",
+        "username": "wayne10",
+        "displayUsername": "Wayne10",
+        "email": "wayne@email.com",
+        "password": "password",
+        "firstName": "Wayne",
+        "lastInit": "W",
+        "status": "verified",
+        "groups": ["65623ceb90e702b2ec2fb2e9", "6562413690e702b2ec2fb2ed"],
+        "admins": ["6562413690e702b2ec2fb2ed"],
+        "questions": [],
+        "verificationToken": "verificationToken3",
+        "passwordToken": "",
+        "lastActivity": {
+            "$date": "2023-11-25T18:50:18.176Z"
+        }
+    }
+]
