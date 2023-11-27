@@ -33,10 +33,23 @@ const Auth = {
             const decodedToken = jwt.verify(token, JWT_SECRET) as UserToken;
             const user = await User.getById(decodedToken.userId);
             if (!user || user.status === 'pending') {
-                return res.status(401).send({ status: 'invalid' });
+                return res.status(401).send({
+                    status: 'invalid',
+                    message: 'User does not exist or status is pending.'
+                });
             }
         } catch (error) {
-            return next(error);
+            if (error instanceof jwt.JsonWebTokenError) {
+                return res
+                    .status(401)
+                    .send({ status: 'invalid', message: 'Invalid token.' });
+            } else if (error instanceof jwt.TokenExpiredError) {
+                return res
+                    .status(401)
+                    .send({ status: 'invalid', message: 'Token expired.' });
+            } else {
+                return next(error);
+            }
         }
 
         const app = new App();
