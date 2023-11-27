@@ -135,7 +135,7 @@ const User = {
                 admins: [],
                 questions: [],
                 verificationToken,
-                passwordToken: null,
+                passwordToken: '',
                 lastActivity: new Date()
             });
             const result = await userCollection.findOne<UserDocument>({

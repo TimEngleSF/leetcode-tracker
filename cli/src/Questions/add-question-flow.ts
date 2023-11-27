@@ -73,7 +73,7 @@ const addQuestion = async ({
     try {
         await axios({
             method: 'POST',
-            url: `${API_URL}/questions/add`,
+            url: `${API_URL}/questions`,
             headers: await getAuthHeaders(),
             data: payload
         });

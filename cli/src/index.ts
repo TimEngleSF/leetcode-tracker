@@ -75,7 +75,7 @@ async function handleLoginFlow() {
 
 async function handleResetFlow() {
     console.log(chalk.green('Opening reset password form in browser...'));
-    open(`${API_URL}/reset`);
+    open(`${API_URL}/reset-page`);
     console.clear();
     printHeader();
 }

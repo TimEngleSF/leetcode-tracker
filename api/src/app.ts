@@ -3,7 +3,7 @@ import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
 import { Db } from 'mongodb';
-
+import methodOverride from 'method-override';
 import connectDb from './db/connection';
 import routes from './routes/index';
 import isAuth from './middleware/isAuth';
@@ -51,7 +51,8 @@ export const startServer = async (): Promise<Server> => {
         }
 
         app.use(express.json());
-        app.use(express.urlencoded({ extended: true }));
+        app.use(methodOverride('_method'));
+        app.use(express.urlencoded({ extended: false }));
         app.use(express.static(path.join(__dirname, '/public')));
         app.use('/', routes.authRouter);
 

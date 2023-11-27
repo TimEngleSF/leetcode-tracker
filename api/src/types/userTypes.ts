@@ -11,7 +11,7 @@ export interface UserDocument extends Document {
     password: string;
     status: 'pending' | 'verified';
     verificationToken: string;
-    passwordToken: string | null;
+    passwordToken: string;
     groups: ObjectId[];
     admins: ObjectId[];
     questions: number[];

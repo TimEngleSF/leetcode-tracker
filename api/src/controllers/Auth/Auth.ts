@@ -33,10 +33,23 @@ const Auth = {
             const decodedToken = jwt.verify(token, JWT_SECRET) as UserToken;
             const user = await User.getById(decodedToken.userId);
             if (!user || user.status === 'pending') {
-                return res.status(401).send({ status: 'invalid' });
+                return res.status(401).send({
+                    status: 'invalid',
+                    message: 'User does not exist or status is pending.'
+                });
             }
         } catch (error) {
-            return next(error);
+            if (error instanceof jwt.JsonWebTokenError) {
+                return res
+                    .status(401)
+                    .send({ status: 'invalid', message: 'Invalid token.' });
+            } else if (error instanceof jwt.TokenExpiredError) {
+                return res
+                    .status(401)
+                    .send({ status: 'invalid', message: 'Token expired.' });
+            } else {
+                return next(error);
+            }
         }
 
         const app = new App();
@@ -50,18 +63,19 @@ const Auth = {
         next: NextFunction
     ) => {
         console.log('Check');
-        const { email } = req.params;
+        // const { email } = req.params;
+        const { email } = req.query;
         const { error } = verifiedStatusSchema.validate({ email });
 
-        if (error) {
+        if (error || !email) {
             return res.status(422).send({
                 message: 'Validation Error',
-                error: error.details[0].message
+                error: error ? error.details[0].message : 'Missing email query'
             });
         }
 
         try {
-            const user = await User.getByEmail(email);
+            const user = await User.getByEmail(email.toString());
             if (!user) {
                 return res.status(404).send({
                     status: 'error',
@@ -200,10 +214,12 @@ const Auth = {
         next: NextFunction
     ) => {
         const { password, token } = req.body;
+        console.log(password, token);
         try {
             await setNewPasswordService(password, token);
             return res.render('Auth/password/reset-password-success');
         } catch (error) {
+            console.log(error);
             res.redirect(`/reset/${token}`);
         }
     }
