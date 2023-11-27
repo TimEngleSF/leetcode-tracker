@@ -6,7 +6,7 @@ import {
     DecodedTokenExpiration
 } from '../types/blacklistTypes';
 import { injectDb } from './helpers/injectDb';
-import { ExtendedError } from '../errors/helpers';
+import { ExtendedError, createExtendedError } from '../errors/helpers';
 
 const { EMAIL_VERIFICATION_SECRET, JWT_SECRET, PASSWORD_VERIFICATION_SECRET } =
     process.env;
@@ -104,11 +104,21 @@ const Blacklist = {
         try {
             decodedToken = jwt.verify(token, secret) as DecodedTokenExpiration;
         } catch (error: any) {
-            const extendedError = new ExtendedError(
-                `There was an error decoding the token: ${error.message}`
-            );
-            extendedError.statusCode = 500;
-            throw extendedError;
+            if (error instanceof jwt.JsonWebTokenError) {
+                const extendedError = createExtendedError({
+                    message: 'Invalid token.',
+                    statusCode: 401
+                });
+                throw extendedError;
+            } else if (error instanceof jwt.TokenExpiredError) {
+                const extendedError = createExtendedError({
+                    message: 'Expired token.',
+                    statusCode: 401
+                });
+                throw extendedError;
+            } else {
+                throw error;
+            }
         }
         if (decodedToken.exp) {
             payload = { token, exp: decodedToken.exp * 1000 };
