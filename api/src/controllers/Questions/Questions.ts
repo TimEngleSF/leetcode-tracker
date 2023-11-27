@@ -8,6 +8,7 @@ import {
 import Question from '../../models/Question';
 import postQuestionService from '../../service/Questions/add-question';
 import getQuestionsByUserIdService from '../../service/Questions/get-questions-userId';
+import { RequestWithUser } from '../../types/controllerTypes';
 
 const Questions = {
     getQuestionInfo: async (
@@ -79,9 +80,15 @@ const Questions = {
     },
 
     postQuestion: async (req: Request, res: Response, next: NextFunction) => {
+        const customReq = req as RequestWithUser;
+        const { user } = customReq;
         const { error } = postQuestionSchema.validate(req.body);
+
         if (error) {
             return res.status(422).send(error.details[0].message);
+        }
+        if (req.body.userId !== user.userId) {
+            return res.status(401).send({ message: 'Unauthorized' });
         }
         try {
             await postQuestionService(req.body);
