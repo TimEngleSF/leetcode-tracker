@@ -161,7 +161,7 @@ export const fetchQuestionInfo = async (
     const authHeaders = await getAuthHeadersFunc();
     const { data } = await axiosInstance({
         method: 'GET',
-        url: `${API_URL}/questions/data/${questNum}`,
+        url: `${API_URL}/questions/lc-info/${questNum}`,
         headers: authHeaders
     });
     return data;
