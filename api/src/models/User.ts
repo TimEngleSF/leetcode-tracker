@@ -13,7 +13,9 @@ import { sanitizeId } from './helpers/utility';
 export let userCollection: Collection<Partial<UserDocument>>;
 
 export const assignUserCollection = async () => {
+    //istanbul ignore next
     if (!userCollection && process.env.NODE_ENV !== 'test') {
+        //istanbul ignore next
         userCollection = await getCollection<Partial<UserDocument>>('users');
     }
 };
