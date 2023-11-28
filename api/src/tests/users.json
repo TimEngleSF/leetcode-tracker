@@ -10,7 +10,7 @@
         "status": "verified",
         "questions": [],
         "verificationToken": "",
-        "passwordToken": null,
+        "passwordToken": "",
         "lastActivity": {
             "$date": "2023-11-25T18:33:21.877Z"
         },
@@ -28,7 +28,7 @@
         "status": "verified",
         "questions": [],
         "verificationToken": "",
-        "passwordToken": null,
+        "passwordToken": "",
         "lastActivity": {
             "$date": "2023-11-25T18:32:14.598Z"
         },
@@ -46,7 +46,7 @@
         "status": "verified",
         "questions": [],
         "verificationToken": "",
-        "passwordToken": null,
+        "passwordToken": "",
         "lastActivity": {
             "$date": "2023-11-25T18:51:03.581Z"
         },
@@ -64,7 +64,7 @@
         "status": "verified",
         "questions": [],
         "verificationToken": "",
-        "passwordToken": null,
+        "passwordToken": "",
         "lastActivity": {
             "$date": "2023-11-25T21:48:37.180Z"
         },
@@ -118,7 +118,7 @@
         "status": "verified",
         "questions": [],
         "verificationToken": "",
-        "passwordToken": null,
+        "passwordToken": "",
         "lastActivity": {
             "$date": "2023-11-24T04:23:44.443Z"
         },

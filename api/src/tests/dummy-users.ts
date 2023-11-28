@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 
-export const dummyUsers = {
+const dummyUsers = {
     main: [
         {
             _id: new ObjectId('65532c3749e74c6155215c5a'),
@@ -15,7 +15,7 @@ export const dummyUsers = {
             groups: ['65623ceb90e702b2ec2fb2e9'],
             admins: [],
             verificationToken: '',
-            passwordToken: null,
+            passwordToken: '',
             lastActivity: new Date('2023-11-25T18:33:21.877Z')
         },
         {
@@ -31,7 +31,7 @@ export const dummyUsers = {
             groups: ['655a821aefbac1bdace44e68', '65623ceb90e702b2ec2fb2e9'],
             admins: [],
             verificationToken: '',
-            passwordToken: null,
+            passwordToken: '',
             lastActivity: new Date('2023-11-25T18:32:14.598Z')
         },
         {
@@ -47,7 +47,7 @@ export const dummyUsers = {
             groups: ['65623ceb90e702b2ec2fb2e9', '6562413690e702b2ec2fb2ed'],
             admins: ['65623ceb90e702b2ec2fb2e9'],
             verificationToken: '',
-            passwordToken: null,
+            passwordToken: '',
             lastActivity: new Date('2023-11-25T18:51:03.581Z')
         }
     ],
@@ -103,3 +103,5 @@ export const dummyUsers = {
         }
     ]
 };
+
+export default dummyUsers;

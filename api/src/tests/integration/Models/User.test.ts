@@ -10,7 +10,7 @@ import { closeDb } from '../../../db/connection';
 import { UserDocument } from '../../../types/userTypes';
 import { ExtendedError } from '../../../errors/helpers';
 import { createMockDb } from '../../helpers';
-import { dummyUsers } from '../../dummy-users';
+import dummyUsers from '../../dummy-users';
 
 const mocks = {
     throwError: {
@@ -66,6 +66,8 @@ const mocks = {
     }
 };
 
+type ErrorTestCase = [Function, string, number];
+
 const getRandomDummyUserIndex = (typeOfUser: 'main' | 'withToken'): number => {
     const max = dummyUsers[typeOfUser].length;
     return Math.floor(Math.random() * max);
@@ -109,9 +111,25 @@ describe('User Model', () => {
         jest.restoreAllMocks();
     });
 
+    describe('assignCollection', () => {
+        it('should not assign a collection when env.NODE_ENV equals test', () => {
+            const collectionBeforeAssignment = userCollection;
+            assignUserCollection();
+            expect(userCollection).toEqual(collectionBeforeAssignment);
+        });
+    });
+
     describe('get methods test suite', () => {
         describe('getUser', () => {
             const sut = User.getUser;
+            const errorTestCases: ErrorTestCase[] = [
+                [mocks.throwError.findOne, 'Simulated Error', 500],
+                [
+                    mocks.throwError.withStatusCode.findOne,
+                    'Simulated Error',
+                    400
+                ]
+            ];
             it.each(
                 dummyUsers.main.map((user, i) => ({
                     input: user._id,
@@ -160,44 +178,32 @@ describe('User Model', () => {
                     expect(actual).toEqual(expected);
                 }
             );
-            it('should throw an instance of ExtendedError when the caught error has no status code', async () => {
-                findOneMock = mocks.throwError.findOne();
-                let didNotThrow = false;
+            it.each(errorTestCases)(
+                'should throw an error with the correct message and status code',
+                async (mockSetup, expectedMessage, expectedStatusCode) => {
+                    if (expectedStatusCode !== 500) {
+                        mockSetup(expectedStatusCode);
+                    } else {
+                        mockSetup();
+                    }
 
-                try {
-                    await sut('_id', dummyUsers.main[0]._id);
-                    didNotThrow = true;
-                } catch (error: any) {
-                    expect(error).toBeInstanceOf(ExtendedError);
-                    expect(error.message).toContain('Simulated Error');
-                    expect(error.statusCode).toBe(500);
-                }
+                    let didNotThrow = false;
+                    try {
+                        await sut('_id', dummyUsers.main[0]._id);
+                        didNotThrow = true;
+                    } catch (error: any) {
+                        expect(error).toBeInstanceOf(ExtendedError);
+                        expect(error.message).toContain(expectedMessage);
+                        expect(error.statusCode).toBe(expectedStatusCode);
+                    }
 
-                if (didNotThrow) {
-                    throw new Error(
-                        'Expected function to throw an ExtendedError, but it did not throw'
-                    );
+                    if (didNotThrow) {
+                        throw new Error(
+                            'Expected function to throw an ExtendedError, but it did not throw'
+                        );
+                    }
                 }
-            });
-            it('should throw an instance of ExtendedError with the correct status code if an error with a status code is thrown', async () => {
-                findOneMock = mocks.throwError.withStatusCode.findOne(400);
-                let didNotThrow = false;
-
-                try {
-                    await sut('_id', dummyUsers.main[0]._id);
-                    didNotThrow = true;
-                } catch (error: any) {
-                    expect(error).toBeInstanceOf(ExtendedError);
-                    expect(error.message).toContain('Simulated Error');
-                    expect(error.statusCode).toBe(400);
-                }
-
-                if (didNotThrow) {
-                    throw new Error(
-                        'Expected function to throw an ExtendedError, but it did not throw'
-                    );
-                }
-            });
+            );
         });
         describe('getById', () => {
             const sut = User.getById;
