@@ -45,7 +45,7 @@ const Question = {
             );
         }
     },
-    addQuestion: async (questionData: NewQuestion): Promise<void> => {
+    addQuestion: async (questionData: NewQuestion): Promise<boolean> => {
         let transformedUserId: ObjectId;
         if (typeof questionData.userId === 'string') {
             transformedUserId = new ObjectId(questionData.userId);
@@ -67,6 +67,7 @@ const Question = {
             if (!result.acknowledged) {
                 throw new Error('Insertion not acknowledged');
             }
+            return result.acknowledged;
         } catch (error: any) {
             const extendedError = new ExtendedError(
                 `There was an error adding the question result: ${error.message}`
