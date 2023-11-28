@@ -167,7 +167,7 @@ const User = {
             await userCollection.deleteOne({ _id });
         } catch (error: any) {
             const extendedError = new ExtendedError(
-                'Database Error: There was an error creating user'
+                'Database Error: There was an error deleting user'
             );
             extendedError.statusCode = 500;
             extendedError.stack = error.stack;
