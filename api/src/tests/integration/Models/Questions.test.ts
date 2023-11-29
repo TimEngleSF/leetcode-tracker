@@ -27,6 +27,10 @@ const mocks = {
                 .mockImplementation(() => {
                     throw new Error('Simulated Error');
                 }),
+        find: () =>
+            jest.spyOn(Collection.prototype, 'find').mockImplementation(() => {
+                throw new Error('Simulated Error');
+            }),
         findOneAndUpdate: () =>
             jest
                 .spyOn(Collection.prototype, 'findOneAndUpdate')
@@ -178,6 +182,8 @@ describe('Question Model', () => {
     let speed: number | undefined;
     let date: Date;
 
+    const defaultQuestionId = new ObjectId('65532cac49e74c6155215c5b');
+
     beforeAll(async () => {
         ({ mongoServer, client, db, uri } = await createMockDb());
         questNum = faker.number.int({ min: 1, max: 2400 });
@@ -266,5 +272,208 @@ describe('Question Model', () => {
                 }
             }
         );
+    });
+
+    describe('getQuestion', () => {
+        const sut = Question.getQuestion;
+        const testQuestionData = [
+            {
+                _id: new ObjectId('65532cac49e74c6155215c5b'),
+                expected: {
+                    _id: new ObjectId('65532cac49e74c6155215c5b'),
+                    userId: new ObjectId('65532c3749e74c6155215c5a'),
+                    username: 'Tester',
+                    questNum: 33,
+                    passed: true,
+                    speed: 384,
+                    created: new Date('2023-11-14T08:15:40.719Z')
+                }
+            },
+            {
+                _id: new ObjectId('65532df8b3bfb5f3c3626560'),
+                expected: {
+                    _id: new ObjectId('65532df8b3bfb5f3c3626560'),
+                    userId: new ObjectId('65532dc5b3bfb5f3c362651a'),
+                    username: 'Sm0keMan',
+                    questNum: 2,
+                    passed: true,
+                    speed: 142,
+                    created: new Date('2023-11-14T08:21:12.867Z')
+                }
+            },
+            {
+                _id: new ObjectId('65533b06a56c2a872263d343'),
+                expected: {
+                    _id: new ObjectId('65533b06a56c2a872263d343'),
+                    userId: new ObjectId('65532e27b3bfb5f3c36265b1'),
+                    username: 'PuppyGirl',
+                    questNum: 69,
+                    passed: true,
+                    speed: 71,
+                    created: new Date('2023-11-14T09:16:54.076Z')
+                }
+            }
+        ];
+        const errorTestCases: ErrorTestCase[] = [
+            [mocks.resolveNull.findOne, 'No question found', 404],
+            [mocks.throwError.findOne, 'Simulated Error', 500]
+        ];
+        it.each(testQuestionData)(
+            'should return the correct user question date by question _id as an ObjectId',
+            async ({ _id, expected }) => {
+                const actual = await sut(_id);
+                expect(actual).toEqual(expected);
+            }
+        );
+        it.each(testQuestionData)(
+            'should return the correct user question date by question _id as string',
+            async ({ _id, expected }) => {
+                const actual = await sut(_id.toHexString());
+                expect(actual).toEqual(expected);
+            }
+        );
+        it.each(errorTestCases)(
+            'should throw an error with the correct message and status code',
+            async (mockSetup, expectedMessage, expectedStatusCode) => {
+                mockSetup();
+
+                let didNotThrow = false;
+                try {
+                    const actual = await sut(defaultQuestionId);
+                    didNotThrow = true;
+                } catch (error: any) {
+                    expect(error).toBeInstanceOf(ExtendedError);
+                    expect(error.message).toContain(`${expectedMessage}`);
+                    expect(error.statusCode).toBe(expectedStatusCode);
+                }
+
+                if (didNotThrow) {
+                    throw new Error(
+                        'Expected function to throw an ExtendedError, but it did not throw'
+                    );
+                }
+            }
+        );
+    });
+
+    describe('getQuestionInfo', () => {
+        const sut = Question.getQuestionInfo;
+        const testQuestionInfoData = [
+            {
+                questId: 4,
+                expected: {
+                    _id: new ObjectId('6529aa8feb5e336742cf7ced'),
+                    title: 'Median of Two Sorted Arrays',
+                    url: 'https://leetcode.com/problems/median-of-two-sorted-arrays/',
+                    diff: 'Hard',
+                    questId: 4
+                }
+            },
+            {
+                questId: 1,
+                expected: {
+                    _id: new ObjectId('6529aa8feb5e336742cf7cea'),
+                    title: 'Two Sum',
+                    url: 'https://leetcode.com/problems/two-sum/',
+                    diff: 'Easy',
+                    questId: 1
+                }
+            },
+            {
+                questId: 5,
+                expected: {
+                    _id: new ObjectId('6529aa8feb5e336742cf7cee'),
+                    title: 'Longest Palindromic Substring',
+                    url: 'https://leetcode.com/problems/longest-palindromic-substring/',
+                    diff: 'Medium',
+                    questId: 5
+                }
+            }
+        ];
+
+        const errorTestCases: ErrorTestCase[] = [
+            [
+                mocks.resolveNull.findOne,
+                'Question does not exist in the database',
+                404
+            ],
+            [mocks.throwError.findOne, 'Simulated Error', 500]
+        ];
+
+        it.each(testQuestionInfoData)(
+            'should return the correct questionInfo document',
+            async ({ questId, expected }) => {
+                const actual = await sut(questId);
+                expect(actual).toEqual(expected);
+            }
+        );
+
+        it.each(errorTestCases)(
+            'should throw an error with the correct message and status code',
+            async (mockSetup, expectedMessage, expectedStatusCode) => {
+                mockSetup();
+
+                let didNotThrow = false;
+                try {
+                    const actual = await sut(2);
+                    didNotThrow = true;
+                } catch (error: any) {
+                    expect(error).toBeInstanceOf(ExtendedError);
+                    expect(error.message).toContain(`${expectedMessage}`);
+                    expect(error.statusCode).toBe(expectedStatusCode);
+                }
+
+                if (didNotThrow) {
+                    throw new Error(
+                        'Expected function to throw an ExtendedError, but it did not throw'
+                    );
+                }
+            }
+        );
+    });
+
+    describe('getQuestionsByUser', () => {
+        const sut = Question.getQuestionsByUser;
+        const questId = 22;
+        const users = [
+            new ObjectId('65532c3749e74c6155215c5a'),
+            new ObjectId('65532ce949e74c6155215cf1'),
+            new ObjectId('65532dc5b3bfb5f3c362651a')
+        ];
+        it.each(users)(
+            "should return an array of user's questions by their userId as an ObjectId",
+            async (user) => {
+                const actual = await sut(user, questId);
+                console.log(actual);
+                actual.forEach((questionInfo) => {
+                    expect(
+                        typeof questionInfo.passed === 'boolean'
+                    ).toBeTruthy();
+                    expect(
+                        typeof questionInfo.speed === 'number' ||
+                            typeof questionInfo.speed === 'undefined'
+                    ).toBeTruthy();
+                    expect(questionInfo.created).toBeInstanceOf(Date);
+                });
+            }
+        );
+        it('should throw an instance of ExtendedError with a status code of 500 if an error occurs during query', async () => {
+            mocks.throwError.find();
+            let didNotThrow = false;
+            try {
+                const actual = await sut(users[0], questId);
+                didNotThrow = true;
+            } catch (error: any) {
+                expect(error).toBeInstanceOf(ExtendedError);
+                expect(error.message).toContain('Simulated Error');
+                expect(error.statusCode).toBe(500);
+            }
+
+            if (didNotThrow) {
+                throw new Error(
+                    'Expected function to throw an ExtendedError, but it did not throw'
+                );
+            }
+        });
     });
 });
