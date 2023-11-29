@@ -91,6 +91,9 @@ const Questions = {
             return res.status(401).send({ message: 'Unauthorized' });
         }
         try {
+            if (req.body.passed === 'false') {
+                req.body.passed = false;
+            }
             await postQuestionService(req.body);
             return res.status(204).send();
         } catch (error) {

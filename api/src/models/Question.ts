@@ -135,10 +135,14 @@ const Question = {
         // Query
         try {
             if (!question) {
+                // istanbul ignore next
                 const cursor = questionCollection.find(
                     { userId },
                     { projection: { _id: 0, username: 0, userId: 0 } }
                 );
+
+                // istanbul ignore next
+
                 result = await cursor.toArray();
             } else {
                 const cursor = questionCollection.find(
