@@ -239,6 +239,27 @@ export const fetchGroups = async (): Promise<Omit<Group, 'passCode'>[]> => {
     }
 };
 
+export const fetchUserGroups = async () => {
+    // Get groups that the user belongs to
+    const { LC_GROUPS } = await getUserJSON();
+    // fetch all group documents from API
+    const fetchedGroups = await fetchGroups();
+    // Include only groups that the user belongs to
+    const filteredGroups = fetchedGroups.filter((group) =>
+        LC_GROUPS.includes(group._id)
+    );
+    return filteredGroups;
+};
+
+export const fetchUserAdminGroups = async () => {
+    const { LC_ADMINS } = await getUserJSON();
+    const fetchedGroups = await fetchGroups();
+    const filteredGroups = fetchedGroups.filter((group) =>
+        LC_ADMINS.includes(group._id)
+    );
+    return filteredGroups;
+};
+
 export const joinGroup = async (groupId: string, passCode?: string) => {
     await axios({
         method: 'POST',
