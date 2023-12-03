@@ -6,7 +6,10 @@ import { closeDb } from '../../../db/connection';
 import { UserDocument } from '../../../types/userTypes';
 import { ExtendedError } from '../../../errors/helpers';
 import { createMockDb } from '../../helpers';
-import dummyUsersObject from '../../dummy-users';
+import dummyUsersObject, {
+    DummyUser,
+    CreateUserPayload
+} from '../../dummy-users';
 
 import Question from '../../../models/Question';
 import User from '../../../models/User';
@@ -134,32 +137,6 @@ const addQuestionToDb = async (newQuestion: {
 }) => {
     await Question.addQuestion({ ...newQuestion });
 };
-
-interface CreateUserPayload {
-    displayUsername: string;
-    email: string;
-    hashedPass: string;
-    firstName: string;
-    lastInit: string;
-    verificationToken: string;
-}
-
-interface DummyUser {
-    _id: ObjectId;
-    username: string;
-    displayUsername: string;
-    email: string;
-    password: string;
-    firstName: string;
-    lastInit: string;
-    status: string;
-    questions: [];
-    groups: string[];
-    admins: string[];
-    verificationToken: string;
-    passwordToken: string;
-    lastActivity: Date;
-}
 
 const delay = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -444,7 +421,6 @@ describe('Question Model', () => {
             "should return an array of user's questions by their userId as an ObjectId",
             async (user) => {
                 const actual = await sut(user, questId);
-                console.log(actual);
                 actual.forEach((questionInfo) => {
                     expect(
                         typeof questionInfo.passed === 'boolean'
