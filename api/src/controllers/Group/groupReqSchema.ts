@@ -14,3 +14,7 @@ export const putFeaturedQuestionSchema = joi.object({
     groupId: joi.string().length(24).required(),
     questNum: joi.number().required()
 });
+
+export const getMembersInfoSchema = joi.object({
+    groupId: joi.string().length(24).required()
+});
