@@ -7,6 +7,7 @@ import { ExtendedError, createExtendedError } from '../errors/helpers';
 import Question from './Question';
 import { sanitizeId } from './helpers/utility';
 import User from './User';
+import { UserDocument } from '../types';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
 export const assignGroupCollection = async () => {
@@ -69,7 +70,6 @@ class Group {
         passCode
     }: GroupCreateInput): Promise<GroupDocument> {
         adminId = sanitizeId(adminId);
-
         let insertResult: InsertOneResult;
         try {
             insertResult = await groupCollection.insertOne({
@@ -295,6 +295,41 @@ class Group {
 
         this.groupInfo = updatedGroupDoc;
         return questionInfo;
+    }
+
+    async getMembersInfo(userId: string | ObjectId) {
+        console.log(userId);
+        console.log(this.groupInfo);
+        userId = sanitizeId(userId);
+
+        if (
+            !this.memberIdStrings.includes(userId.toHexString()) ||
+            !this.adminIdStrings.includes(userId.toHexString())
+        ) {
+            console.log('broken');
+            throw createExtendedError({
+                message: 'Unauthorized',
+                statusCode: 401
+            });
+        }
+
+        const userIds = this.memberIdStrings.map((id) => new ObjectId(id));
+
+        let result: UserDocument[];
+
+        try {
+            result = await User.getUsers(userIds);
+        } catch (error) {
+            throw error;
+        }
+
+        const sanitizedUserObjects = result.map((userDoc) => ({
+            firstName: userDoc.firstName,
+            lastInit: userDoc.lastInit,
+            username: userDoc.displayUsername,
+            lastActivity: userDoc.lastActivity
+        }));
+        return sanitizedUserObjects;
     }
 
     static async findGroups(): Promise<GroupDocument[]> {
