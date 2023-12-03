@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { RequestWithUser } from '../../types/controllerTypes';
 import Filter from 'bad-words';
 import { faker } from '@faker-js/faker';
-import { createReqSchema, postMemberSchema } from './groupReqSchema';
+import {
+    createReqSchema,
+    postMemberSchema,
+    putFeaturedQuestionSchema
+} from './groupReqSchema';
 import Group from '../../models/Group';
 
 const filter = new Filter();
@@ -105,6 +109,40 @@ const GroupController = {
         try {
             const result = await Group.findGroups();
             return res.status(200).send(result);
+        } catch (error) {
+            return next(error);
+        }
+    },
+
+    putFeaturedQuestion: async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        const customReq = req as RequestWithUser;
+        const userId = customReq.user.userId;
+        const { body } = req;
+
+        const { error } = putFeaturedQuestionSchema.validate(body);
+        if (error) {
+            return res.status(422).send(error.details[0].message);
+        }
+
+        const { groupId, questNum } = body;
+
+        try {
+            const group = new Group();
+            const groupInfo = await group.setGroup({
+                key: '_id',
+                value: groupId
+            });
+
+            const questInfo = await group.updateFeaturedQuestion({
+                adminId: userId,
+                questNum
+            });
+
+            return res.status(201).send(questInfo);
         } catch (error) {
             return next(error);
         }

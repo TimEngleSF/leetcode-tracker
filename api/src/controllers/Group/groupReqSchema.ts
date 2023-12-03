@@ -9,3 +9,8 @@ export const postMemberSchema = joi.object({
     groupId: joi.string().length(24).required(),
     passCode: joi.string().length(6)
 });
+
+export const putFeaturedQuestionSchema = joi.object({
+    groupId: joi.string().length(24).required(),
+    questNum: joi.number().required()
+});

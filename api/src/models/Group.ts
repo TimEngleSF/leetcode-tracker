@@ -77,8 +77,7 @@ class Group {
                 displayName: name,
                 admins: [adminId],
                 members: [adminId],
-                questionOfDay: undefined,
-                questionOfWeek: undefined,
+                featuredQuestion: undefined,
                 passCode,
                 open
             });
@@ -264,6 +263,38 @@ class Group {
         }
 
         return result;
+    }
+
+    async updateFeaturedQuestion({
+        adminId,
+        questNum
+    }: {
+        adminId: string | ObjectId;
+        questNum: number;
+    }) {
+        adminId = this.isAdmin(adminId);
+
+        // This will throw an error if no question info for this questNum exist
+        const questionInfo = await Question.getQuestionInfo(questNum);
+
+        const updatedGroupDoc = (await groupCollection.findOneAndUpdate(
+            {
+                _id: this.groupInfo?._id
+            },
+            { $set: { featuredQuestion: questionInfo._id } },
+            { returnDocument: 'after' }
+        )) as GroupDocument;
+
+        if (!updatedGroupDoc) {
+            throw createExtendedError({
+                message:
+                    "There was an error updating the group's featuredQuestion",
+                statusCode: 500
+            });
+        }
+
+        this.groupInfo = updatedGroupDoc;
+        return questionInfo;
     }
 
     static async findGroups(): Promise<GroupDocument[]> {
