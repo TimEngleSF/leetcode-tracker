@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { getUserJSON, logout, printHeader } from './utils.js';
 import viewPrevQuestPrompt from './AddQuestions/Prompts/viewPrevQuestPrompt.js';
 import getAllUserQuestsByQuestNum from './AddQuestions/previous-attempts.js';
-import ReviewQuestions from './ReviewQuestions/ReviewQuestions.js';
+import reviewQuestionsFlow from './ReviewQuestions/review-questions-flow.js';
 import Group from './Group/Group.js';
 import addQuestion from './AddQuestions/add-question-flow.js';
 import LeaderboardFlow from './Leaderboard/leaderboard-flow.js';
@@ -71,7 +71,7 @@ const mainLoop = async () => {
             case 'review':
                 console.clear();
                 printHeader();
-                await ReviewQuestions();
+                await reviewQuestionsFlow();
                 console.clear();
                 printHeader();
                 break;
