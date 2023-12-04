@@ -27,6 +27,7 @@ export interface GeneralLeaderboardEntry {
     passedCount: number;
     name: string;
     lastActivity: Date;
+    language?: string;
 }
 
 export interface GeneralLeaderboardUserResult {
@@ -35,6 +36,7 @@ export interface GeneralLeaderboardUserResult {
     passedCount: number;
     name: string;
     lastActivity: Date;
+    language?: string;
 }
 
 export interface GeneralLeaderboardAPIResponse {
