@@ -325,6 +325,17 @@ const User = {
         } catch (error) {
             throw error;
         }
+    },
+
+    getUsers: async (userIds: ObjectId[]): Promise<UserDocument[]> => {
+        try {
+            const result = await userCollection
+                .find({ _id: { $in: userIds } })
+                .toArray();
+            return result as UserDocument[];
+        } catch (error) {
+            throw error;
+        }
     }
 };
 

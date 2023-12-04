@@ -6,6 +6,10 @@ groupRoutes.post('/create', Controllers.Group.postCreate);
 
 groupRoutes.post('/add-member', Controllers.Group.postMember);
 
+groupRoutes.put('/featured-question', Controllers.Group.putFeaturedQuestion);
+
+groupRoutes.get('/members', Controllers.Group.getMembersInfo);
+
 groupRoutes.get('/', Controllers.Group.getGroups);
 
 export default groupRoutes;

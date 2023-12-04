@@ -7,6 +7,7 @@ import { ExtendedError, createExtendedError } from '../errors/helpers';
 import Question from './Question';
 import { sanitizeId } from './helpers/utility';
 import User from './User';
+import { UserDocument } from '../types';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
 export const assignGroupCollection = async () => {
@@ -69,7 +70,6 @@ class Group {
         passCode
     }: GroupCreateInput): Promise<GroupDocument> {
         adminId = sanitizeId(adminId);
-
         let insertResult: InsertOneResult;
         try {
             insertResult = await groupCollection.insertOne({
@@ -77,8 +77,7 @@ class Group {
                 displayName: name,
                 admins: [adminId],
                 members: [adminId],
-                questionOfDay: undefined,
-                questionOfWeek: undefined,
+                featuredQuestion: undefined,
                 passCode,
                 open
             });
@@ -264,6 +263,74 @@ class Group {
         }
 
         return result;
+    }
+
+    async updateFeaturedQuestion({
+        adminId,
+        questNum
+    }: {
+        adminId: string | ObjectId;
+        questNum: number;
+    }) {
+        adminId = this.isAdmin(adminId);
+
+        // This will throw an error if no question info for this questNum exist
+        const questionInfo = await Question.getQuestionInfo(questNum);
+
+        const updatedGroupDoc = (await groupCollection.findOneAndUpdate(
+            {
+                _id: this.groupInfo?._id
+            },
+            { $set: { featuredQuestion: questNum } },
+            { returnDocument: 'after' }
+        )) as GroupDocument;
+
+        if (!updatedGroupDoc) {
+            throw createExtendedError({
+                message:
+                    "There was an error updating the group's featuredQuestion",
+                statusCode: 500
+            });
+        }
+
+        this.groupInfo = updatedGroupDoc;
+        return questionInfo;
+    }
+
+    async getMembersInfo(userId: string | ObjectId) {
+        console.log(userId);
+        console.log(this.groupInfo);
+        userId = sanitizeId(userId);
+
+        if (
+            !this.memberIdStrings.includes(userId.toHexString()) ||
+            !this.adminIdStrings.includes(userId.toHexString())
+        ) {
+            console.log('broken');
+            throw createExtendedError({
+                message: 'Unauthorized',
+                statusCode: 401
+            });
+        }
+
+        const userIds = this.memberIdStrings.map((id) => new ObjectId(id));
+
+        let result: UserDocument[];
+
+        try {
+            result = await User.getUsers(userIds);
+        } catch (error) {
+            throw error;
+        }
+
+        const sanitizedUserObjects = result.map((userDoc) => ({
+            _id: userDoc._id,
+            firstName: userDoc.firstName,
+            lastInit: userDoc.lastInit,
+            username: userDoc.displayUsername,
+            lastActivity: userDoc.lastActivity
+        }));
+        return sanitizedUserObjects;
     }
 
     static async findGroups(): Promise<GroupDocument[]> {

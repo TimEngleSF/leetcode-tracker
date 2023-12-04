@@ -6,8 +6,7 @@ export interface GroupDocument extends Document {
     displayName: string;
     members: ObjectId[];
     admins: ObjectId[];
-    questionOfDay?: ObjectId | null;
-    questionOfWeek?: ObjectId | null;
+    featuredQuestion?: number | null;
     passCode: string | null;
     open: boolean;
 }

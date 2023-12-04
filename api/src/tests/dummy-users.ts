@@ -104,4 +104,41 @@ const dummyUsers = {
     ]
 };
 
+export interface DummyUser {
+    _id: ObjectId;
+    username: string;
+    displayUsername: string;
+    email: string;
+    password: string;
+    firstName: string;
+    lastInit: string;
+    status: string;
+    questions: [];
+    groups: string[];
+    admins: string[];
+    verificationToken: string;
+    passwordToken: string;
+    lastActivity: Date;
+}
+
+export interface CreateUserPayload {
+    displayUsername: string;
+    email: string;
+    hashedPass: string;
+    firstName: string;
+    lastInit: string;
+    verificationToken: string;
+}
+
+export const getRandomDummyUserIndex = (
+    dummyUsersObject: {
+        main: DummyUser[];
+        withToken: DummyUser[];
+    },
+    typeOfUser: 'main' | 'withToken'
+): number => {
+    const max = dummyUsersObject[typeOfUser].length;
+    return Math.floor(Math.random() * max);
+};
+
 export default dummyUsers;

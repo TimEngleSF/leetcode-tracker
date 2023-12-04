@@ -157,7 +157,13 @@ export const fetchQuestionInfo = async (
     questNum: number,
     axiosInstance: any = axios,
     getAuthHeadersFunc: any = getAuthHeaders
-) => {
+): Promise<{
+    _id: string;
+    title: string;
+    url: string;
+    diff: string;
+    questId: number;
+}> => {
     const authHeaders = await getAuthHeadersFunc();
     const { data } = await axiosInstance({
         method: 'GET',
@@ -239,6 +245,27 @@ export const fetchGroups = async (): Promise<Omit<Group, 'passCode'>[]> => {
     }
 };
 
+export const fetchUserGroups = async (): Promise<Omit<Group, 'passCode'>[]> => {
+    // Get groups that the user belongs to
+    const { LC_GROUPS } = await getUserJSON();
+    // fetch all group documents from API
+    const fetchedGroups = await fetchGroups();
+    // Include only groups that the user belongs to
+    const filteredGroups = fetchedGroups.filter((group) =>
+        LC_GROUPS.includes(group._id)
+    );
+    return filteredGroups;
+};
+
+export const fetchUserAdminGroups = async () => {
+    const { LC_ADMINS } = await getUserJSON();
+    const fetchedGroups = await fetchGroups();
+    const filteredGroups = fetchedGroups.filter((group) =>
+        LC_ADMINS.includes(group._id)
+    );
+    return filteredGroups;
+};
+
 export const joinGroup = async (groupId: string, passCode?: string) => {
     await axios({
         method: 'POST',
@@ -261,6 +288,48 @@ export const postLoginUser = async ({
         headers: { 'Content-Type': 'application/json' },
         data: { email, password }
     });
+    return data;
+};
+
+export interface MembersInfo {
+    _id: string;
+    firstName: string;
+    lastInit: string;
+    username: string;
+    lastActivity: string;
+}
+export const getGroupMembers = async (
+    groupId: string
+): Promise<MembersInfo[]> => {
+    const { Authorization } = await getAuthHeaders();
+    const { data } = await axios({
+        method: 'GET',
+        url: `${API_URL}/group/members`,
+        headers: { Authorization, 'Content-Type': 'application/json' },
+        data: { groupId }
+    });
+
+    return data;
+};
+
+export const putFeaturedQuestNumber = async (
+    questNum: number,
+    groupId: string
+): Promise<{
+    _id: string;
+    title: string;
+    url: string;
+    diff: string;
+    questId: number;
+}> => {
+    const { Authorization } = await getAuthHeaders();
+    const { data } = await axios({
+        method: 'PUT',
+        url: `${API_URL}/group/featured-question`,
+        headers: { Authorization, 'Content-Type': 'application/json' },
+        data: { groupId, questNum }
+    });
+
     return data;
 };
 

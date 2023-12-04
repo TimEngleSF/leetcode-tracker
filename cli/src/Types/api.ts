@@ -67,6 +67,7 @@ export interface Group {
     questionOfDay?: number | null;
     questionOfWeek?: number | null;
     passCode: string | null;
+    featuredQuestion: number | null;
     open: boolean;
 }
 
