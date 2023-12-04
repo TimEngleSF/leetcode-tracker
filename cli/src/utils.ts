@@ -285,6 +285,27 @@ export const postLoginUser = async ({
     return data;
 };
 
+export interface MembersInfo {
+    _id: string;
+    firstName: string;
+    lastInit: string;
+    username: string;
+    lastActivity: string;
+}
+export const getGroupMembers = async (
+    groupId: string
+): Promise<MembersInfo[]> => {
+    const { Authorization } = await getAuthHeaders();
+    const { data } = await axios({
+        method: 'GET',
+        url: `${API_URL}/group/members`,
+        headers: { Authorization, 'Content-Type': 'application/json' },
+        data: { groupId }
+    });
+
+    return data;
+};
+
 export const tryAgainPrompt = async (): Promise<boolean> => {
     const { tryAgain } = await inquirer.prompt({
         type: 'confirm',
