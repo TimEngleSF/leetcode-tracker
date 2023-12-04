@@ -8,7 +8,7 @@ import ReviewQuestions from './ReviewQuestions/ReviewQuestions.js';
 import Group from './Group/Group.js';
 import addQuestion from './AddQuestions/add-question-flow.js';
 import LeaderboardFlow from './Leaderboard/leaderboard-flow.js';
-import featuredQuestionFlow from './FeaturedQuestions/Prompts/featured-question-flow.js';
+import featuredQuestionFlow from './FeaturedQuestions/featured-question-flow.js';
 
 const mainLoop = async () => {
     let isRunning = true;
