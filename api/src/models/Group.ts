@@ -281,7 +281,7 @@ class Group {
             {
                 _id: this.groupInfo?._id
             },
-            { $set: { featuredQuestion: questionInfo._id } },
+            { $set: { featuredQuestion: questNum } },
             { returnDocument: 'after' }
         )) as GroupDocument;
 
