@@ -2,12 +2,13 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 
 import { getUserJSON, logout, printHeader } from './utils.js';
-import viewPrevQuestPrompt from './Questions/Prompts/viewPrevQuestPrompt.js';
-import getAllUserQuestsByQuestNum from './Questions/previous-attempts.js';
+import viewPrevQuestPrompt from './AddQuestions/Prompts/viewPrevQuestPrompt.js';
+import getAllUserQuestsByQuestNum from './AddQuestions/previous-attempts.js';
 import ReviewQuestions from './ReviewQuestions/ReviewQuestions.js';
 import Group from './Group/Group.js';
-import addQuestion from './Questions/add-question-flow.js';
+import addQuestion from './AddQuestions/add-question-flow.js';
 import LeaderboardFlow from './Leaderboard/leaderboard-flow.js';
+import featuredQuestionFlow from './FeaturedQuestions/Prompts/featured-question-flow.js';
 
 const mainLoop = async () => {
     let isRunning = true;
@@ -34,6 +35,7 @@ const mainLoop = async () => {
                 choices: [
                     { name: 'Add Question Result', value: 'addQuestion' },
                     { name: 'Leaderboard', value: 'leaderboard' },
+                    { name: 'Featured Questions', value: 'featured' },
                     { name: 'Review Questions', value: 'review' },
                     { name: 'Groups', value: 'groups' },
                     { name: 'Logout', value: 'logout' },
@@ -58,6 +60,11 @@ const mainLoop = async () => {
                 break;
             case 'leaderboard':
                 await LeaderboardFlow({});
+                console.clear();
+                printHeader();
+                break;
+            case 'featured':
+                await featuredQuestionFlow();
                 console.clear();
                 printHeader();
                 break;

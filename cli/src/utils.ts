@@ -245,7 +245,7 @@ export const fetchGroups = async (): Promise<Omit<Group, 'passCode'>[]> => {
     }
 };
 
-export const fetchUserGroups = async () => {
+export const fetchUserGroups = async (): Promise<Omit<Group, 'passCode'>[]> => {
     // Get groups that the user belongs to
     const { LC_GROUPS } = await getUserJSON();
     // fetch all group documents from API
