@@ -9,7 +9,8 @@ import {
     passedPrompt,
     questionNumPrompt,
     speedPrompt,
-    errorPrompt
+    errorPrompt,
+    languagePrompt
 } from './Prompts/add-question-prompts.js';
 import { API_URL } from '../config.js';
 
@@ -59,6 +60,8 @@ const addQuestion = async ({
         }
     }
 
+    const languageUsed = await languagePrompt();
+
     // Handle posting question info
     const userInfo = await getUserJSON();
     const payload = {
@@ -66,6 +69,7 @@ const addQuestion = async ({
         username: userInfo.LC_USERNAME,
         questNum,
         passed: isPassed,
+        language: languageUsed,
         speed: speed || null
     };
 
