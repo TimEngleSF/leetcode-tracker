@@ -324,6 +324,7 @@ class Group {
         }
 
         const sanitizedUserObjects = result.map((userDoc) => ({
+            _id: userDoc._id,
             firstName: userDoc.firstName,
             lastInit: userDoc.lastInit,
             username: userDoc.displayUsername,
