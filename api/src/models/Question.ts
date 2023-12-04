@@ -417,7 +417,6 @@ const Question = {
         }
 
         const pipeline = [
-            // { $match: { questNum: targetQuestion, passed: true } },
             {
                 $match: {
                     questNum: targetQuestion,
@@ -428,9 +427,33 @@ const Question = {
             {
                 $group: {
                     _id: '$userId',
-                    passedCount: { $sum: 1 },
                     minSpeed: { $min: '$speed' },
-                    mostRecent: { $max: '$created' }
+                    passedCount: { $sum: 1 }, // Count of passed documents for each user
+                    documents: {
+                        $push: {
+                            speed: '$speed',
+                            language: '$language',
+                            created: '$created'
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    minSpeed: 1,
+                    passedCount: 1,
+                    document: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: '$documents',
+                                    as: 'doc',
+                                    cond: { $eq: ['$$doc.speed', '$minSpeed'] }
+                                }
+                            },
+                            0
+                        ]
+                    }
                 }
             },
             {
@@ -454,9 +477,10 @@ const Question = {
                             '.'
                         ]
                     },
-                    passedCount: 1,
                     minSpeed: 1,
-                    mostRecent: 1
+                    passedCount: 1,
+                    mostRecent: '$document.created',
+                    language: '$document.language'
                 }
             },
             { $sort: sortBySpeed ? { minSpeed: 1 } : { passedCount: -1 } },
