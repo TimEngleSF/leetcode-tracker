@@ -192,14 +192,24 @@ const Question = {
                 {
                     $match: {
                         userId: new ObjectId(userId),
-                        created: { $gte: endOfRange, $lte: startOfRange }
+                        // created: { $gte: endOfRange, $lte: startOfRange }
+                        created: { $gte: endOfRange }
                     }
                 },
                 {
-                    $sort: { created: -1 }
+                    $group: {
+                        _id: '$questNum',
+                        earliestCompletion: { $min: '$created' },
+                        latestCompletion: { $max: '$created' }
+                    } // Group duplicates
                 },
                 {
-                    $group: { _id: '$questNum' } // Group duplicates
+                    $match: {
+                        latestCompletion: { $lte: startOfRange }
+                    }
+                },
+                {
+                    $sort: { _id: 1 }
                 },
                 {
                     $lookup: {
