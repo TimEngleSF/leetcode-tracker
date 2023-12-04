@@ -7,7 +7,7 @@ const adminDashboardGroupSelectPrompt = async (): Promise<string | 'back'> => {
     const usersGroupData = await fetchUserAdminGroups();
 
     const groupChoices = usersGroupData.map((groupData) => ({
-        name: groupData.name,
+        name: groupData.displayName,
         value: groupData._id
     }));
 

@@ -1,12 +1,12 @@
 import inquirer from 'inquirer';
-import { getAuthHeaders, localAdminsArray } from '../../utils.js';
-import { Group } from '../../Types/api.js';
+import { getAuthHeaders, localAdminsArray } from '../utils.js';
+import { Group } from '../Types/api.js';
 import axios from 'axios';
-import { API_URL } from '../../config.js';
+import { API_URL } from '../config.js';
 import Table from 'cli-table3';
 import chalk from 'chalk';
 
-const viewPassCodesFlow = async () => {
+const adminDashboardViewPasscodes = async () => {
     const adminsArray = await localAdminsArray();
     const authHeaders = await getAuthHeaders();
     let groups: Group[];
@@ -50,4 +50,4 @@ const viewPassCodesFlow = async () => {
     return;
 };
 
-export default viewPassCodesFlow;
+export default adminDashboardViewPasscodes;

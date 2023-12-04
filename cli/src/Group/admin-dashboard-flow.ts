@@ -1,11 +1,15 @@
 import inquirer from 'inquirer';
 import Group from './Group.js';
 import adminDashboardGroupSelectPrompt from './Prompts/admin-dashboard/admin-dashboard-selection.js';
-import { continuePrompt } from '../utils.js';
+import { continuePrompt, printHeader } from '../utils.js';
 import adminDashboardOptionsPrompt from './Prompts/admin-dashboard/admin-dashboard-options.js';
 import adminDashboardMembersPrompt from './Prompts/admin-dashboard/admin-dashboard-members.js';
+import adminDashboardUpdateFeaturedQuestPrompt from './Prompts/admin-dashboard/admin-dashboard-update-featured-question.js';
+import adminDashboardViewPasscodes from './view-passcodes.js';
 
 const adminDashboardFlow = async () => {
+    console.clear();
+    printHeader();
     const groupSelection = await adminDashboardGroupSelectPrompt();
 
     if (groupSelection === 'back') {
@@ -22,6 +26,10 @@ const adminDashboardFlow = async () => {
 
     if (optionSelection === 'memberAction') {
         await adminDashboardMembersPrompt(groupSelection);
+    }
+
+    if (optionSelection === 'updateFeaturedQuestion') {
+        await adminDashboardUpdateFeaturedQuestPrompt(groupSelection);
     }
 };
 

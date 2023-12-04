@@ -1,6 +1,6 @@
 import selectJoinOption from './Prompts/join/select-join-option.js';
 import { selectGroupOption } from './Prompts/main-selection.js';
-import viewPassCodesFlow from './Prompts/view-passcodes.js';
+import viewPassCodesFlow from './view-passcodes.js';
 import adminDashboardFlow from './admin-dashboard-flow.js';
 import createGroup from './create-group.js';
 import yourGroupsFlow from './your-group-flow.js';

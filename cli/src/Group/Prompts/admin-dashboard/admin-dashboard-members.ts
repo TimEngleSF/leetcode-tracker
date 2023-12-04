@@ -1,10 +1,12 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import { MembersInfo, getGroupMembers } from '../../../utils.js';
+import { MembersInfo, getGroupMembers, printHeader } from '../../../utils.js';
 import dateFns, { parseISO } from 'date-fns';
 import adminDashboardGroupSelectPrompt from './admin-dashboard-selection.js';
 
 const adminDashboardMembersPrompt = async (groupId: string) => {
+    console.clear();
+    printHeader();
     let membersInfo = await getGroupMembers(groupId);
 
     const { sortOption } = await inquirer.prompt({
@@ -31,26 +33,31 @@ const adminDashboardMembersPrompt = async (groupId: string) => {
             .slice()
             .sort(
                 (a: MembersInfo, b: MembersInfo) =>
-                    new Date(a.lastActivity).getTime() -
-                    new Date(b.lastActivity).getTime()
+                    new Date(b.lastActivity).getTime() -
+                    new Date(a.lastActivity).getTime()
             );
     } else if (sortOption === 'notRecent') {
         membersInfo = membersInfo
             .slice()
             .sort(
                 (a: MembersInfo, b: MembersInfo) =>
-                    new Date(b.lastActivity).getTime() -
-                    new Date(a.lastActivity).getTime()
+                    new Date(a.lastActivity).getTime() -
+                    new Date(b.lastActivity).getTime()
             );
     } else {
         await adminDashboardGroupSelectPrompt();
         return;
     }
 
+    console.clear();
+    printHeader();
     const choices = membersInfo.map((member, i) => {
-        const formatedName = `${member.firstName} ${
+        const formatedName = `Name: ${member.firstName} ${
             member.lastInit
-        }. ${dateFns.format(parseISO(member.lastActivity), 'MM-dd-yy')}`;
+        }. Last Active: ${dateFns.format(
+            parseISO(member.lastActivity),
+            'MM-dd-yy'
+        )}`;
         let name;
         if (i === 0 || i % 2 === 0) {
             name = chalk.bgGray(formatedName);

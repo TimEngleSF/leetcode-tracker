@@ -25,26 +25,27 @@ export const selectGroupOption = async (
     userHasGroups &&
         promptChoices.push({ name: 'Your Groups', value: 'groups' });
 
+    userIsAdmin &&
+        promptChoices.push({
+            name: 'Admin Dashboard',
+            value: 'adminDashboard'
+        });
+    userIsAdmin &&
+        promptChoices.push({ name: 'View Passcodes', value: 'passCodes' });
+
     promptChoices = [
         ...promptChoices,
         { name: 'Join Group', value: 'join' },
         { name: 'Create Group', value: 'create' }
     ];
     // Of the user is the admin of a group give them the choice to view passcodes
-    // TODO: add admin dashboard selection
-    userIsAdmin &&
-        promptChoices.push({
-            name: 'Admin Dashboard',
-            value: 'adminDashboard'
-        });
-    promptChoices.push({ name: 'View Passcodes', value: 'passCodes' });
 
     const answer = await prompt([
         {
             type: 'list',
             name: 'selectGroupOption',
             message: 'Would you like to join or create a group?',
-            choices: [...promptChoices, { name: 'Go back', value: 'back' }]
+            choices: [...promptChoices, { name: 'Return Home', value: 'back' }]
         }
     ]);
     return answer.selectGroupOption;
