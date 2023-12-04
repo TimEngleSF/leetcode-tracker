@@ -70,6 +70,37 @@ export const speedPrompt = async ({
     return speed;
 };
 
+export const languagePrompt = async () => {
+    const { language } = await inquirer.prompt({
+        type: 'list',
+        name: 'language',
+        message: 'Which language did you use?',
+        choices: [
+            { name: 'C++', value: 'C++' },
+            { name: 'Java', value: 'Java' },
+            { name: 'Python', value: 'Python' },
+            { name: 'Python3', value: 'Python3' },
+            { name: 'C', value: 'C' },
+            { name: 'C#', value: 'C#' },
+            { name: 'JavaScript', value: 'JavaScript' },
+            { name: 'TypeScript', value: 'TypeScript' },
+            { name: 'PHP', value: 'PHP' },
+            { name: 'Swift', value: 'Swift' },
+            { name: 'Kotlin', value: 'Kotlin' },
+            { name: 'Dart', value: 'Dart' },
+            { name: 'Go', value: 'Go' },
+            { name: 'Ruby', value: 'Ruby' },
+            { name: 'Scala', value: 'Scala' },
+            { name: 'Rust', value: 'Rust' },
+            { name: 'Racket', value: 'Racket' },
+            { name: 'Erland', value: 'Erlang' },
+            { name: 'Elixer', value: 'Elixer' }
+        ]
+    });
+
+    return language;
+};
+
 export const errorPrompt = async ({
     prompt = inquirer.prompt,
     testing = false,
