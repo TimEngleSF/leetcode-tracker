@@ -5,7 +5,7 @@ import {
     printHeader,
     putFeaturedQuestNumber
 } from '../../../utils.js';
-import { validate, filter } from '../../../Questions/Prompts/validation.js';
+import { validate, filter } from '../../../AddQuestions/Prompts/validation.js';
 import chalk from 'chalk';
 import adminDashboardOptionsPrompt from './admin-dashboard-options.js';
 
@@ -57,7 +57,7 @@ const adminDashboardUpdateFeaturedQuestPrompt = async (groupId: string) => {
         }
     }
 
-    await putFeaturedQuestNumber(featuredQuestNum, groupId);
+    await putFeaturedQuestNumber(featuredQuestionInfo.questId, groupId);
 
     console.clear();
     printHeader();
