@@ -157,7 +157,13 @@ export const fetchQuestionInfo = async (
     questNum: number,
     axiosInstance: any = axios,
     getAuthHeadersFunc: any = getAuthHeaders
-) => {
+): Promise<{
+    _id: string;
+    title: string;
+    url: string;
+    diff: string;
+    questId: number;
+}> => {
     const authHeaders = await getAuthHeadersFunc();
     const { data } = await axiosInstance({
         method: 'GET',
@@ -301,6 +307,27 @@ export const getGroupMembers = async (
         url: `${API_URL}/group/members`,
         headers: { Authorization, 'Content-Type': 'application/json' },
         data: { groupId }
+    });
+
+    return data;
+};
+
+export const putFeaturedQuestNumber = async (
+    questNum: number,
+    groupId: string
+): Promise<{
+    _id: string;
+    title: string;
+    url: string;
+    diff: string;
+    questId: number;
+}> => {
+    const { Authorization } = await getAuthHeaders();
+    const { data } = await axios({
+        method: 'PUT',
+        url: `${API_URL}/group/featured-question`,
+        headers: { Authorization, 'Content-Type': 'application/json' },
+        data: { groupId, questNum }
     });
 
     return data;
