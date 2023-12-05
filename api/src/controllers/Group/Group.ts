@@ -249,6 +249,35 @@ const GroupController = {
         }
     },
 
+    deleteLeaveGroup: async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        const customReq = req as RequestWithUser;
+        const userId = customReq.user.userId;
+        const { body } = req;
+
+        const { error } = groupIdSchema.validate(body);
+        if (error) {
+            return res.status(422).send(error.details[0].message);
+        }
+
+        const { groupId } = req.body;
+
+        try {
+            const group = new Group();
+            const groupInfo = await group.setGroup({
+                key: '_id',
+                value: groupId
+            });
+            await group.leaveGroup(userId);
+            res.status(204).send();
+        } catch (error) {
+            return next(error);
+        }
+    },
+
     getMembersInfo: async (req: Request, res: Response, next: NextFunction) => {
         const customReq = req as RequestWithUser;
         const userId = customReq.user.userId;

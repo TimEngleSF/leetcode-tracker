@@ -552,10 +552,9 @@ class Group {
     async getMembersInfo(userId: string | ObjectId) {
         userId = sanitizeId(userId);
 
-        if (
-            !this.memberIdStrings.includes(userId.toHexString()) ||
-            !this.adminIdStrings.includes(userId.toHexString())
-        ) {
+        console.log(this.memberIdStrings, userId);
+
+        if (!this.memberIdStrings.includes(userId.toHexString())) {
             throw createExtendedError({
                 message: 'Unauthorized',
                 statusCode: 401
@@ -580,6 +579,40 @@ class Group {
             lastActivity: userDoc.lastActivity
         }));
         return sanitizedUserObjects;
+    }
+
+    async leaveGroup(userId: string | ObjectId) {
+        userId = sanitizeId(userId);
+
+        if (this.creatorIdString === userId.toHexString()) {
+            throw createExtendedError({
+                message:
+                    'The group creator cannot leave the group, only delete it',
+                statusCode: 409
+            });
+        }
+
+        if (!this.groupInfo) {
+            throw createExtendedError({
+                message: 'The group has not been set to the object',
+                statusCode: 500
+            });
+        }
+        const groupId = this.groupInfo._id;
+
+        try {
+            await User.removeMember({ userId, groupId });
+            if (this.adminIdStrings.includes(userId.toHexString())) {
+                await User.removeAdmin({ userId, groupId });
+            }
+
+            await groupCollection.findOneAndUpdate(
+                { _id: groupId },
+                { $pull: { admins: userId as any, members: userId as any } }
+            );
+        } catch (error) {
+            throw error;
+        }
     }
 
     static async findGroups(): Promise<GroupDocument[]> {

@@ -17,6 +17,8 @@ groupRoutes.put('/reset-passcode', Controllers.Group.putResetPasscode);
 
 groupRoutes.delete('/remove-member', Controllers.Group.deleteMember);
 
+groupRoutes.delete('/leave-group', Controllers.Group.deleteLeaveGroup);
+
 groupRoutes.delete('/delete-group', Controllers.Group.deleteGroup);
 
 groupRoutes.get('/', Controllers.Group.getGroups);
