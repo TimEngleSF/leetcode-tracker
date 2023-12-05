@@ -24,6 +24,6 @@ export const groupAndUserIdSchema = joi.object({
     userId: joi.string().length(24).required()
 });
 
-export const deleteGroupSchema = joi.object({
+export const groupIdSchema = joi.object({
     groupId: joi.string().length(24).required()
 });

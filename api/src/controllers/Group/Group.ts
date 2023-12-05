@@ -4,9 +4,9 @@ import Filter from 'bad-words';
 import { faker } from '@faker-js/faker';
 import {
     createReqSchema,
-    deleteGroupSchema,
     getMembersInfoSchema,
     groupAndUserIdSchema,
+    groupIdSchema,
     postMemberSchema,
     putFeaturedQuestionSchema
 } from './groupReqSchema';
@@ -146,7 +146,7 @@ const GroupController = {
         const customReq = req as RequestWithUser;
         const adminId = customReq.user.userId;
         const { groupId } = req.body;
-        const { error } = deleteGroupSchema.validate(req.body);
+        const { error } = groupIdSchema.validate(req.body);
         if (error) {
             return res.status(422).send(error.details[0].message);
         }
@@ -215,6 +215,35 @@ const GroupController = {
             });
 
             return res.status(201).send(questInfo);
+        } catch (error) {
+            return next(error);
+        }
+    },
+
+    putResetPasscode: async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        const customReq = req as RequestWithUser;
+        const userId = customReq.user.userId;
+        const { body } = req;
+
+        const { error } = groupIdSchema.validate(body);
+        if (error) {
+            return res.status(422).send(error.details[0].message);
+        }
+
+        const { groupId } = req.body;
+
+        try {
+            const group = new Group();
+            const groupInfo = await group.setGroup({
+                key: '_id',
+                value: groupId
+            });
+            const passCode = await group.regeneratePasscode(userId);
+            res.status(200).send({ passCode });
         } catch (error) {
             return next(error);
         }
