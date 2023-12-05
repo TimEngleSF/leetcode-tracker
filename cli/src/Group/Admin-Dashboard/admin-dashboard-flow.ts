@@ -8,10 +8,12 @@ import adminDashboardMemberFlow from './Members/admin-dashboard-members-flow.js'
 import adminDashboardViewPassCode from './Prompts/admin-dashboard-view-passcode.js';
 import adminDashboardDeleteGroupPrompt from './Prompts/admin-dashboard-delete-group.js';
 import adminDashboardResetPasscodePrompt from './Prompts/admin-dashboard-reset-passcode.js';
+import chalk from 'chalk';
 
 const adminDashboardFlow = async () => {
     console.clear();
     printHeader();
+    console.log(chalk.bold.green('Admin Dashboard'));
     const groupSelection = await adminDashboardGroupSelectPrompt();
 
     if (groupSelection === 'back') {
@@ -22,34 +24,32 @@ const adminDashboardFlow = async () => {
     const optionSelection = await adminDashboardOptionsPrompt();
 
     if (optionSelection === 'back') {
-        await Group();
         return;
     }
 
     if (optionSelection === 'memberAction') {
         await adminDashboardMemberFlow(groupSelection);
+        await adminDashboardFlow();
     }
 
     if (optionSelection === 'updateFeaturedQuestion') {
         await adminDashboardUpdateFeaturedQuestPrompt(groupSelection);
+        await adminDashboardFlow();
     }
 
     if (optionSelection === 'viewPasscode') {
         await adminDashboardViewPassCode(groupSelection);
-        await Group();
-        return;
+        await adminDashboardFlow();
     }
 
     if (optionSelection === 'resetPasscode') {
         await adminDashboardResetPasscodePrompt(groupSelection);
-        await Group();
-        return;
+        await adminDashboardFlow();
     }
 
     if (optionSelection === 'deleteGroup') {
         await adminDashboardDeleteGroupPrompt(groupSelection);
-        await Group();
-        return;
+        await adminDashboardFlow();
     }
 };
 
