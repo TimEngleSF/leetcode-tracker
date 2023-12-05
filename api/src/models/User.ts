@@ -393,6 +393,33 @@ const User = {
         }
     },
 
+    removeCreated: async ({
+        userId,
+        groupId
+    }: {
+        groupId: ObjectId | string;
+        userId: ObjectId | string;
+    }) => {
+        if (typeof groupId === 'string') {
+            groupId = new ObjectId(groupId);
+        }
+        if (typeof userId === 'string') {
+            userId = new ObjectId(userId);
+        }
+
+        try {
+            await userCollection.findOneAndUpdate(
+                { _id: userId },
+                { $pull: { created: groupId as any } }
+            );
+        } catch (error: any) {
+            throw createExtendedError({
+                message: `There was an error removing group from user's created groups: ${error.message}`,
+                statusCode: 500
+            });
+        }
+    },
+
     addCreator: async ({
         adminId,
         groupId

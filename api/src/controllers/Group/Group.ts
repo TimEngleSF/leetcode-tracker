@@ -4,6 +4,7 @@ import Filter from 'bad-words';
 import { faker } from '@faker-js/faker';
 import {
     createReqSchema,
+    deleteGroupSchema,
     getMembersInfoSchema,
     groupAndUserIdSchema,
     postMemberSchema,
@@ -123,6 +124,9 @@ const GroupController = {
 
         // validate
         const { error } = groupAndUserIdSchema.validate(req.body);
+        if (error) {
+            return res.status(422).send(error.details[0].message);
+        }
         try {
             // instantiate group and set
             const group = new Group();
@@ -133,6 +137,25 @@ const GroupController = {
             return res
                 .status(200)
                 .send({ message: 'User has been removed from the group' });
+        } catch (error) {
+            return next(error);
+        }
+    },
+
+    deleteGroup: async (req: Request, res: Response, next: NextFunction) => {
+        const customReq = req as RequestWithUser;
+        const adminId = customReq.user.userId;
+        const { groupId } = req.body;
+        const { error } = deleteGroupSchema.validate(req.body);
+        if (error) {
+            return res.status(422).send(error.details[0].message);
+        }
+
+        try {
+            const group = new Group();
+            await group.setGroup({ key: '_id', value: groupId });
+            await group.deleteGroup(adminId);
+            return res.status(204).send();
         } catch (error) {
             return next(error);
         }
