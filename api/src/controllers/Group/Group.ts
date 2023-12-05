@@ -5,8 +5,8 @@ import { faker } from '@faker-js/faker';
 import {
     createReqSchema,
     getMembersInfoSchema,
+    groupAndUserIdSchema,
     postMemberSchema,
-    putAddAdminSchema,
     putFeaturedQuestionSchema
 } from './groupReqSchema';
 import Group from '../../models/Group';
@@ -96,7 +96,7 @@ const GroupController = {
         const adminId = customReq.user.userId;
         const { groupId, userId } = req.body;
 
-        const { error } = putAddAdminSchema.validate(req.body);
+        const { error } = groupAndUserIdSchema.validate(req.body);
         if (error) {
             return res.status(422).send(error.details[0].message);
         }
@@ -111,6 +111,28 @@ const GroupController = {
             return res
                 .status(200)
                 .send({ message: 'User has been added as an admin' });
+        } catch (error) {
+            return next(error);
+        }
+    },
+
+    deleteMember: async (req: Request, res: Response, next: NextFunction) => {
+        const customReq = req as RequestWithUser;
+        const adminId = customReq.user.userId;
+        const { groupId, userId } = req.body;
+
+        // validate
+        const { error } = groupAndUserIdSchema.validate(req.body);
+        try {
+            // instantiate group and set
+            const group = new Group();
+            await group.setGroup({ key: '_id', value: groupId });
+            // make call to db
+            await group.removeMember({ adminId, userId });
+            // return with 204
+            return res
+                .status(200)
+                .send({ message: 'User has been removed from the group' });
         } catch (error) {
             return next(error);
         }

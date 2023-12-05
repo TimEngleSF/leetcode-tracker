@@ -20,6 +20,7 @@ class Group {
     private groupInfo: GroupDocument | null;
     private adminIdStrings: string[];
     private memberIdStrings: string[];
+    private creatorIdString = '';
 
     constructor() {
         this.groupInfo = null;
@@ -79,7 +80,8 @@ class Group {
                 members: [adminId],
                 featuredQuestion: undefined,
                 passCode,
-                open
+                open,
+                createdBy: adminId
             });
         } catch (error: any) {
             if (error.code === 11000) {
@@ -112,6 +114,8 @@ class Group {
 
         await User.addAdmin({ adminId, groupId: result._id });
         await User.addGroup({ userId: adminId, groupId: result._id });
+
+        this.creatorIdString = adminId.toHexString();
         this.adminIdStrings = result.admins.map((adminId) =>
             adminId.toHexString()
         );
@@ -147,6 +151,8 @@ class Group {
                 throw new Error('Could not find group');
             }
 
+            this.creatorIdString = result.createdBy.toHexString();
+
             this.adminIdStrings = result.admins.map((adminId) =>
                 adminId.toHexString()
             );
@@ -156,6 +162,86 @@ class Group {
             this.groupInfo = result;
 
             return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async removeMember({
+        adminId,
+        userId
+    }: {
+        adminId: ObjectId | string;
+        userId: ObjectId | string;
+    }) {
+        adminId = this.isAdmin(adminId);
+        userId = sanitizeId(userId);
+
+        console.log(userId, this.creatorIdString);
+
+        const groupId = this.groupInfo?._id as ObjectId;
+
+        const userIsAMember = this.memberIdStrings.includes(
+            userId.toHexString()
+        );
+
+        if (!userIsAMember) {
+            throw createExtendedError({
+                message: 'The user is not a member',
+                statusCode: 404
+            });
+        }
+
+        const userIsAnAdmin = this.adminIdStrings.includes(
+            userId.toHexString()
+        );
+
+        console.log('USER IS ADMIN', userIsAnAdmin);
+
+        if (userIsAnAdmin && adminId.toHexString() !== this.creatorIdString) {
+            throw createExtendedError({
+                message: 'Only the creator may remove admins from the group',
+                statusCode: 401
+            });
+        }
+
+        try {
+            let updatedGroupDoc: GroupDocument;
+            updatedGroupDoc = (await groupCollection.findOneAndUpdate(
+                {
+                    _id: this.groupInfo?._id
+                },
+                { $pull: { members: userId as any } },
+                { returnDocument: 'after' }
+            )) as GroupDocument;
+
+            this.memberIdStrings = updatedGroupDoc.members.map((userId) =>
+                userId.toHexString()
+            );
+
+            await User.removeMember({
+                userId,
+                groupId
+            });
+
+            if (userIsAnAdmin) {
+                updatedGroupDoc = (await groupCollection.findOneAndUpdate(
+                    {
+                        _id: this.groupInfo?._id
+                    },
+                    { $pull: { admins: userId as any } },
+                    { returnDocument: 'after' }
+                )) as GroupDocument;
+
+                this.adminIdStrings = updatedGroupDoc.admins.map((userId) =>
+                    userId.toHexString()
+                );
+
+                await User.removeAdmin({
+                    userId,
+                    groupId
+                });
+            }
         } catch (error) {
             throw error;
         }
