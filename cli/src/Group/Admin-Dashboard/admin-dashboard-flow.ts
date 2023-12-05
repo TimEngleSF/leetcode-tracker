@@ -4,8 +4,9 @@ import adminDashboardGroupSelectPrompt from './Prompts/admin-dashboard-selection
 import { continuePrompt, printHeader } from '../../utils.js';
 import adminDashboardOptionsPrompt from './Prompts/admin-dashboard-options.js';
 import adminDashboardUpdateFeaturedQuestPrompt from './Prompts/admin-dashboard-update-featured-question.js';
-import adminDashboardViewPasscodes from '../view-passcodes.js';
 import adminDashboardMemberFlow from './Members/admin-dashboard-members-flow.js';
+import adminDashboardViewPassCode from './Prompts/view-passcode.js';
+import adminDashboardDeleteGroupPrompt from './Prompts/admin-dashboard-delete-group.js';
 
 const adminDashboardFlow = async () => {
     console.clear();
@@ -30,6 +31,18 @@ const adminDashboardFlow = async () => {
 
     if (optionSelection === 'updateFeaturedQuestion') {
         await adminDashboardUpdateFeaturedQuestPrompt(groupSelection);
+    }
+
+    if (optionSelection === 'viewPasscode') {
+        await adminDashboardViewPassCode(groupSelection);
+        await Group();
+        return;
+    }
+
+    if (optionSelection === 'deleteGroup') {
+        await adminDashboardDeleteGroupPrompt(groupSelection);
+        await Group();
+        return;
     }
 };
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import Controllers from '../controllers/index';
+import { group } from 'console';
 const groupRoutes = express.Router();
 
 groupRoutes.post('/create', Controllers.Group.postCreate);
@@ -13,6 +14,8 @@ groupRoutes.get('/members', Controllers.Group.getMembersInfo);
 groupRoutes.put('/add-admin', Controllers.Group.putAddAdmin);
 
 groupRoutes.delete('/remove-member', Controllers.Group.deleteMember);
+
+groupRoutes.delete('/delete-group', Controllers.Group.deleteGroup);
 
 groupRoutes.get('/', Controllers.Group.getGroups);
 

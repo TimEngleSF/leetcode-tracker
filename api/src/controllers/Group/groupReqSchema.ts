@@ -23,3 +23,7 @@ export const groupAndUserIdSchema = joi.object({
     groupId: joi.string().length(24).required(),
     userId: joi.string().length(24).required()
 });
+
+export const deleteGroupSchema = joi.object({
+    groupId: joi.string().length(24).required()
+});

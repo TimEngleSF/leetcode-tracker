@@ -8,6 +8,7 @@ import Question from './Question';
 import { sanitizeId } from './helpers/utility';
 import User from './User';
 import { UserDocument } from '../types';
+import { group } from 'console';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
 export const assignGroupCollection = async () => {
@@ -263,18 +264,49 @@ class Group {
         }
     }
 
-    // async deleteGroup(adminId) {
-    //     adminId = this.isAdmin(adminId);
+    async deleteGroup(adminId: string | ObjectId) {
+        adminId = this.isAdmin(adminId);
 
-    //     const isCreator = this.creatorIdString === adminId.toHexString();
+        const isCreator = this.creatorIdString === adminId.toHexString();
 
-    //     if (!isCreator) {
-    //         throw createExtendedError({
-    //             message: 'Only the creator may delete the group',
-    //             statusCode: 401
-    //         });
-    //     }
-    // }
+        if (!isCreator) {
+            throw createExtendedError({
+                message: 'Only the creator may delete the group',
+                statusCode: 401
+            });
+        }
+        if (!this.groupInfo) {
+            throw createExtendedError({
+                message: 'Group object not assigned to a group',
+                statusCode: 400
+            });
+        }
+        const groupInfo = this.groupInfo as GroupDocument;
+        // loop through this.groupInfo.members + this.groupInfo.admins and remove this group from those users' members and admins array
+
+        await Promise.all(
+            this.groupInfo.members.map(async (userId) => {
+                await User.removeMember({ userId, groupId: groupInfo._id });
+            })
+        );
+
+        await Promise.all(
+            this.groupInfo.admins.map(async (userId) => {
+                await User.removeAdmin({ userId, groupId: groupInfo._id });
+            })
+        );
+
+        await User.removeCreated({ userId: adminId, groupId: groupInfo._id });
+
+        try {
+            await groupCollection.findOneAndDelete({ _id: groupInfo._id });
+        } catch (error) {
+            throw createExtendedError({
+                message: 'There was an error deleting the group',
+                statusCode: 500
+            });
+        }
+    }
 
     getGroup(): GroupDocument {
         if (!this.groupInfo) {
