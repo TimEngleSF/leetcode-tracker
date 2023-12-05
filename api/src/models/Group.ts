@@ -233,6 +233,61 @@ class Group {
         return result as GroupDocument;
     }
 
+    async addAdmin({
+        adminId,
+        userId
+    }: {
+        adminId: string | ObjectId;
+        userId: string | ObjectId;
+    }) {
+        adminId = this.isAdmin(adminId);
+        userId = sanitizeId(userId);
+
+        if (this.adminIdStrings.includes(userId.toHexString())) {
+            throw createExtendedError({
+                message: 'User is already an admin',
+                statusCode: 409
+            });
+        }
+        // add the user to the admins list
+
+        let updatedGroupDoc: GroupDocument;
+        try {
+            updatedGroupDoc = (await groupCollection.findOneAndUpdate(
+                { _id: this.groupInfo?._id },
+                { $push: { admins: userId as any } },
+                { returnDocument: 'after' }
+            )) as GroupDocument;
+        } catch (error: any) {
+            throw createExtendedError({
+                message: `There was an error updating the group admins: ${error.message}`,
+                statusCode: 500
+            });
+        }
+
+        this.groupInfo = updatedGroupDoc;
+
+        if (!updatedGroupDoc) {
+            throw createExtendedError({
+                message: 'There was an error adding the user as a group admin',
+                statusCode: 500
+            });
+        }
+
+        try {
+            await User.addAdmin({
+                adminId: userId,
+                groupId: this.groupInfo._id
+            });
+        } catch (error: any) {
+            throw createExtendedError({
+                message: `There was an error updating the group admins: ${error.message}`,
+                statusCode: 500
+            });
+        }
+        return true;
+    }
+
     static async findGroup({
         key,
         value

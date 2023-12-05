@@ -18,3 +18,8 @@ export const putFeaturedQuestionSchema = joi.object({
 export const getMembersInfoSchema = joi.object({
     groupId: joi.string().length(24).required()
 });
+
+export const putAddAdminSchema = joi.object({
+    groupId: joi.string().length(24).required(),
+    userId: joi.string().length(24).required()
+});
