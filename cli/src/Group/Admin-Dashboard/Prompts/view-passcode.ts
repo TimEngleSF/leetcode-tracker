@@ -33,7 +33,9 @@ const adminDashboardViewPassCode = async (
 
     const passCodeDisplay = `${
         groupInfo.displayName
-    }'s code is  ${chalk.bold.bgGreen(`  ${groupInfo.passCode}  `)}`;
+    }'s code is  ${chalk.bold.bgGreen.red(
+        `  ${groupInfo.passCode?.toUpperCase()}  `
+    )}`;
 
     console.clear();
     printHeader();
