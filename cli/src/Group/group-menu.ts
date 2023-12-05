@@ -2,8 +2,8 @@ import selectJoinOption from './Join/select-join-option.js';
 import { selectGroupOption } from './Prompts/main-selection.js';
 import viewPassCodesFlow from './view-passcodes.js';
 import adminDashboardFlow from './Admin-Dashboard/admin-dashboard-flow.js';
-import createGroup from './create-group.js';
 import yourGroupsFlow from './your-group-flow.js';
+import createGroupFlow from './Create/create-group-flow.js';
 
 const Group = async () => {
     const answer = await selectGroupOption();
@@ -14,7 +14,7 @@ const Group = async () => {
     } else if (answer === 'join') {
         await selectJoinOption({});
     } else if (answer === 'create') {
-        await createGroup({});
+        await createGroupFlow();
     } else if (answer === 'passCodes') {
         await viewPassCodesFlow();
     } else {
