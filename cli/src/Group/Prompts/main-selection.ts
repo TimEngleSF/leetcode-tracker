@@ -30,8 +30,6 @@ export const selectGroupOption = async (
             name: 'Admin Dashboard',
             value: 'adminDashboard'
         });
-    userIsAdmin &&
-        promptChoices.push({ name: 'View Passcodes', value: 'passCodes' });
 
     promptChoices = [
         ...promptChoices,
