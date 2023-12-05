@@ -1,5 +1,5 @@
 import inquirer from 'inquirer';
-import Group from './Group.js';
+import Group from './group-menu.js';
 import yourGroupsPrompt from './Prompts/your-group/your-group-selection.js';
 import { continuePrompt } from '../utils.js';
 

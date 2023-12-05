@@ -1,8 +1,9 @@
 import inquirer from 'inquirer';
-import { printHeader } from '../../../utils.js';
+import { printHeader } from '../../utils.js';
 import chalk from 'chalk';
-import listOptionPrompt from './list-option.js';
-import { PromptOptions } from '../../../Types/prompts.js';
+// import listOptionPrompt from './list-option.js';
+import joinGroupListFlow from './join-group-list-flow.js';
+import { PromptOptions } from '../../Types/prompts.js';
 
 export const selectJoinOption = async ({
     prompt = inquirer.prompt,
@@ -32,7 +33,7 @@ export const selectJoinOption = async ({
     // THe flow if a user selects list
     if (findOption.answer === 'list') {
         try {
-            await listOptionPrompt({});
+            await joinGroupListFlow();
         } catch (error: any) {
             await selectJoinOption({ errorMessage: error.message });
         }
