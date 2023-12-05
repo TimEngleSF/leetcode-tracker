@@ -5,7 +5,7 @@ import { getUserJSON, logout, printHeader } from './utils.js';
 import viewPrevQuestPrompt from './AddQuestions/Prompts/viewPrevQuestPrompt.js';
 import getAllUserQuestsByQuestNum from './AddQuestions/previous-attempts.js';
 import reviewQuestionsFlow from './ReviewQuestions/review-questions-flow.js';
-import Group from './Group/Group.js';
+import Group from './Group/group-menu.js';
 import addQuestion from './AddQuestions/add-question-flow.js';
 import LeaderboardFlow from './Leaderboard/leaderboard-flow.js';
 import featuredQuestionFlow from './FeaturedQuestions/featured-question-flow.js';
