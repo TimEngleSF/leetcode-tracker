@@ -3,9 +3,9 @@ import Group from '../group-menu.js';
 import adminDashboardGroupSelectPrompt from './Prompts/admin-dashboard-selection.js';
 import { continuePrompt, printHeader } from '../../utils.js';
 import adminDashboardOptionsPrompt from './Prompts/admin-dashboard-options.js';
-import adminDashboardMembersPrompt from './Prompts/admin-dashboard-members.js';
 import adminDashboardUpdateFeaturedQuestPrompt from './Prompts/admin-dashboard-update-featured-question.js';
 import adminDashboardViewPasscodes from '../view-passcodes.js';
+import adminDashboardMemberFlow from './Members/admin-dashboard-members-flow.js';
 
 const adminDashboardFlow = async () => {
     console.clear();
@@ -20,12 +20,12 @@ const adminDashboardFlow = async () => {
     const optionSelection = await adminDashboardOptionsPrompt();
 
     if (optionSelection === 'back') {
-        await adminDashboardFlow();
+        await Group();
         return;
     }
 
     if (optionSelection === 'memberAction') {
-        await adminDashboardMembersPrompt(groupSelection);
+        await adminDashboardMemberFlow(groupSelection);
     }
 
     if (optionSelection === 'updateFeaturedQuestion') {

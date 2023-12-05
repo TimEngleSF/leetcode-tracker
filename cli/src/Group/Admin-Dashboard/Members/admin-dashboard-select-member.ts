@@ -2,9 +2,17 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { MembersInfo, getGroupMembers, printHeader } from '../../../utils.js';
 import dateFns, { parseISO } from 'date-fns';
-import adminDashboardGroupSelectPrompt from './admin-dashboard-selection.js';
+import adminDashboardGroupSelectPrompt from '../Prompts/admin-dashboard-selection.js';
 
-const adminDashboardMembersPrompt = async (groupId: string) => {
+const adminDashboardMemberSelectPrompt = async (
+    groupId: string
+): Promise<
+    | {
+          _id: string;
+          name: string;
+      }
+    | 'back'
+> => {
     console.clear();
     printHeader();
     let membersInfo = await getGroupMembers(groupId);
@@ -16,8 +24,7 @@ const adminDashboardMembersPrompt = async (groupId: string) => {
         choices: [
             { name: 'Alphabetically by last initial', value: 'lastInit' },
             { name: 'Most recently active', value: 'recent' },
-            { name: 'Least recently active', value: 'notRecent' },
-            { name: 'Go back', value: 'back' }
+            { name: 'Least recently active', value: 'notRecent' }
         ]
     });
 
@@ -44,9 +51,6 @@ const adminDashboardMembersPrompt = async (groupId: string) => {
                     new Date(a.lastActivity).getTime() -
                     new Date(b.lastActivity).getTime()
             );
-    } else {
-        await adminDashboardGroupSelectPrompt();
-        return;
     }
 
     console.clear();
@@ -64,7 +68,13 @@ const adminDashboardMembersPrompt = async (groupId: string) => {
         } else {
             name = formatedName;
         }
-        return { name, value: member._id };
+        return {
+            name,
+            value: {
+                _id: member._id,
+                name: `${member.firstName} ${member.lastInit}.`
+            }
+        };
     });
 
     const { memberChoice } = await inquirer.prompt({
@@ -75,11 +85,11 @@ const adminDashboardMembersPrompt = async (groupId: string) => {
     });
 
     if (memberChoice === 'back') {
-        await adminDashboardMembersPrompt(groupId);
-        return;
+        const memberChoice = await adminDashboardMemberSelectPrompt(groupId);
+        return memberChoice;
     }
 
     return memberChoice;
 };
 
-export default adminDashboardMembersPrompt;
+export default adminDashboardMemberSelectPrompt;
