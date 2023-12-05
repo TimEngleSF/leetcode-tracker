@@ -17,7 +17,7 @@ const adminDashboardUpdateFeaturedQuestPrompt = async (groupId: string) => {
         type: 'input',
         name: 'featuredQuestNum',
         message:
-            'Please input the question number you would like to set the featured question to',
+            'Please input the question number you would like to set the featured question to: ',
         validate: validate.questNum,
         filter: filter.questNum
     });
@@ -41,10 +41,10 @@ const adminDashboardUpdateFeaturedQuestPrompt = async (groupId: string) => {
         const { tryAgain } = await inquirer.prompt({
             type: 'list',
             name: 'tryAgain',
-            message: 'Would you like to try a different question?',
+            message: 'Would you like to try a different question?: ',
             choices: [
                 { name: 'Enter another question', value: true },
-                { name: 'Go back', value: 'back' }
+                { name: 'Go back', value: false }
             ]
         });
 
@@ -52,7 +52,6 @@ const adminDashboardUpdateFeaturedQuestPrompt = async (groupId: string) => {
             await adminDashboardUpdateFeaturedQuestPrompt(groupId);
             return;
         } else {
-            await adminDashboardOptionsPrompt();
             return;
         }
     }

@@ -9,6 +9,7 @@ import { sanitizeId } from './helpers/utility';
 import User from './User';
 import { UserDocument } from '../types';
 import { group } from 'console';
+import { faker } from '@faker-js/faker';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
 export const assignGroupCollection = async () => {
@@ -191,10 +192,12 @@ class Group {
         adminId: ObjectId | string;
         userId: ObjectId | string;
     }) {
-        adminId = this.isAdmin(adminId);
+        try {
+            adminId = this.isAdmin(adminId);
+        } catch (error) {
+            throw error;
+        }
         userId = sanitizeId(userId);
-
-        console.log(userId, this.creatorIdString);
 
         const groupId = this.groupInfo?._id as ObjectId;
 
@@ -212,8 +215,6 @@ class Group {
         const userIsAnAdmin = this.adminIdStrings.includes(
             userId.toHexString()
         );
-
-        console.log('USER IS ADMIN', userIsAnAdmin);
 
         if (userIsAnAdmin && adminId.toHexString() !== this.creatorIdString) {
             throw createExtendedError({
@@ -303,6 +304,55 @@ class Group {
         } catch (error) {
             throw createExtendedError({
                 message: 'There was an error deleting the group',
+                statusCode: 500
+            });
+        }
+    }
+
+    async regeneratePasscode(adminId: string | ObjectId) {
+        adminId = this.isAdmin(adminId);
+
+        if (!this.groupInfo) {
+            throw createExtendedError({
+                message: 'Group object not assigned to a group',
+                statusCode: 400
+            });
+        }
+
+        const groupInfo = this.groupInfo;
+
+        if (this.groupInfo?.open) {
+            try {
+                await groupCollection.findOneAndUpdate(
+                    {
+                        _id: groupInfo._id
+                    },
+                    { $set: { open: false } }
+                );
+            } catch (error: any) {
+                throw createExtendedError({
+                    message: `There was an error setting this group to private: ${error.message}`,
+                    statusCode: 500
+                });
+            }
+        }
+
+        try {
+            const newPasscode = faker.string.alphanumeric(6).toLowerCase();
+            const result = await groupCollection.findOneAndUpdate(
+                { _id: groupInfo._id },
+                { $set: { passCode: newPasscode } },
+                { returnDocument: 'after' }
+            );
+
+            if (!result) {
+                throw new Error();
+            }
+
+            return result?.passCode;
+        } catch (error: any) {
+            throw createExtendedError({
+                message: `There was an error resetting the group's passcode: ${error.message}`,
                 statusCode: 500
             });
         }
@@ -500,15 +550,11 @@ class Group {
     }
 
     async getMembersInfo(userId: string | ObjectId) {
-        console.log(userId);
-        console.log(this.groupInfo);
         userId = sanitizeId(userId);
 
-        if (
-            !this.memberIdStrings.includes(userId.toHexString()) ||
-            !this.adminIdStrings.includes(userId.toHexString())
-        ) {
-            console.log('broken');
+        console.log(this.memberIdStrings, userId);
+
+        if (!this.memberIdStrings.includes(userId.toHexString())) {
             throw createExtendedError({
                 message: 'Unauthorized',
                 statusCode: 401
@@ -533,6 +579,40 @@ class Group {
             lastActivity: userDoc.lastActivity
         }));
         return sanitizedUserObjects;
+    }
+
+    async leaveGroup(userId: string | ObjectId) {
+        userId = sanitizeId(userId);
+
+        if (this.creatorIdString === userId.toHexString()) {
+            throw createExtendedError({
+                message:
+                    'The group creator cannot leave the group, only delete it',
+                statusCode: 409
+            });
+        }
+
+        if (!this.groupInfo) {
+            throw createExtendedError({
+                message: 'The group has not been set to the object',
+                statusCode: 500
+            });
+        }
+        const groupId = this.groupInfo._id;
+
+        try {
+            await User.removeMember({ userId, groupId });
+            if (this.adminIdStrings.includes(userId.toHexString())) {
+                await User.removeAdmin({ userId, groupId });
+            }
+
+            await groupCollection.findOneAndUpdate(
+                { _id: groupId },
+                { $pull: { admins: userId as any, members: userId as any } }
+            );
+        } catch (error) {
+            throw error;
+        }
     }
 
     static async findGroups(): Promise<GroupDocument[]> {

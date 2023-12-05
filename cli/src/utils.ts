@@ -71,6 +71,29 @@ export const addAdminToJSON = async (groupId: string) => {
     }
 };
 
+export const updateAdminOrGroupArrayJSON = async ({
+    arrayName,
+    data
+}: {
+    arrayName: 'admin' | 'group';
+    data: string;
+}) => {
+    try {
+        const jsonPath = path.join(__dirname, 'user.json');
+        const userData = JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
+        if (arrayName === 'admin') {
+            userData.LC_ADMINS = data;
+        }
+        if (arrayName === 'group') {
+            userData.LC_GROUPS = data;
+        }
+
+        await fs.writeFile(jsonPath, JSON.stringify(userData));
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 export const localGroupsArray = async (): Promise<string[]> => {
     const userData = await JSON.parse(await fs.readFile(jsonPath, 'utf-8'));
     return userData.LC_GROUPS as string[];

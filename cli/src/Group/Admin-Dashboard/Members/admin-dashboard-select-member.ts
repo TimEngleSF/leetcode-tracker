@@ -1,13 +1,7 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import {
-    MembersInfo,
-    continuePrompt,
-    getGroupMembers,
-    printHeader
-} from '../../../utils.js';
+import { MembersInfo, getGroupMembers, printHeader } from '../../../utils.js';
 import dateFns, { parseISO } from 'date-fns';
-import adminDashboardGroupSelectPrompt from '../Prompts/admin-dashboard-selection.js';
 
 const adminDashboardMemberSelectPrompt = async (
     groupId: string
@@ -30,7 +24,7 @@ const adminDashboardMemberSelectPrompt = async (
             { name: 'Alphabetically by last initial', value: 'lastInit' },
             { name: 'Most recently active', value: 'recent' },
             { name: 'Least recently active', value: 'notRecent' },
-            { name: 'Return Home', value: 'back' }
+            { name: 'Go Back', value: 'back' }
         ]
     });
 

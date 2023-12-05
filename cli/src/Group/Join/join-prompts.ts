@@ -3,14 +3,32 @@ import chalk from 'chalk';
 import { Group } from '../../Types/api.js';
 import { filter, validate } from './validation.js';
 
-export const openOrPrivatePrompt = async (): Promise<boolean> => {
+export const findOptionSelectionPrompt = async (): Promise<
+    'list' | 'search' | 'back'
+> => {
+    const { findOption } = await inquirer.prompt({
+        type: 'list',
+        name: 'findOption',
+        message: 'How would you like to find a group?',
+        choices: [
+            { name: 'List', value: 'list' },
+            { name: 'Search By Name', value: 'search' },
+            { name: 'Go back', value: 'back' }
+        ]
+    });
+
+    return findOption;
+};
+
+export const openOrPrivatePrompt = async (): Promise<boolean | 'back'> => {
     const { isOpen } = await inquirer.prompt({
         type: 'list',
         name: 'isOpen',
         message: 'Which groups would you like to view?',
         choices: [
             { name: 'Open', value: true },
-            { name: 'Private', value: false }
+            { name: 'Private', value: false },
+            { name: 'Go Back', value: 'back' }
         ]
     });
 

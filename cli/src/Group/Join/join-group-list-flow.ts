@@ -11,12 +11,19 @@ import {
     continuePrompt,
     fetchGroups,
     joinGroup,
-    localGroupsArray
+    localGroupsArray,
+    printHeader
 } from '../../utils.js';
 import chalk from 'chalk';
 
 const joinGroupListFlow = async () => {
+    console.clear();
+    printHeader();
     const areOpenGroup = await openOrPrivatePrompt();
+
+    if (areOpenGroup === 'back') {
+        return;
+    }
 
     let groups: Omit<Group, 'passCode'>[];
 
@@ -91,7 +98,11 @@ const joinGroupListFlow = async () => {
         try {
             await joinGroup(chosenGroupData._id, passCode);
             await addGroupToJSON(chosenGroupData._id);
-
+            console.log(
+                chalk.green(
+                    `You have successfully joined ${chosenGroupData.displayName}`
+                )
+            );
             await continuePrompt();
         } catch (error) {
             const tryAgain = await tryAgainPrompt(
