@@ -135,6 +135,7 @@ const User = {
                 status: 'pending',
                 groups: [],
                 admins: [],
+                created: [],
                 questions: [],
                 verificationToken,
                 passwordToken: '',
@@ -387,6 +388,36 @@ const User = {
         } catch (error: any) {
             throw createExtendedError({
                 message: `There was an error removing user's group: ${error.message}`,
+                statusCode: 500
+            });
+        }
+    },
+
+    addCreator: async ({
+        adminId,
+        groupId
+    }: {
+        groupId: ObjectId | string;
+        adminId: ObjectId | string;
+    }) => {
+        if (typeof adminId === 'string') {
+            adminId = new ObjectId(adminId);
+        }
+
+        try {
+            const result = await userCollection.updateOne(
+                { _id: adminId },
+                {
+                    $push: {
+                        admins: groupId,
+                        created: groupId,
+                        groups: groupId
+                    }
+                }
+            );
+        } catch (error: any) {
+            throw createExtendedError({
+                message: `Failed to add group's to the user document: ${error.message}`,
                 statusCode: 500
             });
         }

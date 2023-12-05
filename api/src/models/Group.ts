@@ -72,6 +72,23 @@ class Group {
     }: GroupCreateInput): Promise<GroupDocument> {
         adminId = sanitizeId(adminId);
         let insertResult: InsertOneResult;
+        const userDocument = await User.getById(adminId);
+
+        if (!userDocument) {
+            throw createExtendedError({
+                message: 'User Document could not be found',
+                statusCode: 404
+            });
+        }
+
+        if (userDocument.created.length >= 3) {
+            throw createExtendedError({
+                message:
+                    'User may not create more than three groups. Please delete a group to create another',
+                statusCode: 422
+            });
+        }
+
         try {
             insertResult = await groupCollection.insertOne({
                 name: name.toLowerCase(),
@@ -112,8 +129,7 @@ class Group {
             throw new Error('There was an error creating the group');
         }
 
-        await User.addAdmin({ adminId, groupId: result._id });
-        await User.addGroup({ userId: adminId, groupId: result._id });
+        await User.addCreator({ adminId, groupId: result._id });
 
         this.creatorIdString = adminId.toHexString();
         this.adminIdStrings = result.admins.map((adminId) =>
@@ -246,6 +262,19 @@ class Group {
             throw error;
         }
     }
+
+    // async deleteGroup(adminId) {
+    //     adminId = this.isAdmin(adminId);
+
+    //     const isCreator = this.creatorIdString === adminId.toHexString();
+
+    //     if (!isCreator) {
+    //         throw createExtendedError({
+    //             message: 'Only the creator may delete the group',
+    //             statusCode: 401
+    //         });
+    //     }
+    // }
 
     getGroup(): GroupDocument {
         if (!this.groupInfo) {
