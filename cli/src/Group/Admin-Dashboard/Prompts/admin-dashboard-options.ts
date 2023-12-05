@@ -8,6 +8,7 @@ const promptChoices = [
     },
     { name: 'View Passcode', value: 'viewPasscode' },
     { name: 'Regenerate Passcode', value: 'resetPasscode' },
+    { name: 'Delete Group', value: 'deleteGroup' },
 
     { name: 'Go Back', value: 'back' }
 ];
@@ -17,6 +18,7 @@ const adminDashboardOptionsPrompt = async (): Promise<
     | 'updateFeaturedQuestion'
     | 'viewPasscode'
     | 'resetPasscode'
+    | 'deleteGroup'
     | 'back'
 > => {
     const { optionSelection } = await inquirer.prompt({
