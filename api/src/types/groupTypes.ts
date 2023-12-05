@@ -9,6 +9,7 @@ export interface GroupDocument extends Document {
     featuredQuestion?: number | null;
     passCode: string | null;
     open: boolean;
+    createdBy: ObjectId;
 }
 
 export interface GroupCreateInput {

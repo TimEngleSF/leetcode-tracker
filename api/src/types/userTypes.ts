@@ -14,6 +14,7 @@ export interface UserDocument extends Document {
     passwordToken: string;
     groups: ObjectId[];
     admins: ObjectId[];
+    created: ObjectId[];
     questions: number[];
     lastActivity: Date;
 }

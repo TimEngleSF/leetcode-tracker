@@ -221,7 +221,8 @@ export const isLoggedIn = async () => {
             jsonPath,
             JSON.stringify({
                 ...localUserData,
-                LC_GROUPS: userData.data.groups
+                LC_GROUPS: userData.data.groups,
+                LC_ADMINS: userData.data.admins
             })
         );
         if (status !== 200) {

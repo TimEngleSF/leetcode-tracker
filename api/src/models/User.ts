@@ -1,6 +1,6 @@
 import { ObjectId, Db, Collection } from 'mongodb';
 import { getCollection } from '../db/connection';
-import { ExtendedError } from '../errors/helpers';
+import { ExtendedError, createExtendedError } from '../errors/helpers';
 import {
     UserDocument,
     CreateUserInDb,
@@ -135,6 +135,7 @@ const User = {
                 status: 'pending',
                 groups: [],
                 admins: [],
+                created: [],
                 questions: [],
                 verificationToken,
                 passwordToken: '',
@@ -335,6 +336,90 @@ const User = {
             return result as UserDocument[];
         } catch (error) {
             throw error;
+        }
+    },
+
+    removeMember: async ({
+        userId,
+        groupId
+    }: {
+        groupId: ObjectId | string;
+        userId: ObjectId | string;
+    }) => {
+        if (typeof groupId === 'string') {
+            groupId = new ObjectId(groupId);
+        }
+        if (typeof userId === 'string') {
+            userId = new ObjectId(userId);
+        }
+
+        try {
+            await userCollection.findOneAndUpdate(
+                { _id: userId },
+                { $pull: { groups: groupId as any } }
+            );
+        } catch (error: any) {
+            throw createExtendedError({
+                message: `There was an error removing user's group: ${error.message}`,
+                statusCode: 500
+            });
+        }
+    },
+
+    removeAdmin: async ({
+        userId,
+        groupId
+    }: {
+        groupId: ObjectId | string;
+        userId: ObjectId | string;
+    }) => {
+        if (typeof groupId === 'string') {
+            groupId = new ObjectId(groupId);
+        }
+        if (typeof userId === 'string') {
+            userId = new ObjectId(userId);
+        }
+
+        try {
+            await userCollection.findOneAndUpdate(
+                { _id: userId },
+                { $pull: { admins: groupId as any } }
+            );
+        } catch (error: any) {
+            throw createExtendedError({
+                message: `There was an error removing user's group: ${error.message}`,
+                statusCode: 500
+            });
+        }
+    },
+
+    addCreator: async ({
+        adminId,
+        groupId
+    }: {
+        groupId: ObjectId | string;
+        adminId: ObjectId | string;
+    }) => {
+        if (typeof adminId === 'string') {
+            adminId = new ObjectId(adminId);
+        }
+
+        try {
+            const result = await userCollection.updateOne(
+                { _id: adminId },
+                {
+                    $push: {
+                        admins: groupId,
+                        created: groupId,
+                        groups: groupId
+                    }
+                }
+            );
+        } catch (error: any) {
+            throw createExtendedError({
+                message: `Failed to add group's to the user document: ${error.message}`,
+                statusCode: 500
+            });
         }
     }
 };

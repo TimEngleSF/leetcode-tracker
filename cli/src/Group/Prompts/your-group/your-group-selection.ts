@@ -7,7 +7,7 @@ const yourGroupsSelectionPrompt = async (): Promise<string | 'back'> => {
     const usersGroupData = await fetchUserGroups();
 
     const groupChoices = usersGroupData.map((groupData) => ({
-        name: groupData.name,
+        name: groupData.displayName,
         value: groupData._id
     }));
 

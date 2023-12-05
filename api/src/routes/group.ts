@@ -10,6 +10,10 @@ groupRoutes.put('/featured-question', Controllers.Group.putFeaturedQuestion);
 
 groupRoutes.get('/members', Controllers.Group.getMembersInfo);
 
+groupRoutes.put('/add-admin', Controllers.Group.putAddAdmin);
+
+groupRoutes.delete('/remove-member', Controllers.Group.deleteMember);
+
 groupRoutes.get('/', Controllers.Group.getGroups);
 
 export default groupRoutes;
