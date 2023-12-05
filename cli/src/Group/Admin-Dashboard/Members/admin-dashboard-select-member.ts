@@ -1,6 +1,11 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import { MembersInfo, getGroupMembers, printHeader } from '../../../utils.js';
+import {
+    MembersInfo,
+    continuePrompt,
+    getGroupMembers,
+    printHeader
+} from '../../../utils.js';
 import dateFns, { parseISO } from 'date-fns';
 import adminDashboardGroupSelectPrompt from '../Prompts/admin-dashboard-selection.js';
 
@@ -24,7 +29,8 @@ const adminDashboardMemberSelectPrompt = async (
         choices: [
             { name: 'Alphabetically by last initial', value: 'lastInit' },
             { name: 'Most recently active', value: 'recent' },
-            { name: 'Least recently active', value: 'notRecent' }
+            { name: 'Least recently active', value: 'notRecent' },
+            { name: 'Return Home', value: 'back' }
         ]
     });
 
@@ -53,43 +59,49 @@ const adminDashboardMemberSelectPrompt = async (
             );
     }
 
-    console.clear();
-    printHeader();
-    const choices = membersInfo.map((member, i) => {
-        const formatedName = `Name: ${member.firstName} ${
-            member.lastInit
-        }. Last Active: ${dateFns.format(
-            parseISO(member.lastActivity),
-            'MM-dd-yy'
-        )}`;
-        let name;
-        if (i === 0 || i % 2 === 0) {
-            name = chalk.bgGray(formatedName);
-        } else {
-            name = formatedName;
-        }
-        return {
-            name,
-            value: {
-                _id: member._id,
-                name: `${member.firstName} ${member.lastInit}.`
+    if (sortOption !== 'back') {
+        console.clear();
+        printHeader();
+        const choices = membersInfo.map((member, i) => {
+            const formatedName = `Name: ${member.firstName} ${
+                member.lastInit
+            }. Last Active: ${dateFns.format(
+                parseISO(member.lastActivity),
+                'MM-dd-yy'
+            )}`;
+            let name;
+            if (i === 0 || i % 2 === 0) {
+                name = chalk.bgGray(formatedName);
+            } else {
+                name = formatedName;
             }
-        };
-    });
+            return {
+                name,
+                value: {
+                    _id: member._id,
+                    name: `${member.firstName} ${member.lastInit}.`
+                }
+            };
+        });
 
-    const { memberChoice } = await inquirer.prompt({
-        type: 'list',
-        name: 'memberChoice',
-        message: 'Choose a member',
-        choices: [...choices, { name: 'Go back', value: 'back' }]
-    });
+        const { memberChoice } = await inquirer.prompt({
+            type: 'list',
+            name: 'memberChoice',
+            message: 'Choose a member',
+            choices: [...choices, { name: 'Go back', value: 'back' }]
+        });
 
-    if (memberChoice === 'back') {
-        const memberChoice = await adminDashboardMemberSelectPrompt(groupId);
+        if (memberChoice === 'back') {
+            const memberChoice = await adminDashboardMemberSelectPrompt(
+                groupId
+            );
+            return memberChoice;
+        }
+
         return memberChoice;
     }
 
-    return memberChoice;
+    return sortOption;
 };
 
 export default adminDashboardMemberSelectPrompt;

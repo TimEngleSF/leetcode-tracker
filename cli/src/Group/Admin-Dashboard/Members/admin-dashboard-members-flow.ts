@@ -16,7 +16,6 @@ const adminDashboardMemberFlow = async (groupId: string) => {
     printHeader();
 
     if (member === 'back') {
-        await adminDashboardMemberFlow(groupId);
         return;
     }
 
@@ -39,7 +38,7 @@ const adminDashboardMemberFlow = async (groupId: string) => {
             try {
                 await axios({
                     method: 'PUT',
-                    url: `${API_URL}/group/addAdmin`,
+                    url: `${API_URL}/group/add-admin`,
                     headers: await getAuthHeaders(),
                     data: { groupId, userId: member._id }
                 });
@@ -47,10 +46,11 @@ const adminDashboardMemberFlow = async (groupId: string) => {
                 printHeader();
                 console.log(
                     chalk.bold.green(
-                        `Successfully added ${member.name}as an admin.`
+                        `Successfully added ${member.name} as an admin.`
                     )
                 );
                 await continuePrompt();
+                return;
             } catch (error: any) {
                 const errorMessage = error.response.data.message;
                 console.log(
@@ -62,9 +62,45 @@ const adminDashboardMemberFlow = async (groupId: string) => {
                 return;
             }
         }
+        await adminDashboardMemberFlow(groupId);
+        return;
     }
 
     if (action === 'remove') {
+        const isConfirmed = await adminDashboardConfirmMemberAction(
+            'remove',
+            member.name
+        );
+        if (isConfirmed) {
+            try {
+                await axios({
+                    method: 'DELETE',
+                    url: `${API_URL}/group/remove-member`,
+                    headers: await getAuthHeaders(),
+                    data: { groupId, userId: member._id }
+                });
+                console.clear();
+                printHeader();
+                console.log(
+                    chalk.bold.green(
+                        `Successfully removed ${member.name} from group.`
+                    )
+                );
+                await continuePrompt();
+                return;
+            } catch (error: any) {
+                const errorMessage = error.response.data.message;
+                console.log(
+                    chalk.bold.red(
+                        `There was an error setting the user as an admin: ${errorMessage}`
+                    )
+                );
+                await continuePrompt();
+                return;
+            }
+        }
+        await adminDashboardMemberFlow(groupId);
+        return;
     }
 };
 
