@@ -21,6 +21,17 @@ export interface QuestionInfo {
     diff: string;
 }
 
+export interface QuestionDocument {
+    _id: string;
+    userId: string;
+    username: string;
+    questNum: number;
+    passed: boolean;
+    speed: number | null;
+    language: string;
+    createdAt: string;
+}
+
 export interface GeneralLeaderboardEntry {
     userId: string;
     rank: number;
@@ -28,6 +39,14 @@ export interface GeneralLeaderboardEntry {
     name: string;
     lastActivity: Date;
     language?: string;
+}
+
+export interface AnswerDocument {
+    _id: string;
+    questId: string;
+    userId: string;
+    code: string;
+    created: string;
 }
 
 export interface GeneralLeaderboardUserResult {
