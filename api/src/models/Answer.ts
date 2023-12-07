@@ -41,9 +41,11 @@ class Answer {
 
         try {
             const questionDocument = await Question.getQuestion(questId);
+            const userDocument = await User.getById(questionDocument.userId);
             const result = await answerCollection.insertOne({
                 questId,
                 userId: questionDocument.userId,
+                name: `${userDocument?.firstName} ${userDocument?.lastInit}.`,
                 code,
                 created: new Date()
             });
