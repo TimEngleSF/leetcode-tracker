@@ -15,6 +15,7 @@ import { assignBlacklistCollection } from './models/Blacklist';
 import { assignUserCollection } from './models/User';
 import { assignQuestionCollections } from './models/Question';
 import { assignGroupCollection } from './models/Group';
+import { assignAnswerCollection } from './models/Answer';
 
 export let server: Server;
 export const app = express();
@@ -43,6 +44,7 @@ export const startServer = async (): Promise<Server> => {
                 await assignQuestionCollections();
                 await assignBlacklistCollection();
                 await assignGroupCollection();
+                await assignAnswerCollection();
             } catch (error: any) {
                 throw new Error(
                     `There was an error establishing connection to db: ${error.message}`
@@ -55,6 +57,7 @@ export const startServer = async (): Promise<Server> => {
         app.use(express.urlencoded({ extended: false }));
         app.use(express.static(path.join(__dirname, '/public')));
         app.use('/', routes.authRouter);
+        app.use('/answers', routes.answerRoutes);
 
         app.use(isAuth);
         app.use('/users', routes.usersRoutes);
