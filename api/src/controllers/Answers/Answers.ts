@@ -1,8 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { getAnswerFormSchma } from './answersReqSchema';
-import Question from '../../models/Question';
-import postQuestionService from '../../service/Questions/add-question';
-import getQuestionsByUserIdService from '../../service/Questions/get-questions-userId';
 import { RequestWithUser } from '../../types/controllerTypes';
 import Answer from '../../models/Answer';
 
@@ -18,7 +15,7 @@ const answers = {
 
         const { error } = getAnswerFormSchma.validate({ questId });
         if (error) {
-            res.status(422).send({
+            return res.status(422).send({
                 message:
                     'A query paramater of questId with a question Id value is required'
             });
@@ -38,23 +35,14 @@ const answers = {
                 code: answerCodeInput
             });
             if (answerId) {
-                res.status(201).send(answerId);
+                return res.render('Answers/post-answer-success');
             }
-        } catch (error) {
-            return next(error);
+        } catch (error: any) {
+            return res.render('Answers/post-answer-error', {
+                error: error.message
+            });
         }
     },
-
-    // getAnswerById: async (req: Request, res: Response, next: NextFunction) => {
-    //     const { answerId } = req.params;
-    //     try {
-    //         const answer = new Answer();
-    //         const answerDocument = await answer.set({ answerId });
-    //         return res.status(200).send(answerDocument);
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // },
 
     getAllAnswersByUserId: async (
         req: Request,
