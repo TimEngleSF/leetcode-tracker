@@ -8,7 +8,6 @@ import Question from './Question';
 import { sanitizeId } from './helpers/utility';
 import User from './User';
 import { UserDocument } from '../types';
-import { group } from 'console';
 import { faker } from '@faker-js/faker';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
