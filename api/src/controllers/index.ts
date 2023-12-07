@@ -3,7 +3,7 @@ import Leaderboard from './Leaderboard/Leaderboard';
 import Group from './Group/Group';
 import User from './Users/User';
 import Questions from './Questions/Questions';
-
-const Controllers = { Auth, Questions, Leaderboard, User, Group };
+import answers from './Answers/Answers';
+const Controllers = { Auth, Questions, Leaderboard, User, Group, answers };
 
 export default Controllers;

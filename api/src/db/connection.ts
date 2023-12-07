@@ -33,6 +33,7 @@ export const getCollection = async <T extends Document>(
         | 'questionData'
         | 'groups'
         | 'appInfo'
+        | 'answers'
 ): Promise<Collection<T>> => {
     try {
         const db = await connectDb();
