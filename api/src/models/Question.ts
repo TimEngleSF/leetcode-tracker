@@ -45,7 +45,9 @@ const Question = {
             );
         }
     },
-    addQuestion: async (questionData: NewQuestion): Promise<boolean> => {
+    addQuestion: async (
+        questionData: NewQuestion
+    ): Promise<QuestionDocument> => {
         let transformedUserId: ObjectId;
         if (typeof questionData.userId === 'string') {
             transformedUserId = new ObjectId(questionData.userId);
@@ -61,13 +63,22 @@ const Question = {
         };
 
         try {
-            const result = await questionCollection.insertOne(
+            const addResult = await questionCollection.insertOne(
                 transformedQuestionData
             );
-            if (!result.acknowledged) {
+            if (!addResult.acknowledged) {
                 throw new Error('Insertion not acknowledged');
             }
-            return result.acknowledged;
+            const questionData = (await questionCollection.findOne({
+                _id: addResult.insertedId
+            })) as QuestionDocument;
+            if (!questionData) {
+                throw createExtendedError({
+                    message: 'There was an error finding the question info',
+                    statusCode: 500
+                });
+            }
+            return questionData;
         } catch (error: any) {
             const extendedError = new ExtendedError(
                 `There was an error adding the question result: ${error.message}`
