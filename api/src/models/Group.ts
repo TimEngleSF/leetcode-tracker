@@ -97,6 +97,7 @@ class Group {
                 admins: [adminId],
                 members: [adminId],
                 featuredQuestion: undefined,
+                featuredQuestionCreated: undefined,
                 passCode,
                 open,
                 createdBy: adminId
@@ -532,7 +533,12 @@ class Group {
             {
                 _id: this.groupInfo?._id
             },
-            { $set: { featuredQuestion: questNum } },
+            {
+                $set: {
+                    featuredQuestion: questNum,
+                    featuredQuestionCreated: new Date()
+                }
+            },
             { returnDocument: 'after' }
         )) as GroupDocument;
 
