@@ -1,16 +1,22 @@
 import { ObjectId } from 'mongodb';
 import Question from '../../models/Question';
-import { AddQuestionRequest } from '../../types/questionTypes';
+import {
+    AddQuestionRequest,
+    QuestionDocument
+} from '../../types/questionTypes';
 
-const postQuestionService = async (body: AddQuestionRequest) => {
-  try {
-    await Question.addQuestion({
-      ...body,
-      userId: new ObjectId(body.userId),
-      created: new Date(),
-    });
-  } catch (error) {
-    throw error;
-  }
+const postQuestionService = async (
+    body: AddQuestionRequest
+): Promise<QuestionDocument> => {
+    try {
+        const questionDocument = await Question.addQuestion({
+            ...body,
+            userId: new ObjectId(body.userId),
+            created: new Date()
+        });
+        return questionDocument;
+    } catch (error) {
+        throw error;
+    }
 };
 export default postQuestionService;

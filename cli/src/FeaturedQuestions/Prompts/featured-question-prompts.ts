@@ -153,3 +153,16 @@ export const viewLeaderboardPrompt = async (): Promise<boolean> => {
 
     return viewLeaderboard;
 };
+
+export const addAnswerCodePrompt = async (): Promise<boolean> => {
+    const { addAnswer } = await inquirer.prompt({
+        type: 'list',
+        name: 'addAnswer',
+        message: "Would you like add your code for other's to view?",
+        choices: [
+            { name: chalk.green('Yes'), value: true },
+            { name: chalk.red('No'), value: false }
+        ]
+    });
+    return addAnswer;
+};

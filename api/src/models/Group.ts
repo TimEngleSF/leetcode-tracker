@@ -8,7 +8,6 @@ import Question from './Question';
 import { sanitizeId } from './helpers/utility';
 import User from './User';
 import { UserDocument } from '../types';
-import { group } from 'console';
 import { faker } from '@faker-js/faker';
 
 export let groupCollection: Collection<Partial<GroupDocument>>;
@@ -98,6 +97,7 @@ class Group {
                 admins: [adminId],
                 members: [adminId],
                 featuredQuestion: undefined,
+                featuredQuestionCreated: undefined,
                 passCode,
                 open,
                 createdBy: adminId
@@ -533,7 +533,12 @@ class Group {
             {
                 _id: this.groupInfo?._id
             },
-            { $set: { featuredQuestion: questNum } },
+            {
+                $set: {
+                    featuredQuestion: questNum,
+                    featuredQuestionCreated: new Date()
+                }
+            },
             { returnDocument: 'after' }
         )) as GroupDocument;
 

@@ -10,7 +10,12 @@ import {
     getUserJSON,
     printHeader
 } from '../utils.js';
-import { QuestionInfo, QuestionLeaderboardAPIResponse } from '../Types/api.js';
+import {
+    AnswerDocument,
+    QuestionDocument,
+    QuestionInfo,
+    QuestionLeaderboardAPIResponse
+} from '../Types/api.js';
 import open from 'open';
 import {
     featuredQuestionGroupSelectPrompt,
@@ -19,10 +24,12 @@ import {
     userQuestionInfoPrompt,
     isReadyToSubmitPrompt,
     UserQuestionInfo,
-    viewLeaderboardPrompt
+    viewLeaderboardPrompt,
+    addAnswerCodePrompt
 } from './Prompts/featured-question-prompts.js';
 import { API_URL } from '../config.js';
 import { createQuestLBDisplay } from '../Leaderboard/question-leaderboard/helpers/createQuestLBDisplay.js';
+import { pollAnswerSubmitted } from './helpers.js';
 
 const featuredQuestionFlow = async () => {
     console.clear();
@@ -162,13 +169,16 @@ const featuredQuestionFlow = async () => {
     };
 
     // POST user's question result
+    let postedQuestionDocument: QuestionDocument;
     try {
-        await axios({
+        const { data } = await axios({
             method: 'POST',
             url: `${API_URL}/questions`,
             headers: await getAuthHeaders(),
             data: payload
         });
+
+        postedQuestionDocument = data as QuestionDocument;
     } catch (error) {
         const { repeat } = await inquirer.prompt({
             type: 'confirm',
@@ -185,10 +195,34 @@ const featuredQuestionFlow = async () => {
     }
 
     console.log(chalk.green('Your results have been submitted!'));
-    const viewLeaderboad = await viewLeaderboardPrompt();
 
-    console.log(viewLeaderboad);
-    await continuePrompt();
+    const addAnswer = await addAnswerCodePrompt();
+
+    if (addAnswer) {
+        open(`${API_URL}/answers/form/${postedQuestionDocument._id}`);
+        // We dont have the answerId yet. What we could do is immedietly get all of the answers a user has submitted,
+        // then check the length of that. When the length increases, filter out all of the ones older than some date
+        // setup long polling and wait for an answer to be posted that has this questId
+        let initialAnswerDocuments: AnswerDocument[];
+        const { data } = await axios.get(`${API_URL}/answers/user-answers`, {
+            headers: await getAuthHeaders()
+        });
+
+        initialAnswerDocuments = data as AnswerDocument[];
+        const currTime = new Date();
+        console.log(chalk.yellow('Waiting for code submission...'));
+
+        const isAnswerUploaded = await pollAnswerSubmitted(
+            initialAnswerDocuments,
+            currTime
+        );
+
+        if (isAnswerUploaded) {
+            console.log(chalk.green('Your code has been added!'));
+        }
+    }
+
+    const viewLeaderboad = await viewLeaderboardPrompt();
 
     if (viewLeaderboad) {
         let data: QuestionLeaderboardAPIResponse;

@@ -8,6 +8,7 @@ export const injectDb = <T extends Document>(
         | 'questions'
         | 'questionData'
         | 'groups'
+        | 'answers'
 ): Collection<T> => {
     return db.collection<T>(collectionName);
 };

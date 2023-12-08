@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <html>
+        <head>
+            <title>LC Tracker: Invalid Reset Link</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link
+                rel="preconnect"
+                href="https://fonts.gstatic.com"
+                crossorigin
+            />
+            <link
+                href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap"
+                rel="stylesheet"
+            />
+            <link rel="stylesheet" href="/css/group-answers.css" />
+        </head>
+        <body>
+            <h1><%= groupInfo.displayName %></h1>
+            <h2>
+                LeetCode Problem #<%= questionInfo.questId%>:
+                <%=questionInfo.title%>
+            </h2>
+            <ul>
+                <% answers.forEach((answer) => { %>
+                <li class="list-entry">
+                    <div class="list-entry--info">
+                        <h3><%= answer.name %></h3>
+                        <p>Language: <span><%= answer.languge %></span></p>
+                        <p>
+                            Passed:<span
+                                ><%= answer.passed ? 'Passed' : 'Failed'
+                                %></span
+                            >
+                        </p>
+                        <p>
+                            Speed:
+                            <span
+                                ><%= answer.speed ? answer.speed + 'ms' : 'N/A'
+                                %></span
+                            >
+                        </p>
+                    </div>
+                    <div class="list-entry--code-container">
+                        <pre class="list-entry--code-text">
+                            <code>
+                                <%= answer.code %>
+                            </code>
+                        </pre>
+                    </div>
+                </li>
+
+                <% }) %>
+            </ul>
+        </body>
+    </html>
+</html>

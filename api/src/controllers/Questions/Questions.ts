@@ -94,8 +94,8 @@ const Questions = {
             if (req.body.passed === 'false') {
                 req.body.passed = false;
             }
-            await postQuestionService(req.body);
-            return res.status(204).send();
+            const result = await postQuestionService(req.body);
+            return res.status(201).send(result);
         } catch (error) {
             return next(error);
         }
