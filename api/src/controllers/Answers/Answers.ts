@@ -1,8 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { getAnswerFormSchma } from './answersReqSchema';
+import Filter from 'bad-words';
+import {
+    getAnswerFormSchma,
+    getFeaturedQuestionResultsForGroupSchema,
+    postAnswerFormSchema
+} from './answersReqSchema';
 import { RequestWithUser } from '../../types/controllerTypes';
 import Answer from '../../models/Answer';
+import Group from '../../models/Group';
 
+const filter = new Filter();
 const answers = {
     getAnswerSubmitForm: async (
         req: Request,
@@ -28,6 +35,26 @@ const answers = {
 
     postAnswerForm: async (req: Request, res: Response, next: NextFunction) => {
         const { questId, answerCodeInput } = req.body;
+        console.log({ questId }, { answerCodeInput });
+        const { error } = postAnswerFormSchema.validate({
+            questId,
+            answerCodeInput
+        });
+
+        console.log(error);
+
+        if (error) {
+            return res.render('Answers/post-answer-error', {
+                error: 'Input is required'
+            });
+        }
+
+        if (filter.isProfane(answerCodeInput)) {
+            return res.render('Answers/post-answer-error', {
+                error: 'Profane langauge is prohibited'
+            });
+        }
+
         try {
             const answer = new Answer();
             const answerId = await answer.create({
@@ -38,8 +65,11 @@ const answers = {
                 return res.render('Answers/post-answer-success');
             }
         } catch (error: any) {
+            const isDuplicate = error.message.split(' ').includes('E11000');
             return res.render('Answers/post-answer-error', {
-                error: error.message
+                error: isDuplicate
+                    ? 'You have already submitted your code...'
+                    : error.message
             });
         }
     },
@@ -60,6 +90,38 @@ const answers = {
         } catch (error) {
             next(error);
         }
+    },
+
+    getFeaturedQuestionResultsForGroup: async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        const { groupId } = req.params;
+
+        console.log(groupId);
+
+        const { error } = getFeaturedQuestionResultsForGroupSchema.validate({
+            groupId
+        });
+
+        try {
+            const group = new Group();
+            const groupInfo = await group.setGroup({
+                key: '_id',
+                value: groupId
+            });
+
+            const result = await Answer.findFeaturedQuestionResultsByGroup({
+                groupInfo
+            });
+
+            return res.render('Answers/group-answers', {
+                answers: result.answers,
+                questionInfo: result.questionInfo,
+                groupInfo
+            });
+        } catch (error) {}
     }
 };
 export default answers;

@@ -12,6 +12,11 @@ answerRoutes.get(
     Controllers.answers.getAllAnswersByUserId
 );
 
+answerRoutes.get(
+    '/group/:groupId',
+    Controllers.answers.getFeaturedQuestionResultsForGroup
+);
+
 answerRoutes.post('/form', Controllers.answers.postAnswerForm);
 
 export default answerRoutes;

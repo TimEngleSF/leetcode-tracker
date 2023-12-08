@@ -28,7 +28,36 @@
                 ></textarea>
                 <input type="hidden" name="questId" value="<%= questId %>" />
                 <button class="btn btn-answer-form">Submit</button>
+                <p
+                    id="inputError"
+                    class="invalid-text"
+                    style="display: none; color: red"
+                ></p>
             </form>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const form = document.querySelector('#answer-form');
+                    const textArea = document.querySelector('#answerCodeInput');
+                    const inputError = document.querySelector('#inputError');
+
+                    form.addEventListener('submit', function (event) {
+                        let isValid = true;
+                        let errorMessage = '';
+
+                        if (textArea.value === '') {
+                            isValid = false;
+                            errorMessage = 'The text field cannot be empty';
+                        }
+
+                        if (!isValid) {
+                            event.preventDefault();
+                            inputError.textContent = errorMessage;
+                            inputError.style.display = 'block';
+                        }
+                    });
+                });
+            </script>
         </body>
     </html>
 </html>
