@@ -166,3 +166,23 @@ export const addAnswerCodePrompt = async (): Promise<boolean> => {
     });
     return addAnswer;
 };
+
+export const actionSelectionPrompt = async (): Promise<
+    'solve' | 'submissions' | 'leaderboard' | 'back'
+> => {
+    const { action } = await inquirer.prompt({
+        type: 'list',
+        name: 'action',
+        message: 'What would you like to do?',
+        choices: [
+            { name: 'Solve Question', value: 'solve' },
+            { name: "View member's submissions", value: 'submissions' },
+            {
+                name: 'View group leaderboard for featured question',
+                value: 'leaderboard'
+            },
+            { name: 'Go back', value: 'back' }
+        ]
+    });
+    return action;
+};
