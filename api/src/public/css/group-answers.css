@@ -9,18 +9,17 @@ body {
     width: 75%;
     max-width: 1000px;
     margin: 0 auto;
+    color: #66ff66;
 }
 
 h1 {
     margin: 1.5rem 0;
     font-size: 2.5rem;
-    color: #66ff66;
 }
 
 h2 {
     margin-bottom: 1rem;
     font-size: 2rem;
-    color: #66ff66;
 }
 
 ul {
@@ -38,7 +37,6 @@ ul {
     gap: 1.25rem;
     align-items: end;
     margin-bottom: 0.75rem;
-    color: #66ff66;
 }
 
 .list-entry--info h3 {

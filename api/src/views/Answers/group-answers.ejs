@@ -14,10 +14,6 @@
                 rel="stylesheet"
             />
             <link rel="stylesheet" href="/css/group-answers.css" />
-            <link
-                rel="stylesheet"
-                href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css"
-            />
         </head>
         <body>
             <h1><%= groupInfo.displayName %></h1>
@@ -25,6 +21,7 @@
                 LeetCode Problem #<%= questionInfo.questId%>:
                 <%=questionInfo.title%>
             </h2>
+            <% if(answers.length > 0) { %>
             <ul>
                 <% answers.forEach((answer) => { %>
                 <li class="list-entry">
@@ -55,6 +52,13 @@
                 </li>
                 <% }) %>
             </ul>
+            <% } else { %>
+            <div>
+                <p id="no-asnwers-message">
+                    No one has submitted their answers yet...
+                </p>
+            </div>
+            <%} %>
         </body>
     </html>
 </html>
