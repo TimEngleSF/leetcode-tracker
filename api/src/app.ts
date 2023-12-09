@@ -60,6 +60,13 @@ export const startServer = async (): Promise<Server> => {
         app.get('/', (req: Request, res: Response, next: NextFunction) => {
             res.render('home');
         });
+        app.use(
+            '/.well-known/acme-challenge',
+            express.static(
+                path.join(__dirname, '/.well-known/acme-challenge'),
+                { dotfiles: 'allow' }
+            )
+        );
         app.use('/v1/auth', routes.authRouter);
         app.use('/v1/answers', routes.answerRoutes);
 
