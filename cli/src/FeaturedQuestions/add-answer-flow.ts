@@ -1,31 +1,35 @@
+import inquirer from 'inquirer';
+import chalk from 'chalk';
+import axios from 'axios';
 import open from 'open';
+
 import {
     UserQuestionInfo,
     addAnswerCodePrompt,
     addQuestionToDatabasePrompt,
     isReadyToSubmitPrompt,
     openQuestionInBrowserPrompt,
-    userQuestionInfoPrompt
+    userQuestionInfoPrompt,
+    viewSubmissionsPrompt
 } from './Prompts/featured-question-prompts.js';
-import { continuePrompt, getAuthHeaders, printHeader } from '../utils.js';
+import { getAuthHeaders, printHeader } from '../utils.js';
 import { UserObject } from '../Types/user.js';
 import { AnswerDocument, QuestionDocument } from '../Types/api.js';
-import axios from 'axios';
 import { API_URL } from '../config.js';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
 import { pollAnswerSubmitted } from './helpers.js';
 
 const featuredQuestionAddAnswerFlow = async ({
     questNum,
     questionInfoUrl,
     questionDisplayText,
-    userData
+    userData,
+    groupId
 }: {
     questNum: number;
     questionInfoUrl: string;
     questionDisplayText: string;
     userData: UserObject;
+    groupId: string;
 }): Promise<QuestionDocument | void> => {
     const userWantsToOpen = await openQuestionInBrowserPrompt();
 
@@ -125,8 +129,13 @@ const featuredQuestionAddAnswerFlow = async ({
         );
 
         if (isAnswerUploaded) {
+            console.clear();
+            printHeader();
             console.log(chalk.green('Your code has been added!'));
-            await continuePrompt();
+            const viewSubmissions = await viewSubmissionsPrompt();
+            if (viewSubmissions) {
+                open(`${API_URL}/answers/group/${groupId}`);
+            }
         }
     }
 };

@@ -123,7 +123,8 @@ const featuredQuestionFlow = async () => {
             questNum,
             questionInfoUrl: questionInfo.url,
             questionDisplayText,
-            userData
+            userData,
+            groupId: selectedGroup.groupId
         });
 
         await featuredQuestionFlow();
