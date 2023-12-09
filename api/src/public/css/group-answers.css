@@ -29,9 +29,6 @@ ul {
     gap: 2.5rem;
 }
 
-.list-entry {
-}
-
 .list-entry--info {
     display: flex;
     gap: 1.25rem;
