@@ -21,12 +21,13 @@
                 LeetCode Problem #<%= questionInfo.questId%>:
                 <%=questionInfo.title%>
             </h2>
+            <% if(answers.length > 0) { %>
             <ul>
                 <% answers.forEach((answer) => { %>
                 <li class="list-entry">
                     <div class="list-entry--info">
                         <h3><%= answer.name %></h3>
-                        <p>Language: <span><%= answer.languge %></span></p>
+                        <p>Language: <span><%= answer.language %></span></p>
                         <p>
                             Passed:<span
                                 ><%= answer.passed ? 'Passed' : 'Failed'
@@ -44,14 +45,20 @@
                     <div class="list-entry--code-container">
                         <pre class="list-entry--code-text">
                             <code>
-                                <%= answer.code %>
+                                <%- answer.code %>
                             </code>
                         </pre>
                     </div>
                 </li>
-
                 <% }) %>
             </ul>
+            <% } else { %>
+            <div>
+                <p id="no-asnwers-message">
+                    No one has submitted their answers yet...
+                </p>
+            </div>
+            <%} %>
         </body>
     </html>
 </html>

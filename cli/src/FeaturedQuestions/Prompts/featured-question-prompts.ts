@@ -113,8 +113,7 @@ export const userQuestionInfoPrompt = async (): Promise<UserQuestionInfo> => {
                 { name: 'Ruby', value: 'Ruby' },
                 { name: 'Scala', value: 'Scala' },
                 { name: 'Rust', value: 'Rust' },
-                { name: 'Racket', value: 'Racket' },
-                { name: 'Erland', value: 'Erlang' },
+                { name: 'Erlang', value: 'Erlang' },
                 { name: 'Elixer', value: 'Elixer' }
             ]
         }
@@ -165,4 +164,38 @@ export const addAnswerCodePrompt = async (): Promise<boolean> => {
         ]
     });
     return addAnswer;
+};
+
+export const actionSelectionPrompt = async (): Promise<
+    'solve' | 'submissions' | 'leaderboard' | 'back'
+> => {
+    const { action } = await inquirer.prompt({
+        type: 'list',
+        name: 'action',
+        message: 'What would you like to do?',
+        choices: [
+            { name: 'Solve Question', value: 'solve' },
+            { name: "View member's submissions", value: 'submissions' },
+            {
+                name: 'View group leaderboard for featured question',
+                value: 'leaderboard'
+            },
+            { name: 'Go back', value: 'back' }
+        ]
+    });
+    return action;
+};
+
+export const viewSubmissionsPrompt = async (): Promise<boolean> => {
+    const { viewSubmissions } = await inquirer.prompt({
+        type: 'list',
+        name: 'viewSubmissions',
+        message: "Would you like to view member's code submissions?",
+        choices: [
+            { name: 'View Submissions', value: true },
+            { name: 'Go back', value: false }
+        ]
+    });
+
+    return viewSubmissions;
 };

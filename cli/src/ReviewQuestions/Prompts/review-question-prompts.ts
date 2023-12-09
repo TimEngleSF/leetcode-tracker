@@ -129,8 +129,7 @@ export const reviewResultsPrompt = async (
                 { name: 'Ruby', value: 'Ruby' },
                 { name: 'Scala', value: 'Scala' },
                 { name: 'Rust', value: 'Rust' },
-                { name: 'Racket', value: 'Racket' },
-                { name: 'Erland', value: 'Erlang' },
+                { name: 'Erlang', value: 'Erlang' },
                 { name: 'Elixer', value: 'Elixer' }
             ]
         }

@@ -1,10 +1,9 @@
-import MongoDb, { Collection, Db, ObjectId } from 'mongodb';
+import { Collection, Db, ObjectId } from 'mongodb';
 import { getCollection } from '../db/connection';
 import { GroupDocument } from '../types/groupTypes';
-import Filter from 'bad-words';
 
 import { injectDb } from './helpers/injectDb';
-import { ExtendedError, createExtendedError } from '../errors/helpers';
+import { createExtendedError } from '../errors/helpers';
 import Question from './Question';
 import { sanitizeId } from './helpers/utility';
 import User from './User';
@@ -188,7 +187,6 @@ class Answer {
             const questionInfo = await Question.getQuestionInfo(
                 featuredQuestion as number
             );
-            console.log(answers);
             return { questionInfo, answers };
         } catch (error: any) {
             throw createExtendedError({
