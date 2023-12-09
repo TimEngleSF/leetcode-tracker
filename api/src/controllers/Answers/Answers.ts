@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import Filter from 'bad-words';
+import hljs from 'highlight.js';
 import {
     getAnswerFormSchma,
     getFeaturedQuestionResultsForGroupSchema,
@@ -8,6 +9,7 @@ import {
 import { RequestWithUser } from '../../types/controllerTypes';
 import Answer from '../../models/Answer';
 import Group from '../../models/Group';
+import { AnswerListEntry } from '../../types/answer-types';
 
 const filter = new Filter();
 const answers = {
@@ -105,6 +107,30 @@ const answers = {
             groupId
         });
 
+        const mapLanguageToHighlightJs = (language: string) => {
+            const languageMap: { [key: string]: string } = {
+                'C++': 'cpp',
+                Java: 'java',
+                Python: 'python',
+                Python3: 'python',
+                C: 'c',
+                'C#': 'csharp',
+                JavaScript: 'js',
+                TypeScript: 'ts',
+                PHP: 'php',
+                Swift: 'swift',
+                Kotlin: 'kt',
+                Dart: 'dart',
+                Go: 'go',
+                Ruby: 'ruby',
+                Scala: 'scala',
+                Rust: 'rust',
+                Erlang: 'erlang',
+                Elixer: 'elixer'
+            };
+            return languageMap[language] || language;
+        };
+
         try {
             const group = new Group();
             const groupInfo = await group.setGroup({
@@ -116,8 +142,20 @@ const answers = {
                 groupInfo
             });
 
+            const highlightCode = (answers: AnswerListEntry[]) => {
+                return answers.map((answer) => {
+                    const language = mapLanguageToHighlightJs(answer.language);
+                    answer.code = hljs.highlight(answer.code, {
+                        language
+                    }).value;
+                    return answer;
+                });
+            };
+
+            const answers = highlightCode(result.answers);
+
             return res.render('Answers/group-answers', {
-                answers: result.answers,
+                answers,
                 questionInfo: result.questionInfo,
                 groupInfo
             });

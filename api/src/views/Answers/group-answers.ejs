@@ -14,6 +14,10 @@
                 rel="stylesheet"
             />
             <link rel="stylesheet" href="/css/group-answers.css" />
+            <link
+                rel="stylesheet"
+                href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css"
+            />
         </head>
         <body>
             <h1><%= groupInfo.displayName %></h1>
@@ -26,7 +30,7 @@
                 <li class="list-entry">
                     <div class="list-entry--info">
                         <h3><%= answer.name %></h3>
-                        <p>Language: <span><%= answer.languge %></span></p>
+                        <p>Language: <span><%= answer.language %></span></p>
                         <p>
                             Passed:<span
                                 ><%= answer.passed ? 'Passed' : 'Failed'
@@ -44,12 +48,11 @@
                     <div class="list-entry--code-container">
                         <pre class="list-entry--code-text">
                             <code>
-                                <%= answer.code %>
+                                <%- answer.code %>
                             </code>
                         </pre>
                     </div>
                 </li>
-
                 <% }) %>
             </ul>
         </body>

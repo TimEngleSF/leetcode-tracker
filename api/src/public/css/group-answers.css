@@ -6,7 +6,6 @@
 body {
     background-color: #282828;
     font-family: 'Source Code Pro', 'Courier New', Courier, monospace;
-    color: #66ff66;
     width: 75%;
     max-width: 1000px;
     margin: 0 auto;
@@ -15,11 +14,13 @@ body {
 h1 {
     margin: 1.5rem 0;
     font-size: 2.5rem;
+    color: #66ff66;
 }
 
 h2 {
     margin-bottom: 1rem;
     font-size: 2rem;
+    color: #66ff66;
 }
 
 ul {
@@ -37,6 +38,7 @@ ul {
     gap: 1.25rem;
     align-items: end;
     margin-bottom: 0.75rem;
+    color: #66ff66;
 }
 
 .list-entry--info h3 {
@@ -54,16 +56,76 @@ ul {
     border-radius: 9px;
     padding: 0.5rem 0;
     font-size: 1rem;
+    color: #d3d7cf;
 }
 
 .list-entry--code-text {
     padding: 0 1rem;
 }
 
-.btn {
-    background-color: #66ff66;
-    border: none;
-    color: #282828;
-    font-family: inherit;
-    cursor: pointer;
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+    color: #7285b7 !important;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+    color: #ff9da4 !important;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+    color: #ffc58f !important;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+    color: #ffeead !important;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+    color: #d1f1a9 !important;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+    color: #bbdaff !important;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+    color: #ebbbff !important;
+}
+
+.hljs {
+    background: #002451;
+    color: #d3d7cf !important;
+}
+
+.hljs-emphasis {
+    font-style: italic;
+}
+
+.hljs-strong {
+    font-weight: bold;
 }

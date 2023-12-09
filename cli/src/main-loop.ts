@@ -33,11 +33,11 @@ const mainLoop = async () => {
                 name: 'nextAction',
                 message: chalk.greenBright('What would you like to do?'),
                 choices: [
-                    { name: 'Add Question Result', value: 'addQuestion' },
-                    { name: 'Leaderboard', value: 'leaderboard' },
                     { name: 'Featured Questions', value: 'featured' },
-                    { name: 'Review Questions', value: 'review' },
                     { name: 'Groups', value: 'groups' },
+                    { name: 'Add Question Result', value: 'addQuestion' },
+                    { name: 'Review Questions', value: 'review' },
+                    { name: 'Leaderboard', value: 'leaderboard' },
                     { name: 'Logout', value: 'logout' },
                     { name: 'Exit', value: 'exit' }
                 ]
