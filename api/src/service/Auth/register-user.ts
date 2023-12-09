@@ -101,7 +101,7 @@ const registerUserService = async (
         throw error;
     }
 
-    const verificationUrl = `${BASE_URL}/verify/${verificationToken}`;
+    const verificationUrl = `${BASE_URL}/auth/verify/${verificationToken}`;
 
     try {
         await User.updateVerificationToken(

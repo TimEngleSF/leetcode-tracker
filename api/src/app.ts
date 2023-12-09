@@ -56,15 +56,15 @@ export const startServer = async (): Promise<Server> => {
         app.use(methodOverride('_method'));
         app.use(express.urlencoded({ extended: false }));
         app.use(express.static(path.join(__dirname, '/public')));
-        app.use('/', routes.authRouter);
-        app.use('/answers', routes.answerRoutes);
+        app.use('/v1/auth', routes.authRouter);
+        app.use('/v1/answers', routes.answerRoutes);
 
         app.use(isAuth);
-        app.use('/users', routes.usersRoutes);
+        app.use('/v1/users', routes.usersRoutes);
         app.use(updateLastActive);
-        app.use('/questions', routes.questionsRouter);
-        app.use('/leaderboard', routes.leaderboardRouter);
-        app.use('/group', routes.groupRoutes);
+        app.use('/v1/questions', routes.questionsRouter);
+        app.use('/v1/leaderboard', routes.leaderboardRouter);
+        app.use('/v1/group', routes.groupRoutes);
         app.use(errorHandler);
         server = app.listen(PORT, () => {
             console.log(

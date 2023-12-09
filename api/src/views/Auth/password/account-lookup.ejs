@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html>
-  <html>
-    <head>
-      <title>LC Tracker: User Validation</title>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap"
-        rel="stylesheet"
-      />
-      <link rel="stylesheet" href="/css/general.css" />
-      <link rel="stylesheet" href="/css/password-email.css" />
-    </head>
-    <body>
-      <h1>Password Reset</h1>
-      <p>Please enter the email address with which you registered.</p>
-      <form action="/reset" method="post">
-        <div class="input-container">
-          <label for="email">Email:</label>
-          <input type="email" name="email" id="email" />
-        </div>
-        <button class="btn email-btn">Reset</button>
-      </form>
-    </body>
-  </html>
+    <html>
+        <head>
+            <title>LC Tracker: User Validation</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link
+                rel="preconnect"
+                href="https://fonts.gstatic.com"
+                crossorigin
+            />
+            <link
+                href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap"
+                rel="stylesheet"
+            />
+            <link rel="stylesheet" href="/css/general.css" />
+            <link rel="stylesheet" href="/css/password-email.css" />
+        </head>
+        <body>
+            <h1>Password Reset</h1>
+            <p>Please enter the email address with which you registered.</p>
+            <form action="/v1/auth/reset" method="post">
+                <div class="input-container">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id="email" />
+                </div>
+                <button class="btn email-btn">Reset</button>
+            </form>
+        </body>
+    </html>
 </html>

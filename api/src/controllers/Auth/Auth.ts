@@ -220,7 +220,7 @@ const Auth = {
             return res.render('Auth/password/reset-password-success');
         } catch (error) {
             console.log(error);
-            res.redirect(`/reset/${token}`);
+            res.redirect(`/v1/auth/reset/${token}`);
         }
     }
 };
