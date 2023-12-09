@@ -159,7 +159,9 @@ const answers = {
                 questionInfo: result.questionInfo,
                 groupInfo
             });
-        } catch (error) {}
+        } catch (error) {
+            return res.render('Answer/group-answers-error');
+        }
     }
 };
 export default answers;
