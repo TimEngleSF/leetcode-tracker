@@ -1,24 +1,122 @@
 <!DOCTYPE html>
+<html>
     <html>
-        <html>
-            <head>
-                <title>LC Tracker</title>
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link
-                    rel="preconnect"
-                    href="https://fonts.gstatic.com"
-                    crossorigin
-                />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap"
-                    rel="stylesheet"
-                />
-                <link rel="stylesheet" href="/css/group-answers.css" />
-            </head>
-            <body>
-                <h1>lc-tracker-api</h1>
-
-            </body>
-        </html>
+        <head>
+            <title>LC Tracker</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link
+                rel="preconnect"
+                href="https://fonts.gstatic.com"
+                crossorigin
+            />
+            <link
+                href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap"
+                rel="stylesheet"
+            />
+            <link
+                rel="stylesheet"
+                href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.4.0/github-markdown-dark.css"
+                integrity="sha512-FrKjWblyddw1pNARmY/+wk7GCnd9/fa6ZTnMAdDTVqFfMLBtI45onFdvcLH4j0ohdAVwPCWku7UsGrLzCThM1A=="
+                crossorigin="anonymous"
+                referrerpolicy="no-referrer"
+            />
+        </head>
+        <body class="markdown-body">
+            <h1>lc-tracker-api</h1>
+            <h2>Auth</h2>
+            <h3>POST <code>/auth/register</code></h3>
+            <p>
+                This endpoint allows users to register by creating a new
+                account. The HTTP POST request should be sent to
+                <code>/auth/register</code> with the required payload in the raw
+                request body.
+            </p>
+            <h4>Request Body</h4>
+            <pre><code>{
+    &quot;email&quot;: &quot;lc-tracker@example.com&quot;,
+    &quot;username&quot;: &quot;LC-Tracker&quot;,
+    &quot;firstName&quot;: &quot;Leet&quot;,
+    &quot;lastInit&quot;: &quot;C&quot;,
+    &quot;password&quot;: &quot;password&quot;
+}
+</code></pre>
+            <h4>Response</h4>
+            <p>
+                Upon successful registration, the endpoint returns a status code
+                of 201 with a response body containing the status message.
+            </p>
+            <p>Example:</p>
+            <pre><code class="language-json">{
+    &quot;status&quot;: &quot;pending&quot;
+}
+</code></pre>
+            <h3>POST <code>/auth/login</code></h3>
+            <p>
+                This endpoint allows users to authenticate and log in via a POST
+                request to the specified URL. The request should include a JSON
+                payload in the raw request body with the user&#39;s email and
+                password.
+            </p>
+            <h4>Request Body</h4>
+            <pre><code>{
+    &quot;email&quot;: &quot;lc-tracker@example.com&quot;,
+    &quot;password&quot;: &quot;password&quot;
+}
+</code></pre>
+            <h4>Response</h4>
+            <p>
+                Upon successful authentication, the server responds with a
+                status code of 200 and a JSON object containing the user&#39;s
+                details and a authentication token.
+            </p>
+            <p>Example:</p>
+            <pre><code>{
+    &quot;user&quot;: {
+        &quot;_id&quot;: &quot;657404d744f63a74c4de5f3f&quot;,
+        &quot;username&quot;: &quot;LC-Tracker&quot;,
+        &quot;email&quot;: &quot;lc-tracker@example.com&quot;,
+        &quot;firstName&quot;: &quot;Leet&quot;,
+        &quot;lastInit&quot;: &quot;C&quot;,
+        &quot;status&quot;: &quot;verified&quot;,
+        &quot;lastActivity&quot;: &quot;2023-12-09T06:17:54.278Z&quot;,
+        &quot;groups&quot;: [],
+        &quot;admins&quot;: []
+    },
+    &quot;token&quot;: &lt;jsonwebtoken&gt;
+}
+</code></pre>
+            <h2>Protected Routes</h2>
+            <p>
+                The following routes all require the user to include an
+                authorization header that contains the jsonwebtoken assigned at
+                login.
+            </p>
+            <p>Example:</p>
+            <pre><code>Authorization: &#39;Bearer &lt;jsonwebtoken&gt;&#39;
+</code></pre>
+            <h3>GET <code>/auth/status</code></h3>
+            <p>
+                This endpoint is used to retrieve the status and information
+                related to the authentication and app information.
+            </p>
+            <h3>Response</h3>
+            <pre><code class="language-json">{
+    &quot;status&quot;: &quot;&quot;,
+    &quot;appInfo&quot;: {
+        &quot;_id&quot;: &quot;&quot;,
+        &quot;messages&quot;: {
+            &quot;updateMessages&quot;: {
+                &quot;cli&quot;: &quot;&quot;
+            }
+        },
+        &quot;cliInfo&quot;: {
+            &quot;version&quot;: &quot;&quot;,
+            &quot;released&quot;: &quot;&quot;
+        },
+        &quot;created&quot;: &quot;&quot;
+    }
+}
+</code></pre>
+        </body>
     </html>
-    
+</html>
