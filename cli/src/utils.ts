@@ -202,7 +202,7 @@ export const fetchUserStatus = async (
     try {
         const { status, data } = await axios({
             method: 'GET',
-            url: `${API_URL}/status`,
+            url: `${API_URL}/auth/status`,
             headers: { Authorization: `Bearer ${userObject.LC_TOKEN}` }
         });
         return { status, appInfo: data.appInfo };
@@ -222,11 +222,6 @@ export const isLoggedIn = async () => {
         return false;
     }
     try {
-        // const { status, data } = await axios({
-        //     method: 'GET',
-        //     url: `${API_URL}/status`,
-        //     headers: { Authorization: `Bearer ${userObject.LC_TOKEN}` }
-        // });
         const { status, appInfo } = await fetchUserStatus(userObject);
 
         const userData = await axios.get(
@@ -308,7 +303,7 @@ export const postLoginUser = async ({
 }): Promise<UserLoginResult> => {
     const { data } = await axios({
         method: 'POST',
-        url: `${API_URL}/login`,
+        url: `${API_URL}/auth/login`,
         headers: { 'Content-Type': 'application/json' },
         data: { email, password }
     });
