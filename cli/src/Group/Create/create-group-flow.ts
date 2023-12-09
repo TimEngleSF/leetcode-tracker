@@ -6,12 +6,16 @@ import {
     addAdminToJSON,
     addGroupToJSON,
     continuePrompt,
+    fetchQuestionInfo,
     getAuthHeaders,
-    printHeader
+    printHeader,
+    putFeaturedQuestNumber
 } from '../../utils.js';
 import {
+    featuredQuestionPrompt,
     groupNamePrompt,
     isGroupOpenPrompt,
+    setFeaturedQuestionPrompt,
     tryAgainPrompt
 } from './create-group-prompts.js';
 import { Group } from '../../Types/api.js';
@@ -56,7 +60,6 @@ const createGroupFlow = async () => {
     const groupIsOpen = await isGroupOpenPrompt();
 
     if (groupIsOpen === 'back') {
-        await createGroupFlow();
         return;
     }
 
@@ -91,9 +94,8 @@ const createGroupFlow = async () => {
                     ' ' + createdGroup.passCode + ' '
                 )}`
             );
+            await continuePrompt();
         }
-
-        await continuePrompt();
     } catch (error: any) {
         console.clear();
         printHeader();
@@ -106,6 +108,61 @@ const createGroupFlow = async () => {
             await createGroupFlow();
         }
         return;
+    }
+
+    const setFeaturedQuestionFlow = async () => {
+        const featuredQuestionNum = await featuredQuestionPrompt();
+
+        const featuredQuestionInfo = await fetchQuestionInfo(
+            featuredQuestionNum
+        );
+
+        console.clear();
+        printHeader();
+        console.log(
+            chalk.magenta(
+                `${featuredQuestionInfo.questId}. ${featuredQuestionInfo.title}`
+            )
+        );
+
+        const { confirmQuestion } = await inquirer.prompt({
+            type: 'confirm',
+            name: 'confirmQuestion',
+            message: 'Is this the correct question?'
+        });
+
+        if (!confirmQuestion) {
+            const { tryAgain } = await inquirer.prompt({
+                type: 'list',
+                name: 'tryAgain',
+                message: 'Would you like to try a different question?: ',
+                choices: [
+                    { name: 'Enter another question', value: true },
+                    { name: 'Go back', value: false }
+                ]
+            });
+
+            if (tryAgain) {
+                await setFeaturedQuestionFlow();
+                return;
+            }
+            return;
+        }
+
+        await putFeaturedQuestNumber(
+            featuredQuestionInfo.questId,
+            createdGroup._id
+        );
+
+        console.clear();
+        printHeader();
+        console.log(chalk.green('Featured Question has been added!'));
+        await continuePrompt();
+    };
+    const setFeaturedQuestion = await setFeaturedQuestionPrompt();
+
+    if (setFeaturedQuestion) {
+        await setFeaturedQuestionFlow();
     }
 };
 
