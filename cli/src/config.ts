@@ -1,6 +1,6 @@
 import { getPackageVersion } from './utils.js';
 
-export let API_URL = 'http://localhost:3000';
+export let API_URL = 'http://api.lc-tracker.com/v1';
 export let LATEST_VERSION = process.env.npm_package_version;
 
 export const setLatestVersion = async () => {

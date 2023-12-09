@@ -22,7 +22,7 @@ const registerToAPI = async (
     try {
         const { data } = await axios({
             method: 'POST',
-            url: `${API_URL}/register`,
+            url: `${API_URL}/auth/register`,
             headers: { 'Content-Type': 'application/json' },
             data: payload
         });
@@ -84,7 +84,7 @@ const pollVerificationStatus = async (email: string): Promise<boolean> => {
     const checkVerified = async (): Promise<boolean> => {
         try {
             const { data } = await axios.get(
-                `${API_URL}/is-verified/?email=${email}`
+                `${API_URL}/auth/is-verified/?email=${email}`
             );
             return data.status === 'verified';
         } catch (error: any) {
