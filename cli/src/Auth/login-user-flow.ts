@@ -61,8 +61,8 @@ export const loginUser = async (email?: string, password?: string) => {
     } catch (error: any) {
         if (error.response) {
             console.log(chalk.redBright(error.response.data.message));
-        } else {
-            console.log(error);
+        } else if (error.code == 'ECONNREFUSED') {
+            console.log(chalk.red('There connection was refused.'));
         }
         const tryAgain = await tryAgainPrompt();
         if (tryAgain) {
