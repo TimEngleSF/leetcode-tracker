@@ -1,5 +1,6 @@
 import 'dotenv/config';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
+
 import path from 'path';
 import morgan from 'morgan';
 import { Db } from 'mongodb';
@@ -56,6 +57,9 @@ export const startServer = async (): Promise<Server> => {
         app.use(methodOverride('_method'));
         app.use(express.urlencoded({ extended: false }));
         app.use(express.static(path.join(__dirname, '/public')));
+        app.get('/', (req: Request, res: Response, next: NextFunction) => {
+            res.render('home');
+        });
         app.use('/v1/auth', routes.authRouter);
         app.use('/v1/answers', routes.answerRoutes);
 
